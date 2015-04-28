@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{96aa05b4-9058-4df3-bea1-b50ff98871f3}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{06bcb37d-7120-4217-9ecb-67e1180bd359}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="DGDecode">
+      <UniqueIdentifier>{262f86e1-9613-4ff9-becb-09d20f0fe54f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Motion Compensation">
+      <UniqueIdentifier>{4494c5bf-3d90-41e3-8cf0-5ebb46b78b62}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="alloc.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="getbit.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="gethdr.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="getpic.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="global.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="idctfpu.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="idctref.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="motion.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MPEG2DEC.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="store.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="text-overlay.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="vfapidec.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="AVISynthAPI.cpp">
+      <Filter>DGDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="misc.cpp">
+      <Filter>DGDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcess.cpp">
+      <Filter>DGDecode</Filter>
+    </ClCompile>
+    <ClCompile Include="mc.cpp">
+      <Filter>Motion Compensation</Filter>
+    </ClCompile>
+    <ClCompile Include="mc3dnow.cpp">
+      <Filter>Motion Compensation</Filter>
+    </ClCompile>
+    <ClCompile Include="mcmmx.cpp">
+      <Filter>Motion Compensation</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="gui.rc">
+      <Filter>sources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="avisynth2.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="skl_nasm.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="text-overlay.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AvisynthAPI.h">
+      <Filter>DGDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.h">
+      <Filter>DGDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcess.h">
+      <Filter>DGDecode</Filter>
+    </ClInclude>
+    <ClInclude Include="mc.h">
+      <Filter>Motion Compensation</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="mcsse.asm">
+      <Filter>Motion Compensation</Filter>
+    </CustomBuild>
+    <CustomBuild Include="idctmmx.asm" />
+    <CustomBuild Include="simple_idct_mmx.asm" />
+    <CustomBuild Include="skl_dct_sse.asm" />
+  </ItemGroup>
+</Project>

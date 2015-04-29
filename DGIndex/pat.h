@@ -36,7 +36,7 @@ class PATParser
 private:
 	enum operation {Dump=1, AudioType, InitialPids} op;
 	HWND hDialog;
-	char *filename;
+	TCHAR *filename;
 	unsigned int audio_pid;
 	unsigned int audio_type;
 	FILE *fin;

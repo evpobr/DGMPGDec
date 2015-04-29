@@ -110,11 +110,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="mcsse.asm">
+    <MASM Include="idctmmx.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <NASM Include="simple_idct_mmx.asm" />
+    <NASM Include="skl_dct_sse.asm" />
+    <NASM Include="mcsse.asm">
       <Filter>Motion Compensation</Filter>
-    </CustomBuild>
-    <CustomBuild Include="idctmmx.asm" />
-    <CustomBuild Include="simple_idct_mmx.asm" />
-    <CustomBuild Include="skl_dct_sse.asm" />
+    </NASM>
   </ItemGroup>
 </Project>

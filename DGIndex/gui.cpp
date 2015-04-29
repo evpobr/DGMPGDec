@@ -29,7 +29,7 @@
 #define GLOBAL
 #include "global.h"
 
-static char Version[] = "DGIndex 1.5.9";
+static TCHAR Version[] = _T("DGIndex 1.5.9");
 
 #define TRACK_HEIGHT	32
 #define INIT_WIDTH		480
@@ -84,7 +84,7 @@ static void RunningEnables(void);
 static int INIT_X, INIT_Y, Priority_Flag, Edge_Width, Edge_Height;
 
 static FILE *INIFile;
-static char szPath[DG_MAX_PATH], szTemp[DG_MAX_PATH], szWindowClass[DG_MAX_PATH];
+static TCHAR szPath[DG_MAX_PATH], szTemp[DG_MAX_PATH], szWindowClass[DG_MAX_PATH];
 
 static HINSTANCE hInst;
 static HANDLE hProcess, hThread;
@@ -93,23 +93,23 @@ static HWND hLeftButton, hLeftArrow, hRightArrow, hRightButton;
 static DWORD threadId;
 static RECT wrect, crect, info_wrect;
 static int SoundDelay[MAX_FILE_NUMBER];
-static char Outfilename[MAX_FILE_NUMBER][DG_MAX_PATH];
+static TCHAR Outfilename[MAX_FILE_NUMBER][DG_MAX_PATH];
 
-extern int fix_d2v(HWND hWnd, char *path, int test_only);
-extern int parse_d2v(HWND hWnd, char *path);
-extern int analyze_sync(HWND hWnd, char *path, int track);
+extern int fix_d2v(HWND hWnd, TCHAR *path, int test_only);
+extern int parse_d2v(HWND hWnd, TCHAR *path);
+extern int analyze_sync(HWND hWnd, TCHAR *path, int track);
 extern unsigned char *Rdbfr;
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	MSG msg;
 	HACCEL hAccel;
 
 	int i;
-	char *ptr;
-	char ucCmdLine[4096];
-	char prog[DG_MAX_PATH];
-	char cwd[DG_MAX_PATH];
+	TCHAR *ptr;
+	TCHAR ucCmdLine[4096];
+	TCHAR prog[DG_MAX_PATH];
+	TCHAR cwd[DG_MAX_PATH];
 
     OSVERSIONINFO osvi;
 
@@ -148,14 +148,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GetModuleFileName(NULL, ExePath, DG_MAX_PATH);
 
 	// Find first char after last backslash.
-    if ((ptr = strrchr(ExePath,'\\')) != 0) ptr++;
+    if ((ptr = _tcsrchr(ExePath,_T('\\'))) != 0) ptr++;
     else ptr = ExePath;
 	*ptr = 0;
 
 	// Load INI
-	strcpy(prog, ExePath);
-	strcat(prog, "DGIndex.ini");
-	if ((INIFile = fopen(prog, "r")) == NULL)
+	_tcscpy(prog, ExePath);
+	_tcscat(prog, _T("DGIndex.ini"));
+	if ((INIFile = _tfopen(prog, _T("r"))) == NULL)
 	{
 NEW_VERSION:
 		INIT_X = INIT_Y = 100;
@@ -165,7 +165,7 @@ NEW_VERSION:
 		setRGBValues();
 		FO_Flag = FO_NONE;
 		Method_Flag = AUDIO_DEMUXALL;
-        strcpy(Track_List, "");
+		_tcscpy(Track_List, _T(""));
 		DRC_Flag = DRC_NORMAL;
 		DSDown_Flag = false;
 		SRC_Flag = SRC_NONE;
@@ -177,10 +177,10 @@ NEW_VERSION:
 		// Get the path to the DGIndex executable.
 		GetModuleFileName(NULL, AVSTemplatePath, 255);
 		// Find first char after last backslash.
-		if ((ptr = strrchr(AVSTemplatePath,'\\')) != 0) ptr++;
+		if ((ptr = _tcsrchr(AVSTemplatePath, _T('\\'))) != 0) ptr++;
 		else ptr = AVSTemplatePath;
 		*ptr = 0;
-		strcat(AVSTemplatePath, "template.avs");
+		_tcscat(AVSTemplatePath, _T("template.avs"));
 		FullPathInFiles = 1;
         LoopPlayback = 0;
 		FusionAudio = 0;
@@ -194,77 +194,77 @@ NEW_VERSION:
     }
 	else
 	{
-		char line[DG_MAX_PATH], *p;
+		TCHAR line[DG_MAX_PATH], *p;
         unsigned int audio_id;
 
-		fgets(line, DG_MAX_PATH - 1, INIFile);
-		line[strlen(line)-1] = 0;
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[_tcslen(line)-1] = 0;
 		p = line;
-		while (*p != '=' && *p != 0) p++;
-		if (*p == 0 || strcmp(++p, Version))
+		while (*p != _T('=') && *p != 0) p++;
+		if (*p == 0 || _tcscmp(++p, Version))
 		{
 			fclose(INIFile);
 			goto NEW_VERSION;
 		}
 
-		fscanf(INIFile, "Window_Position=%d,%d\n", &INIT_X, &INIT_Y);
-		fscanf(INIFile, "Info_Window_Position=%d,%d\n", &info_wrect.left, &info_wrect.top);
+		_ftscanf(INIFile, _T("Window_Position=%d,%d\n"), &INIT_X, &INIT_Y);
+		_ftscanf(INIFile, _T("Info_Window_Position=%d,%d\n"), &info_wrect.left, &info_wrect.top);
 
-		fscanf(INIFile, "iDCT_Algorithm=%d\n", &iDCT_Flag);
-		fscanf(INIFile, "YUVRGB_Scale=%d\n", &Scale_Flag);
+		_ftscanf(INIFile, _T("iDCT_Algorithm=%d\n"), &iDCT_Flag);
+		_ftscanf(INIFile, _T("YUVRGB_Scale=%d\n"), &Scale_Flag);
 		setRGBValues();
-		fscanf(INIFile, "Field_Operation=%d\n", &FO_Flag);
-		fscanf(INIFile, "Output_Method=%d\n", &Method_Flag);
-		fgets(line, DG_MAX_PATH - 1, INIFile);
-		line[strlen(line)-1] = 0;
+		_ftscanf(INIFile, _T("Field_Operation=%d\n"), &FO_Flag);
+		_ftscanf(INIFile, _T("Output_Method=%d\n"), &Method_Flag);
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[_tcslen(line)-1] = 0;
 		p = line;
-		while (*p++ != '=');
-		strcpy (Track_List, p);
+		while (*p++ != _T('='));
+		_tcscpy (Track_List, p);
         for (i = 0; i < 0xc8; i++)
             audio[i].selected_for_demux = false;
-        while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+		while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
         {
-            sscanf(p, "%x", &audio_id);
+			_stscanf(p, _T("%x"), &audio_id);
             if (audio_id > 0xc7)
                 break;
             audio[audio_id].selected_for_demux = true;
-            while (*p != ',' && *p != 0) p++;
+			while (*p != _T(',') && *p != 0) p++;
             if (*p == 0)
                 break;
             p++;
         }
-		fscanf(INIFile, "DR_Control=%d\n", &DRC_Flag);
-		fscanf(INIFile, "DS_Downmix=%d\n", &DSDown_Flag);
-		fscanf(INIFile, "SRC_Precision=%d\n", &SRC_Flag);
-		fscanf(INIFile, "Norm_Ratio=%d\n", &Norm_Ratio);
-		fscanf(INIFile, "Process_Priority=%d\n", &Priority_Flag);
-		fscanf(INIFile, "Playback_Speed=%d\n", &PlaybackSpeed);
-		fscanf(INIFile, "Force_Open_Gops=%d\n", &ForceOpenGops);
-		fgets(line, DG_MAX_PATH - 1, INIFile);
-		line[strlen(line)-1] = 0;
+		_ftscanf(INIFile, _T("DR_Control=%d\n"), &DRC_Flag);
+		_ftscanf(INIFile, _T("DS_Downmix=%d\n"), &DSDown_Flag);
+		_ftscanf(INIFile, _T("SRC_Precision=%d\n"), &SRC_Flag);
+		_ftscanf(INIFile, _T("Norm_Ratio=%d\n"), &Norm_Ratio);
+		_ftscanf(INIFile, _T("Process_Priority=%d\n"), &Priority_Flag);
+		_ftscanf(INIFile, _T("Playback_Speed=%d\n"), &PlaybackSpeed);
+		_ftscanf(INIFile, _T("Force_Open_Gops=%d\n"), &ForceOpenGops);
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[_tcslen(line)-1] = 0;
 		p = line;
-		while (*p++ != '=');
-		strcpy (AVSTemplatePath, p);
-        fscanf(INIFile, "Full_Path_In_Files=%d\n", &FullPathInFiles);
-        fscanf(INIFile, "Fusion_Audio=%d\n", &FusionAudio);
-        fscanf(INIFile, "Loop_Playback=%d\n", &LoopPlayback);
-		fscanf(INIFile, "HD_Display=%d\n", &HDDisplay);
+		while (*p++ != _T('='));
+		_tcscpy (AVSTemplatePath, p);
+		_ftscanf(INIFile, _T("Full_Path_In_Files=%d\n"), &FullPathInFiles);
+		_ftscanf(INIFile, _T("Fusion_Audio=%d\n"), &FusionAudio);
+		_ftscanf(INIFile, _T("Loop_Playback=%d\n"), &LoopPlayback);
+		_ftscanf(INIFile, _T("HD_Display=%d\n"), &HDDisplay);
         for (i = 0; i < 4; i++)
         {
-		    fgets(line, DG_MAX_PATH - 1, INIFile);
-		    line[strlen(line)-1] = 0;
+		    _fgetts(line, DG_MAX_PATH - 1, INIFile);
+		    line[_tcslen(line)-1] = 0;
 		    p = line;
-		    while (*p++ != '=');
-		    strcpy(mMRUList[i], p);
+			while (*p++ != _T('='));
+		    _tcscpy(mMRUList[i], p);
         }
-        fscanf(INIFile, "Enable_Info_Log=%d\n", &InfoLog_Flag);
-		fgets(line, DG_MAX_PATH - 1, INIFile);
-		line[strlen(line)-1] = 0;
+		_ftscanf(INIFile, _T("Enable_Info_Log=%d\n"), &InfoLog_Flag);
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[_tcslen(line)-1] = 0;
 		p = line;
-		while (*p++ != '=');
-		strcpy(BMPPathString, p);
-        fscanf(INIFile, "Use_MPA_Extensions=%d\n", &UseMPAExtensions);
-        fscanf(INIFile, "Notify_When_Done=%d\n", &NotifyWhenDone);
+		while (*p++ != _T('='));
+		_tcscpy(BMPPathString, p);
+		_ftscanf(INIFile, _T("Use_MPA_Extensions=%d\n"), &UseMPAExtensions);
+		_ftscanf(INIFile, _T("Notify_When_Done=%d\n"), &NotifyWhenDone);
 		fclose(INIFile);
 	}
 
@@ -272,11 +272,11 @@ NEW_VERSION:
     Rdbfr = (unsigned char *) malloc(BUFFER_SIZE);
     if (Rdbfr == NULL)
     {
-		MessageBox(hWnd, "Couldn't allocate stream buffer using configured size.\nTrying default size.", NULL, MB_OK | MB_ICONERROR);
+		MessageBox(hWnd, _T("Couldn't allocate stream buffer using configured size.\nTrying default size."), NULL, MB_OK | MB_ICONERROR);
         Rdbfr = (unsigned char *) malloc(32 * SECTOR_SIZE);
         if (Rdbfr == NULL)
         {
-		    MessageBox(hWnd, "Couldn't allocate stream buffer using default size.\nExiting.", NULL, MB_OK | MB_ICONERROR);
+			MessageBox(hWnd, _T("Couldn't allocate stream buffer using default size.\nExiting."), NULL, MB_OK | MB_ICONERROR);
 		    exit(0);
         }
     }
@@ -291,7 +291,7 @@ NEW_VERSION:
 	LoadString(hInst, IDC_GUI, szWindowClass, DG_MAX_PATH);
 	MyRegisterClass(hInst);
 
-	hWnd = CreateWindow(szWindowClass, "DGIndex", WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME|WS_MAXIMIZEBOX),
+	hWnd = CreateWindow(szWindowClass, _T("DGIndex"), WS_OVERLAPPEDWINDOW & ~(WS_THICKFRAME | WS_MAXIMIZEBOX),
 		CW_USEDEFAULT, 0, INIT_WIDTH, INIT_HEIGHT, NULL, NULL, hInst, NULL);
 
 	// Test CPU
@@ -358,22 +358,22 @@ TEST_END:
 		0, INIT_HEIGHT, INIT_WIDTH-4*TRACK_HEIGHT, TRACK_HEIGHT, hWnd, (HMENU) ID_TRACKBAR, hInst, NULL);
 	SendMessage(hTrack, TBM_SETRANGE, (WPARAM) true, (LPARAM) MAKELONG(0, TRACK_PITCH));
 
-	hLeftButton = CreateWindow("BUTTON", "[",
+	hLeftButton = CreateWindow(_T("BUTTON"), _T("["),
 		WS_CHILD | WS_VISIBLE | WS_DLGFRAME | WS_DISABLED,
 		INIT_WIDTH-4*TRACK_HEIGHT, INIT_HEIGHT,
 		TRACK_HEIGHT, TRACK_HEIGHT, hWnd, (HMENU) ID_LEFT_BUTTON, hInst, NULL);
 
-	hLeftArrow = CreateWindow("BUTTON", "<",
+	hLeftArrow = CreateWindow(_T("BUTTON"), _T("<"),
 		WS_CHILD | WS_VISIBLE | WS_DLGFRAME | WS_DISABLED,
 		INIT_WIDTH-3*TRACK_HEIGHT, INIT_HEIGHT,
 		TRACK_HEIGHT, TRACK_HEIGHT, hWnd, (HMENU) ID_LEFT_ARROW, hInst, NULL);
 
-	hRightArrow = CreateWindow("BUTTON", ">",
+	hRightArrow = CreateWindow(_T("BUTTON"), _T(">"),
 		WS_CHILD | WS_VISIBLE | WS_DLGFRAME | WS_DISABLED,
 		INIT_WIDTH-2*TRACK_HEIGHT, INIT_HEIGHT,
 		TRACK_HEIGHT, TRACK_HEIGHT, hWnd, (HMENU) ID_RIGHT_ARROW, hInst, NULL);
 
-	hRightButton = CreateWindow("BUTTON", "]",
+	hRightButton = CreateWindow(_T("BUTTON"), _T("]"),
 		WS_CHILD | WS_VISIBLE | WS_DLGFRAME | WS_DISABLED,
 		INIT_WIDTH-TRACK_HEIGHT, INIT_HEIGHT,
 		TRACK_HEIGHT, TRACK_HEIGHT, hWnd, (HMENU) ID_RIGHT_BUTTON, hInst, NULL);
@@ -386,17 +386,17 @@ TEST_END:
 	MPEG2_Transport_PCRPID = 2;
 
 	// Command line init.
-	strcpy(ucCmdLine, lpCmdLine);
-	_strupr(ucCmdLine);
+	_tcscpy(ucCmdLine, lpCmdLine);
+	_tcsupr(ucCmdLine);
 
 	// Show window normal, minimized, or hidden as appropriate.
 	if (*lpCmdLine == 0)
 		WindowMode = SW_SHOW;
 	else
 	{
-		if (strstr(ucCmdLine,"-MINIMIZE"))
+		if (_tcsstr(ucCmdLine, _T("-MINIMIZE")))
 			WindowMode = SW_MINIMIZE;
-		else if (strstr(ucCmdLine,"-HIDE"))
+		else if (_tcsstr(ucCmdLine, _T("-HIDE")))
 			WindowMode = SW_HIDE;
 		else
 			WindowMode = SW_SHOW;
@@ -416,15 +416,15 @@ TEST_END:
 		#define MAX_CMD 2048
 		int tmp, n, i, j, k;
 		int state, ndx;
-		char *swp;
+		TCHAR *swp;
 
 //		MessageBox(hWnd, lpCmdLine, NULL, MB_OK);
 		ptr = lpCmdLine;
 		// Look at the first non-white-space character.
 		// If it is a '-' we have CLI invocation, else
 		// we have "Open With" invocation.
-		while (*ptr == ' ' && *ptr == '\t') ptr++;
-		if (*ptr != '-')
+		while (*ptr == _T(' ') && *ptr == _T('\t')) ptr++;
+		if (*ptr != _T('-'))
 		{
 			// "Open With" invocation.
 			NumLoadedFiles = 0;
@@ -442,10 +442,10 @@ TEST_END:
 					{
 						break;
 					}
-					else if (*ptr == ' ')
+					else if (*ptr == _T(' '))
 					{
 					}
-					else if (*ptr == '"')
+					else if (*ptr == _T('"'))
 					{
 						state = IN_FILE_QUOTED;
 						ndx = 0;
@@ -459,13 +459,13 @@ TEST_END:
 				}
 				else if (state == IN_FILE_QUOTED)
 				{
-					if (*ptr == '"')
+					if (*ptr == _T('"'))
 					{
 						cwd[ndx] = 0;
-						if ((tmp = _open(cwd, _O_RDONLY | _O_BINARY)) != -1)
+						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 						{
 //							MessageBox(hWnd, "Open OK", NULL, MB_OK);
-							strcpy(Infilename[NumLoadedFiles], cwd);
+							_tcscpy(Infilename[NumLoadedFiles], cwd);
 							Infile[NumLoadedFiles] = tmp;
 							NumLoadedFiles++;
 						}
@@ -481,22 +481,22 @@ TEST_END:
 					if (*ptr == 0)
 					{
 						cwd[ndx] = 0;
-						if ((tmp = _open(cwd, _O_RDONLY | _O_BINARY)) != -1)
+						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 						{
 //							MessageBox(hWnd, "Open OK", NULL, MB_OK);
-							strcpy(Infilename[NumLoadedFiles], cwd);
+							_tcscpy(Infilename[NumLoadedFiles], cwd);
 							Infile[NumLoadedFiles] = tmp;
 							NumLoadedFiles++;
 						}
 						break;
 					}
-					else if (*ptr == ' ')
+					else if (*ptr == _T(' '))
 					{
 						cwd[ndx] = 0;
-						if ((tmp = _open(cwd, _O_RDONLY | _O_BINARY)) != -1)
+						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 						{
 //							MessageBox(hWnd, "Open OK", NULL, MB_OK);
-							strcpy(Infilename[NumLoadedFiles], cwd);
+							_tcscpy(Infilename[NumLoadedFiles], cwd);
 							Infile[NumLoadedFiles] = tmp;
 							NumLoadedFiles++;
 						}
@@ -596,9 +596,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	HDC hdc;
 	PAINTSTRUCT ps;
-	char prog[DG_MAX_PATH];
-	char path[DG_MAX_PATH];
-	char avsfile[DG_MAX_PATH];
+	TCHAR prog[DG_MAX_PATH];
+	TCHAR path[DG_MAX_PATH];
+	TCHAR avsfile[DG_MAX_PATH];
 	LPTSTR path_p, prog_p;
 	FILE *tplate, *avs;
 
@@ -625,15 +625,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case D2V_DONE_MESSAGE:
 			// Make an AVS file if it doesn't already exist and a template exists.
-			strcpy(avsfile, D2VFilePath);
-			path_p = strrchr(avsfile, '.');
-			strcpy(++path_p, "avs");
-			if (*AVSTemplatePath && !fopen(avsfile, "r") && (tplate = fopen(AVSTemplatePath, "r")))
+			_tcscpy(avsfile, D2VFilePath);
+			path_p = _tcsrchr(avsfile, _T('.'));
+			_tcscpy(++path_p, _T("avs"));
+			if (*AVSTemplatePath && !_tfopen(avsfile, _T("r")) && (tplate = _tfopen(AVSTemplatePath, _T("r"))))
 			{
-				avs = fopen(avsfile, "w");
+				avs = _tfopen(avsfile, _T("w"));
 				if (avs)
 				{
-					while (fgets(path, 1023, tplate))
+					while (_fgetts(path, 1023, tplate))
 					{
 						path_p = path;
 						prog_p = prog;
@@ -644,74 +644,74 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								*prog_p = 0;
 								break;
 							}
-							else if (path_p[0] == '_' && path_p[1] == '_' && path_p[2] == 'v' &&
-								path_p[3] == 'i' && path_p[4] == 'd' && path_p[5] == '_' && path_p[6] == '_')
+							else if (path_p[0] == _T('_') && path_p[1] == _T('_') && path_p[2] == _T('v') &&
+								path_p[3] == _T('i') && path_p[4] == _T('d') && path_p[5] == _T('_') && path_p[6] == _T('_'))
 							{
 								// Replace __vid__ macro.
 								*prog_p = 0;
 								if (FullPathInFiles)
 								{
-									strcat(prog_p, D2VFilePath);
-									prog_p = &prog[strlen(prog)];
+									_tcscat(prog_p, D2VFilePath);
+									prog_p = &prog[_tcslen(prog)];
 									path_p += 7;
 								}
 								else
 								{
-									char *p;
-									if ((p = strrchr(D2VFilePath,'\\')) != 0) p++;
+									TCHAR *p;
+									if ((p = _tcsrchr(D2VFilePath, _T('\\'))) != 0) p++;
 									else p = D2VFilePath;
-									strcat(prog_p, p);
-									prog_p = &prog[strlen(prog)];
+									_tcscat(prog_p, p);
+									prog_p = &prog[_tcslen(prog)];
 									path_p += 7;
 
 								}
 							}
-							else if (path_p[0] == '_' && path_p[1] == '_' && path_p[2] == 'a' &&
-								path_p[3] == 'u' && path_p[4] == 'd' && path_p[5] == '_' && path_p[6] == '_')
+							else if (path_p[0] == _T('_') && path_p[1] == _T('_') && path_p[2] == _T('a') &&
+								path_p[3] == _T('u') && path_p[4] == _T('d') && path_p[5] == _T('_') && path_p[6] == _T('_'))
 							{
 								// Replace __aud__ macro.
 								*prog_p = 0;
 								if (FullPathInFiles)
 								{
-									strcat(prog_p, AudioFilePath);
-									prog_p = &prog[strlen(prog)];
+									_tcscat(prog_p, AudioFilePath);
+									prog_p = &prog[_tcslen(prog)];
 									path_p += 7;
 								}
 								else
 								{
-									char *p;
-									if ((p = strrchr(AudioFilePath,'\\')) != 0) p++;
+									TCHAR *p;
+									if ((p = _tcsrchr(AudioFilePath, _T('\\'))) != 0) p++;
 									else p = AudioFilePath;
-									strcat(prog_p, p);
-									prog_p = &prog[strlen(prog)];
+									_tcscat(prog_p, p);
+									prog_p = &prog[_tcslen(prog)];
 									path_p += 7;
 								}
 							}
-							else if (AudioFilePath && path_p[0] == '_' && path_p[1] == '_' && path_p[2] == 'd' &&
-								path_p[3] == 'e' && path_p[4] == 'l' && path_p[5] == '_' && path_p[6] == '_')
+							else if (AudioFilePath && path_p[0] == _T('_') && path_p[1] == _T('_') && path_p[2] == _T('d') &&
+								path_p[3] == _T('e') && path_p[4] == _T('l') && path_p[5] == _T('_') && path_p[6] == _T('_'))
 							{
 								// Replace __del__ macro.
-								char *d = &AudioFilePath[strlen(AudioFilePath)-3];
+								TCHAR *d = &AudioFilePath[_tcslen(AudioFilePath)-3];
 								int delay;
 								float fdelay;
-								char fdelay_str[32];
+								TCHAR fdelay_str[32];
 								while (d > AudioFilePath)
 								{
-									if (d[0] == 'm' && d[1] == 's' && d[2] == '.')
+									if (d[0] == _T('m') && d[1] == _T('s') && d[2] == _T('.'))
 										break;
 									d--;
 								}
 								if (d > AudioFilePath)
 								{
-									while ((d > AudioFilePath) && d[0] != ' ') d--;
-									if (d[0] == ' ')
+									while ((d > AudioFilePath) && d[0] != _T(' ')) d--;
+									if (d[0] == _T(' '))
 									{
-										sscanf(d, "%d", &delay);
+										_stscanf(d, _T("%d"), &delay);
 										fdelay = (float) 0.001 * delay;
-										sprintf(fdelay_str, "%.3f", fdelay);
+										_stprintf(fdelay_str, _T("%.3f"), fdelay);
 										*prog_p = 0;
-										strcat(prog_p, fdelay_str);
-										prog_p = &prog[strlen(prog)];
+										_tcscat(prog_p, fdelay_str);
+										prog_p = &prog[_tcslen(prog)];
 										path_p += 7;
 									}
 									else
@@ -725,7 +725,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								*prog_p++ = *path_p++;
 							}
 						}
-						fputs(prog, avs);
+						_fputts(prog, avs);
 					}
 					fclose(tplate);
 					fclose(avs);
@@ -764,8 +764,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			hProcess = GetCurrentProcess();
 
 			// Load the splash screen from the file dgindex.bmp if it exists.
-			strcpy(prog, ExePath);
-			strcat(prog, "dgindex.bmp");
+			_tcscpy(prog, ExePath);
+			_tcscat(prog, _T("dgindex.bmp"));
 			splash = (HBITMAP) ::LoadImage (0, prog, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 //			if (splash == 0)
 //			{
@@ -774,7 +774,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //			}
 
 			for (i=0; i<MAX_FILE_NUMBER; i++)
-				Infilename[i] = (char*)malloc(DG_MAX_PATH);
+				Infilename[i] = (TCHAR*)malloc(DG_MAX_PATH);
 
 			for (i=0; i<8; i++)
 				block[i] = (short *)_aligned_malloc(sizeof(short)*64, 64);
@@ -784,22 +784,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// register VFAPI
 			HKEY key; DWORD trash;
 
-			if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\VFPlugin", 0, "",
+			if (RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\VFPlugin"), 0, _T(""),
 				REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, &trash) == ERROR_SUCCESS)
 			{
-				if (_getcwd(szBuffer, DG_MAX_PATH)!=NULL)
+				if (_tgetcwd(szBuffer, DG_MAX_PATH)!=NULL)
 				{
-					if (szBuffer[strlen(szBuffer)-1] != '\\')
-						strcat(szBuffer, "\\");
+					if (szBuffer[_tcslen(szBuffer) - 1] != _T('\\'))
+						_tcscat(szBuffer, _T("\\"));
 
-					strcpy(szPath, szBuffer);
+					_tcscpy(szPath, szBuffer);
 
-					struct _finddata_t vfpfile;
-					if (_findfirst("DGVfapi.vfp", &vfpfile) != -1L)
+					struct _tfinddata_t vfpfile;
+					if (_tfindfirst(_T("DGVfapi.vfp"), &vfpfile) != -1L)
 					{
-						strcat(szBuffer, "DGVfapi.vfp");
+						_tcscat(szBuffer, _T("DGVfapi.vfp"));
 
-						RegSetValueEx(key, "DGIndex", 0, REG_SZ, (LPBYTE)szBuffer, strlen(szBuffer));
+						RegSetValueEx(key, _T("DGIndex"), 0, REG_SZ, (LPBYTE)szBuffer, _tcslen(szBuffer));
 						CheckMenuItem(hMenu, IDM_VFAPI, MF_CHECKED);
 					}
 
@@ -826,9 +826,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         int tmp;
 
                         NumLoadedFiles = 0;
-                        if ((tmp = _open(mMRUList[wmId - ID_MRU_FILE0], _O_RDONLY | _O_BINARY)) != -1)
+                        if ((tmp = _topen(mMRUList[wmId - ID_MRU_FILE0], _O_RDONLY | _O_BINARY)) != -1)
 						{
-                            strcpy(Infilename[NumLoadedFiles], mMRUList[wmId - ID_MRU_FILE0]);
+                            _tcscpy(Infilename[NumLoadedFiles], mMRUList[wmId - ID_MRU_FILE0]);
 					        Infile[NumLoadedFiles] = tmp;
                             NumLoadedFiles = 1;
  			                Recovery();
@@ -849,7 +849,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         }
                         else
                         {
-                            MessageBox(hWnd, "Cannot open the specified file", "Open file error", MB_OK | MB_ICONERROR);
+							MessageBox(hWnd, _T("Cannot open the specified file"), _T("Open file error"), MB_OK | MB_ICONERROR);
                             DeleteMRUList(wmId - ID_MRU_FILE0);
                         }
                         break;
@@ -893,7 +893,7 @@ skip:
 				case IDM_PLAY:
 					if (!Check_Flag)
 					{
-						MessageBox(hWnd, "No data. Check your PIDS.", "Preview/Play", MB_OK | MB_ICONWARNING);
+						MessageBox(hWnd, _T("No data. Check your PIDS."), _T("Preview/Play"), MB_OK | MB_ICONWARNING);
 					}
 					else if (IsWindowEnabled(hTrack))
 					{
@@ -923,7 +923,7 @@ skip:
 				case IDM_DEMUX_AUDIO:
 					if (Method_Flag == AUDIO_NONE)
 					{
-						MessageBox(hWnd, "Audio demuxing is disabled.\nEnable it first in the Audio/Output Method menu.", NULL, MB_OK | MB_ICONERROR);
+						MessageBox(hWnd, _T("Audio demuxing is disabled.\nEnable it first in the Audio/Output Method menu."), NULL, MB_OK | MB_ICONERROR);
 						break;
 					}
 					process.locate = LOCATE_DEMUX_AUDIO;
@@ -945,26 +945,26 @@ skip:
 proceed:
 					if (!Check_Flag)
 					{
-						MessageBox(hWnd, "No data. Check your PIDS.", "Save Project", MB_OK | MB_ICONWARNING);
+						MessageBox(hWnd, _T("No data. Check your PIDS."), _T("Save Project"), MB_OK | MB_ICONWARNING);
 						break;
 					}
 					if (!CLIActive && (FO_Flag == FO_FILM) && ((mpeg_type == IS_MPEG1) || ((int) (frame_rate * 1000) != 29970)))
 					{
-						char buf[255];
-						sprintf(buf, "It is almost always wrong to run Force Film on an MPEG1 stream,\n"
-							"or a stream with a frame rate other than 29.970.\n"
-							"Your stream is %s and has a frame rate of %.3f.\n"
-							"Do you want to do it anyway?",
-							mpeg_type == IS_MPEG1 ? "MPEG1" : "MPEG2", frame_rate); 
-						if (MessageBox(hWnd, buf, "Force Film Warning", MB_YESNO | MB_ICONWARNING) != IDYES)
+						TCHAR buf[255];
+						_stprintf(buf, _T("It is almost always wrong to run Force Film on an MPEG1 stream,\n")
+							_T("or a stream with a frame rate other than 29.970.\n")
+							_T("Your stream is %s and has a frame rate of %.3f.\n")
+							_T("Do you want to do it anyway?"),
+							mpeg_type == IS_MPEG1 ? _T("MPEG1") : _T("MPEG2"), frame_rate);
+						if (MessageBox(hWnd, buf, _T("Force Film Warning"), MB_YESNO | MB_ICONWARNING) != IDYES)
 							break;
 					}
 					if (CLIActive || PopFileDlg(szOutput, hWnd, SAVE_D2V))
 					{
-						sprintf(szBuffer, "%s.d2v", szOutput);
+						_stprintf(szBuffer, _T("%s.d2v"), szOutput);
 						if (CLIActive)
 						{
-							if ((D2VFile = fopen(szBuffer, "w+")) == 0)
+							if ((D2VFile = _tfopen(szBuffer, _T("w+"))) == 0)
 							{
 								if (ExitOnEnd)
 								{
@@ -974,23 +974,23 @@ proceed:
 								}
 								else CLIActive = 0;
 							}
-							strcpy(D2VFilePath, szBuffer);
+							_tcscpy(D2VFilePath, szBuffer);
 						}
 						else 
 						{
-							if (D2VFile = fopen(szBuffer, "r"))
+							if (D2VFile = _tfopen(szBuffer, _T("r")))
 							{
-								char line[255];
+								TCHAR line[255];
 
                                 fclose(D2VFile);
-							    sprintf(line, "%s already exists.\nDo you want to replace it?", szBuffer);
-							    if (MessageBox(hWnd, line, "Save D2V",
+								_stprintf(line, _T("%s already exists.\nDo you want to replace it?"), szBuffer);
+								if (MessageBox(hWnd, line, _T("Save D2V"),
 								    MB_YESNO | MB_ICONWARNING) != IDYES)
 								    break;
 
 							}
-							D2VFile = fopen(szBuffer, "w+");
-							strcpy(D2VFilePath, szBuffer);
+							D2VFile = _tfopen(szBuffer, _T("w+"));
+							_tcscpy(D2VFilePath, szBuffer);
 						}
 
 						if (D2VFile != 0)
@@ -999,13 +999,13 @@ proceed:
 							{
 								// Initialize quant matric logging.
 								// Generate the output file name.
-								char *p;
-								p = &szBuffer[strlen(szBuffer)];
-								while (*p != '.') p--;
+								TCHAR *p;
+								p = &szBuffer[_tcslen(szBuffer)];
+								while (*p != _T('.')) p--;
 								p[1] = 0;
-								strcat(p, "quants.txt");
+								_tcscat(p, _T("quants.txt"));
 								// Open the output file.
-								Quants = fopen(szBuffer, "w");
+								Quants = _tfopen(szBuffer, _T("w"));
 								// Init the recorded quant matrices for change detection.
 								memset(intra_quantizer_matrix_log, 0xffffffff, sizeof(intra_quantizer_matrix_log));
 								memset(non_intra_quantizer_matrix_log, 0xffffffff, sizeof(non_intra_quantizer_matrix_log));
@@ -1017,15 +1017,15 @@ proceed:
 							{
 								// Initialize timestamp logging.
 								// Generate the output file name.
-								char *p;
-								p = &szBuffer[strlen(szBuffer)];
-								while (*p != '.') p--;
+								TCHAR *p;
+								p = &szBuffer[_tcslen(szBuffer)];
+								while (*p != _T('.')) p--;
 								p[1] = 0;
-								strcat(p, "timestamps.txt");
+								_tcscat(p, _T("timestamps.txt"));
 								// Open the output file.
-								Timestamps = fopen(szBuffer, "w");
-								fprintf(Timestamps, "DGIndex Timestamps Dump\n\n");
-								fprintf(Timestamps, "frame rate = %f\n", frame_rate);
+								Timestamps = _tfopen(szBuffer, _T("w"));
+								_ftprintf(Timestamps, _T("DGIndex Timestamps Dump\n\n"));
+								_ftprintf(Timestamps, _T("frame rate = %f\n", frame_rate));
 							}
 
 							D2V_Flag = true;
@@ -1047,7 +1047,7 @@ proceed:
 							}
 						}
 						else
-							MessageBox(hWnd, "Couldn't write D2V file. Is it read-only?", "Save D2V", MB_OK | MB_ICONERROR);
+							MessageBox(hWnd, _T("Couldn't write D2V file. Is it read-only?"), _T("Save D2V"), MB_OK | MB_ICONERROR);
 					}
 					break;
 
@@ -1057,23 +1057,23 @@ proceed:
 D2V_PROCESS:
 						int m, n;
 						unsigned int num, den;
-						char line[2048];
+						TCHAR line[2048];
 						int D2Vformat;
 
-						D2VFile = fopen(szInput, "r");
+						D2VFile = _tfopen(szInput, _T("r"));
 
 						// Validate the D2V file.
-						fgets(line, 2048, D2VFile);
-						if (strncmp(line, "DGIndexProjectFile", 18) != 0)
+						_fgetts(line, 2048, D2VFile);
+						if (_tcsncmp(line, _T("DGIndexProjectFile"), 18) != 0)
 						{
-							MessageBox(hWnd, "The file is not a DGIndex project file!", NULL, MB_OK | MB_ICONERROR);
+							MessageBox(hWnd, _T("The file is not a DGIndex project file!"), NULL, MB_OK | MB_ICONERROR);
 							fclose(D2VFile);
 							break;
 						}
-						sscanf(line, "DGIndexProjectFile%d", &D2Vformat);
+						_stscanf(line, _T("DGIndexProjectFile%d"), &D2Vformat);
 						if (D2Vformat != D2V_FILE_VERSION)
 						{
-							MessageBox(hWnd, "Obsolete D2V file.\nRecreate it with this version of DGIndex.", NULL, MB_OK | MB_ICONERROR);
+							MessageBox(hWnd, _T("Obsolete D2V file.\nRecreate it with this version of DGIndex."), NULL, MB_OK | MB_ICONERROR);
 							fclose(D2VFile);
 							break;
 						}
@@ -1086,15 +1086,15 @@ D2V_PROCESS:
                             Infile[NumLoadedFiles] = NULL;
 						}
 
-						fscanf(D2VFile, "%d\n", &NumLoadedFiles);
+						_ftscanf(D2VFile, _T("%d\n"), &NumLoadedFiles);
 
 						i = NumLoadedFiles;
 						while (i)
 						{
-							fgets(Infilename[NumLoadedFiles-i], DG_MAX_PATH - 1, D2VFile);
+							_fgetts(Infilename[NumLoadedFiles-i], DG_MAX_PATH - 1, D2VFile);
 							// Strip newline.
-							Infilename[NumLoadedFiles-i][strlen(Infilename[NumLoadedFiles-i])-1] = 0;
-							if ((Infile[NumLoadedFiles-i] = _open(Infilename[NumLoadedFiles-i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL))==-1)
+							Infilename[NumLoadedFiles-i][_tcslen(Infilename[NumLoadedFiles-i])-1] = 0;
+							if ((Infile[NumLoadedFiles-i] = _topen(Infilename[NumLoadedFiles-i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL))==-1)
 							{
 								while (i<NumLoadedFiles)
 								{
@@ -1112,20 +1112,20 @@ D2V_PROCESS:
 
 						Recovery();
 
-						fscanf(D2VFile, "\nStream_Type=%d\n", &SystemStream_Flag);
+						_ftscanf(D2VFile, _T("\nStream_Type=%d\n"), &SystemStream_Flag);
 						if (SystemStream_Flag == TRANSPORT_STREAM)
 						{
-							fscanf(D2VFile, "MPEG2_Transport_PID=%x,%x,%x\n",
+							_ftscanf(D2VFile, _T("MPEG2_Transport_PID=%x,%x,%x\n"),
 								   &MPEG2_Transport_VideoPID, &MPEG2_Transport_AudioPID, &MPEG2_Transport_PCRPID);
-							fscanf(D2VFile, "Transport_Packet_Size=%d\n", &TransportPacketSize);
+							_ftscanf(D2VFile, _T("Transport_Packet_Size=%d\n"), &TransportPacketSize);
 						}
                         // Don't use the read value. It will be detected.
                         SystemStream_Flag = ELEMENTARY_STREAM;
-						fscanf(D2VFile, "MPEG_Type=%d\n", &mpeg_type);
-						fscanf(D2VFile, "iDCT_Algorithm=%d\n", &iDCT_Flag);
-						fscanf(D2VFile, "YUVRGB_Scale=%d\n", &Scale_Flag);
+						_ftscanf(D2VFile, _T("MPEG_Type=%d\n"), &mpeg_type);
+						_ftscanf(D2VFile, _T("iDCT_Algorithm=%d\n"), &iDCT_Flag);
+						_ftscanf(D2VFile, _T("YUVRGB_Scale=%d\n"), &Scale_Flag);
 						setRGBValues();
-						fscanf(D2VFile, "Luminance_Filter=%d,%d\n", &LumGamma, &LumOffset);
+						_ftscanf(D2VFile, _T("Luminance_Filter=%d,%d\n"), &LumGamma, &LumOffset);
 
 						if (LumGamma || LumOffset)
 						{
@@ -1138,7 +1138,7 @@ D2V_PROCESS:
 							Luminance_Flag = false;
 						}
 
-						fscanf(D2VFile, "Clipping=%d,%d,%d,%d\n", 
+						_ftscanf(D2VFile, _T("Clipping=%d,%d,%d,%d\n"),
 								&Clip_Left, &Clip_Right, &Clip_Top, &Clip_Bottom);
 
 						if (Clip_Top || Clip_Bottom || Clip_Left || Clip_Right)
@@ -1152,16 +1152,16 @@ D2V_PROCESS:
 							Cropping_Flag = false;
 						}
 
-						fscanf(D2VFile, "Aspect_Ratio=%d:%d\n", &m, &n);
-						fscanf(D2VFile, "Picture_Size=%dx%d\n", &m, &n);
-						fscanf(D2VFile, "Field_Operation=%d\n", &FO_Flag);
-						fscanf(D2VFile, "Frame_Rate=%d (%u/%u)\n", &m, &num, &den);
+						_ftscanf(D2VFile, _T("Aspect_Ratio=%d:%d\n"), &m, &n);
+						_ftscanf(D2VFile, _T("Picture_Size=%dx%d\n"), &m, &n);
+						_ftscanf(D2VFile, _T("Field_Operation=%d\n"), &FO_Flag);
+						_ftscanf(D2VFile, _T("Frame_Rate=%d (%u/%u)\n"), &m, &num, &den);
 
 						CheckFlag();
 
 						if (NumLoadedFiles)
 						{
-							fscanf(D2VFile, "Location=%d,%I64x,%d,%I64x\n",
+							_ftscanf(D2VFile, _T("Location=%d,%I64x,%d,%I64x\n"),
 								&process.leftfile, &process.leftlba, &process.rightfile, &process.rightlba);
 
                             process.startfile = process.leftfile;
@@ -1187,7 +1187,7 @@ D2V_PROCESS:
 					{
 						if (parse_d2v(hWnd, szInput))
 						{
-							ShellExecute(hDlg, "open", szInput, NULL, NULL, SW_SHOWNORMAL);
+							ShellExecute(hDlg, _T("open"), szInput, NULL, NULL, SW_SHOWNORMAL);
 						}
 					}
 					break;
@@ -1471,7 +1471,7 @@ D2V_PROCESS:
 					CheckMenuItem(hMenu, IDM_FO_NONE, MF_CHECKED);
 					CheckMenuItem(hMenu, IDM_FO_FILM, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_FO_RAW, MF_UNCHECKED);
-					SetDlgItemText(hDlg, IDC_INFO, "");
+					SetDlgItemText(hDlg, IDC_INFO, _T(""));
 					break;
 
 				case IDM_FO_FILM:
@@ -1479,7 +1479,7 @@ D2V_PROCESS:
 					CheckMenuItem(hMenu, IDM_FO_NONE, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_FO_FILM, MF_CHECKED);
 					CheckMenuItem(hMenu, IDM_FO_RAW, MF_UNCHECKED);
-					SetDlgItemText(hDlg, IDC_INFO, "");
+					SetDlgItemText(hDlg, IDC_INFO, _T(""));
 					break;
 
 				case IDM_FO_RAW:
@@ -1487,7 +1487,7 @@ D2V_PROCESS:
 					CheckMenuItem(hMenu, IDM_FO_NONE, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_FO_FILM, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_FO_RAW, MF_CHECKED);
-					SetDlgItemText(hDlg, IDC_INFO, "");
+					SetDlgItemText(hDlg, IDC_INFO, _T(""));
 					break;
 
 				case IDM_TVSCALE:
@@ -1534,7 +1534,7 @@ D2V_PROCESS:
 
 				case IDM_SPEED_SINGLE_STEP:
 					PlaybackSpeed = SPEED_SINGLE_STEP;
-					SetDlgItemText(hDlg, IDC_FPS, "");
+					SetDlgItemText(hDlg, IDC_FPS, _T(""));
 					if (process.locate == LOCATE_RIP) EnableWindow(hRightArrow, true);
 					CheckMenuItem(hMenu, IDM_SPEED_SINGLE_STEP, MF_CHECKED);
 					CheckMenuItem(hMenu, IDM_SPEED_SUPER_SLOW, MF_UNCHECKED);
@@ -1548,7 +1548,7 @@ D2V_PROCESS:
 					PlaybackSpeed = SPEED_SUPER_SLOW;
 					// Cancel wait for single-step.
 					RightArrowHit = true;
-					SetDlgItemText(hDlg, IDC_FPS, "");
+					SetDlgItemText(hDlg, IDC_FPS, _T(""));
 					if (process.locate == LOCATE_RIP) EnableWindow(hRightArrow, false);
 					CheckMenuItem(hMenu, IDM_SPEED_SINGLE_STEP, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SPEED_SUPER_SLOW, MF_CHECKED);
@@ -1562,7 +1562,7 @@ D2V_PROCESS:
 					PlaybackSpeed = SPEED_SLOW;
 					// Cancel wait for single-step.
 					RightArrowHit = true;
-					SetDlgItemText(hDlg, IDC_FPS, "");
+					SetDlgItemText(hDlg, IDC_FPS, _T(""));
 					if (process.locate == LOCATE_RIP) EnableWindow(hRightArrow, false);
 					CheckMenuItem(hMenu, IDM_SPEED_SINGLE_STEP, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SPEED_SUPER_SLOW, MF_UNCHECKED);
@@ -1576,7 +1576,7 @@ D2V_PROCESS:
 					PlaybackSpeed = SPEED_NORMAL;
 					// Cancel wait for single-step.
 					RightArrowHit = true;
-					SetDlgItemText(hDlg, IDC_FPS, "");
+					SetDlgItemText(hDlg, IDC_FPS, _T(""));
 					if (process.locate == LOCATE_RIP) EnableWindow(hRightArrow, false);
 					CheckMenuItem(hMenu, IDM_SPEED_SINGLE_STEP, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SPEED_SUPER_SLOW, MF_UNCHECKED);
@@ -1590,7 +1590,7 @@ D2V_PROCESS:
 					PlaybackSpeed = SPEED_FAST;
 					// Cancel wait for single-step.
 					RightArrowHit = true;
-					SetDlgItemText(hDlg, IDC_FPS, "");
+					SetDlgItemText(hDlg, IDC_FPS, _T(""));
 					if (process.locate == LOCATE_RIP) EnableWindow(hRightArrow, false);
 					CheckMenuItem(hMenu, IDM_SPEED_SINGLE_STEP, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SPEED_SUPER_SLOW, MF_UNCHECKED);
@@ -1604,7 +1604,7 @@ D2V_PROCESS:
 					PlaybackSpeed = SPEED_MAXIMUM;
 					// Cancel wait for single-step.
 					RightArrowHit = true;
-					SetDlgItemText(hDlg, IDC_FPS, "");
+					SetDlgItemText(hDlg, IDC_FPS, _T(""));
 					if (process.locate == LOCATE_RIP) EnableWindow(hRightArrow, false);
 					CheckMenuItem(hMenu, IDM_SPEED_SINGLE_STEP, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SPEED_SUPER_SLOW, MF_UNCHECKED);
@@ -1818,23 +1818,23 @@ D2V_PROCESS:
 				case IDM_DGINDEX_MANUAL:
 				case IDM_DGDECODE_MANUAL:
 				{
-					strcpy(prog, ExePath);
+					_tcscpy(prog, ExePath);
 					if (wmId == IDM_QUICK_START)
-						strcat(prog, "QuickStart.html");
+						_tcscat(prog, _T("QuickStart.html"));
 					else if (wmId == IDM_DGINDEX_MANUAL)
-						strcat(prog, "DGIndexManual.html");
+						_tcscat(prog, _T("DGIndexManual.html"));
 					else
-						strcat(prog, "DGDecodeManual.html");
-					ShellExecute(NULL, "open", prog, NULL, NULL, SW_SHOWNORMAL);
+						_tcscat(prog, _T("DGDecodeManual.html"));
+					ShellExecute(NULL, _T("open"), prog, NULL, NULL, SW_SHOWNORMAL);
 					break;
 				}
 
 				case IDM_JACKEI:
-					ShellExecute(NULL, "open", "http://arbor.ee.ntu.edu.tw/~jackeikuo/dvd2avi/", NULL, NULL, SW_SHOWNORMAL);
+					ShellExecute(NULL, _T("open"), _T("http://arbor.ee.ntu.edu.tw/~jackeikuo/dvd2avi/"), NULL, NULL, SW_SHOWNORMAL);
 					break;
 
 				case IDM_NEURON2:
-					ShellExecute(NULL, "open", "http://neuron2.net/dgmpgdec/dgmpgdec.html", NULL, NULL, SW_SHOWNORMAL);
+					ShellExecute(NULL, _T("open"), _T("http://neuron2.net/dgmpgdec/dgmpgdec.html"), NULL, NULL, SW_SHOWNORMAL);
 					break;
 
 				case IDM_EXIT:
@@ -2105,7 +2105,7 @@ right_arrow:
 			}
 
 		case WM_DROPFILES:
-			char *ext, *tmp;
+			TCHAR *ext, *tmp;
 			int drop_count, drop_index;
 			int n;
 
@@ -2115,21 +2115,21 @@ right_arrow:
 				Info_Flag = false;
 			}
 
-			DragQueryFile((HDROP)wParam, 0, szInput, sizeof(szInput));
+			DragQueryFile((HDROP)wParam, 0, szInput, _countof(szInput));
 			SetForegroundWindow(hWnd);
 
 			// Set the output directory for a Save D2V operation to the
 			// same path as these input files.
-			strcpy(path, szInput);
-			tmp = path + strlen(path);
-			while (*tmp != '\\' && tmp >= path) tmp--;
+			_tcscpy(path, szInput);
+			tmp = path + _tcslen(path);
+			while (*tmp != _T('\\') && tmp >= path) tmp--;
 			tmp[1] = 0;
-			strcpy(szSave, path);
+			_tcscpy(szSave, path);
 
-			ext = strrchr(szInput, '.');
+			ext = _tcsrchr(szInput, _T('.'));
 			if (ext!=NULL)
 			{
-				if (!_strnicmp(ext, ".d2v", 4))
+				if (!_tcsnicmp(ext, _T(".d2v"), 4))
 				{
 					DragFinish((HDROP)wParam);
 					goto D2V_PROCESS;
@@ -2143,14 +2143,14 @@ right_arrow:
                 Infile[NumLoadedFiles] = NULL;
 			}
 
-			drop_count = DragQueryFile((HDROP)wParam, 0xffffffff, szInput, sizeof(szInput));
+			drop_count = DragQueryFile((HDROP)wParam, 0xffffffff, szInput, _countof(szInput));
 			for (drop_index = 0; drop_index < drop_count; drop_index++)
 			{
-				DragQueryFile((HDROP)wParam, drop_index, szInput, sizeof(szInput));
-				struct _finddata_t seqfile;
-				if (_findfirst(szInput, &seqfile) != -1L)
+				DragQueryFile((HDROP)wParam, drop_index, szInput, _countof(szInput));
+				struct _tfinddata_t seqfile;
+				if (_tfindfirst(szInput, &seqfile) != -1L)
 				{
-					strcpy(Infilename[NumLoadedFiles], szInput);
+					_tcscpy(Infilename[NumLoadedFiles], szInput);
 					NumLoadedFiles++;
 					SystemStream_Flag = ELEMENTARY_STREAM;
 				}
@@ -2176,7 +2176,7 @@ right_arrow:
 			// Open the files.
 			for (i = 0; i < NumLoadedFiles; i++)
 			{
-				Infile[i] = _open(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
+				Infile[i] = _topen(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 			}
 			DialogBox(hInst, (LPCTSTR)IDD_FILELIST, hWnd, (DLGPROC)VideoList);
 			break;
@@ -2184,38 +2184,38 @@ right_arrow:
 		case WM_DESTROY:
             Stop_Flag = 1;
             WaitForSingleObject(hThread, 2000);
-            strcpy(prog, ExePath);
-			strcat(prog, "DGIndex.ini");
-			if ((INIFile = fopen(prog, "w")) != NULL)
+            _tcscpy(prog, ExePath);
+			_tcscat(prog, _T("DGIndex.ini"));
+			if ((INIFile = _tfopen(prog, _T("w"))) != NULL)
 			{
-				fprintf(INIFile, "DGIndex_Version=%s\n", Version);
-				fprintf(INIFile, "Window_Position=%d,%d\n", wrect.left, wrect.top);
-				fprintf(INIFile, "Info_Window_Position=%d,%d\n", info_wrect.left, info_wrect.top);
-				fprintf(INIFile, "iDCT_Algorithm=%d\n", iDCT_Flag);
-				fprintf(INIFile, "YUVRGB_Scale=%d\n", Scale_Flag);
-				fprintf(INIFile, "Field_Operation=%d\n", FO_Flag);
-				fprintf(INIFile, "Output_Method=%d\n", Method_Flag);
-				fprintf(INIFile, "Track_List=%s\n", Track_List);
-				fprintf(INIFile, "DR_Control=%d\n", DRC_Flag);
-				fprintf(INIFile, "DS_Downmix=%d\n", DSDown_Flag);
-				fprintf(INIFile, "SRC_Precision=%d\n", SRC_Flag);
-				fprintf(INIFile, "Norm_Ratio=%d\n", 100 * Norm_Flag + Norm_Ratio);
-				fprintf(INIFile, "Process_Priority=%d\n", Priority_Flag);
-				fprintf(INIFile, "Playback_Speed=%d\n", PlaybackSpeed);
-				fprintf(INIFile, "Force_Open_Gops=%d\n", ForceOpenGops);
-				fprintf(INIFile, "AVS_Template_Path=%s\n", AVSTemplatePath);
-				fprintf(INIFile, "Full_Path_In_Files=%d\n", FullPathInFiles);
-				fprintf(INIFile, "Fusion_Audio=%d\n", FusionAudio);
-				fprintf(INIFile, "Loop_Playback=%d\n", LoopPlayback);
-				fprintf(INIFile, "HD_Display=%d\n", HDDisplay);
+				_ftprintf(INIFile, _T("DGIndex_Version=%s\n"), Version);
+				_ftprintf(INIFile, _T("Window_Position=%d,%d\n"), wrect.left, wrect.top);
+				_ftprintf(INIFile, _T("Info_Window_Position=%d,%d\n"), info_wrect.left, info_wrect.top);
+				_ftprintf(INIFile, _T("iDCT_Algorithm=%d\n"), iDCT_Flag);
+				_ftprintf(INIFile, _T("YUVRGB_Scale=%d\n"), Scale_Flag);
+				_ftprintf(INIFile, _T("Field_Operation=%d\n"), FO_Flag);
+				_ftprintf(INIFile, _T("Output_Method=%d\n"), Method_Flag);
+				_ftprintf(INIFile, _T("Track_List=%s\n"), Track_List);
+				_ftprintf(INIFile, _T("DR_Control=%d\n"), DRC_Flag);
+				_ftprintf(INIFile, _T("DS_Downmix=%d\n"), DSDown_Flag);
+				_ftprintf(INIFile, _T("SRC_Precision=%d\n"), SRC_Flag);
+				_ftprintf(INIFile, _T("Norm_Ratio=%d\n"), 100 * Norm_Flag + Norm_Ratio);
+				_ftprintf(INIFile, _T("Process_Priority=%d\n"), Priority_Flag);
+				_ftprintf(INIFile, _T("Playback_Speed=%d\n"), PlaybackSpeed);
+				_ftprintf(INIFile, _T("Force_Open_Gops=%d\n"), ForceOpenGops);
+				_ftprintf(INIFile, _T("AVS_Template_Path=%s\n"), AVSTemplatePath);
+				_ftprintf(INIFile, _T("Full_Path_In_Files=%d\n"), FullPathInFiles);
+				_ftprintf(INIFile, _T("Fusion_Audio=%d\n"), FusionAudio);
+				_ftprintf(INIFile, _T("Loop_Playback=%d\n"), LoopPlayback);
+				_ftprintf(INIFile, _T("HD_Display=%d\n"), HDDisplay);
                 for (i = 0; i < 4; i++)
                 {
-    				fprintf(INIFile, "MRUList[%d]=%s\n", i, mMRUList[i]);
+					_ftprintf(INIFile, _T("MRUList[%d]=%s\n"), i, mMRUList[i]);
                 }
-				fprintf(INIFile, "Enable_Info_Log=%d\n", InfoLog_Flag);
-				fprintf(INIFile, "BMP_Path=%s\n", BMPPathString);
-				fprintf(INIFile, "Use_MPA_Extensions=%d\n", UseMPAExtensions);
-				fprintf(INIFile, "Notify_When_Done=%d\n", NotifyWhenDone);
+				_ftprintf(INIFile, _T("Enable_Info_Log=%d\n"), InfoLog_Flag);
+				_ftprintf(INIFile, _T("BMP_Path=%s\n"), BMPPathString);
+				_ftprintf(INIFile, _T("Use_MPA_Extensions=%d\n"), UseMPAExtensions);
+				_ftprintf(INIFile, _T("Notify_When_Done=%d\n"), NotifyWhenDone);
 				fclose(INIFile);
 			}
 
@@ -2301,14 +2301,14 @@ LRESULT CALLBACK SelectProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	char msg[255];
+	TCHAR msg[255];
 
 	switch (message)
 	{
 		case WM_INITDIALOG:
 			if (SystemStream_Flag != TRANSPORT_STREAM)
 			{
-				sprintf(msg, "Not a transport stream!");
+				_stprintf(msg, _T("Not a transport stream!"));
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			else if (Pid_Detect_Method == PID_DETECT_RAW)
@@ -2317,12 +2317,12 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 			}
 			else if (Pid_Detect_Method == PID_DETECT_PSIP && pat_parser.DumpPSIP(hDialog, Infilename[0]) == 1)
 			{
-				sprintf(msg, "Could not find PSIP tables!");
+				_stprintf(msg, _T("Could not find PSIP tables!"));
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			else if (Pid_Detect_Method == PID_DETECT_PATPMT && pat_parser.DumpPAT(hDialog, Infilename[0]) == 1)
 			{
-				sprintf(msg, "Could not find PAT/PMT tables!");
+				_stprintf(msg, _T("Could not find PAT/PMT tables!"));
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			return true;
@@ -2331,7 +2331,7 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 			switch (LOWORD(wParam))
 			{
 				int item;
-				char text[80], *ptr;
+				TCHAR text[80], *ptr;
 
 				case IDC_SET_AUDIO:
 				case IDC_SET_VIDEO:
@@ -2340,14 +2340,14 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 					if (item != LB_ERR)
 					{
 						SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, (UINT) LB_GETTEXT, item, (LPARAM) text);
-						if ((ptr = strstr(text, "0x")) != NULL)
+						if ((ptr = _tcsstr(text, _T("0x"))) != NULL)
 						{
 							if (LOWORD(wParam) == IDC_SET_AUDIO)
-								sscanf(ptr, "%x", &MPEG2_Transport_AudioPID);
+								_stscanf(ptr, _T("%x"), &MPEG2_Transport_AudioPID);
 							else if (LOWORD(wParam) == IDC_SET_VIDEO)
-								sscanf(ptr, "%x", &MPEG2_Transport_VideoPID);
+								_stscanf(ptr, _T("%x"), &MPEG2_Transport_VideoPID);
 							else
-								sscanf(ptr, "%x", &MPEG2_Transport_PCRPID);
+								_stscanf(ptr, _T("%x"), &MPEG2_Transport_PCRPID);
 						}
 					}
 					if (LOWORD(wParam) == IDC_SET_AUDIO || LOWORD(wParam) == IDC_SET_PCR) break;
@@ -2381,8 +2381,8 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 LRESULT CALLBACK VideoList(HWND hVideoListDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	int i, j;
-	char updown[DG_MAX_PATH];
-	char *name;
+	TCHAR updown[DG_MAX_PATH];
+	TCHAR *name;
 	int handle;
 
 	switch (message)
@@ -2457,7 +2457,7 @@ LRESULT CALLBACK VideoList(HWND hVideoListDlg, UINT message, WPARAM wParam, LPAR
 						for (j=i; j<NumLoadedFiles; j++)
 						{
 							Infile[j] = Infile[j+1];
-							strcpy(Infilename[j], Infilename[j+1]);
+							_tcscpy(Infilename[j], Infilename[j+1]);
 						}
 						SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_SETCURSEL, i>=NumLoadedFiles ? NumLoadedFiles-1 : i, 0);
 					}
@@ -2494,7 +2494,7 @@ LRESULT CALLBACK VideoList(HWND hVideoListDlg, UINT message, WPARAM wParam, LPAR
 		                {
 			                if (Infile[i] != NULL)
                                 _close(Infile[i]);
-                            Infile[i] = _open(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
+                            Infile[i] = _topen(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 		                }
                     }
                     if (NumLoadedFiles)
@@ -2527,31 +2527,31 @@ static void OpenVideoFile(HWND hVideoListDlg)
 {
 	if (PopFileDlg(szInput, hVideoListDlg, OPEN_VOB))
 	{
-		char *p;
-		char path[DG_MAX_PATH];
-		char filename[DG_MAX_PATH];
-		char curPath[DG_MAX_PATH];
-		struct _finddata_t seqfile;
+		TCHAR *p;
+		TCHAR path[DG_MAX_PATH];
+		TCHAR filename[DG_MAX_PATH];
+		TCHAR curPath[DG_MAX_PATH];
+		struct _tfinddata_t seqfile;
 		int i, j, n;
-		char *tmp;
+		TCHAR *tmp;
 
 		SystemStream_Flag = ELEMENTARY_STREAM;
-		_getcwd(curPath, DG_MAX_PATH);
-		if (strlen(curPath) != strlen(szInput))
+		_tgetcwd(curPath, DG_MAX_PATH);
+		if (_tcslen(curPath) != _tcslen(szInput))
 		{
 			// Only one file specified.
-			if (_findfirst(szInput, &seqfile) == -1L) return;
+			if (_tfindfirst(szInput, &seqfile) == -1L) return;
 			SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_ADDSTRING, 0, (LPARAM) szInput);
-			strcpy(Infilename[NumLoadedFiles], szInput);
-			Infile[NumLoadedFiles] = _open(szInput, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
+			_tcscpy(Infilename[NumLoadedFiles], szInput);
+			Infile[NumLoadedFiles] = _topen(szInput, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 			NumLoadedFiles++;
 			// Set the output directory for a Save D2V operation to the
 			// same path as this input files.
-			strcpy(path, szInput);
-			p = path + strlen(path);
-			while (*p != '\\' && p >= path) p--;
+			_tcscpy(path, szInput);
+			p = path + _tcslen(path);
+			while (*p != _T('\\') && p >= path) p--;
 			p[1] = 0;
-			strcpy(szSave, path);
+			_tcscpy(szSave, path);
 			return;
 		}
 		// Multi-select handling.
@@ -2565,15 +2565,15 @@ static void OpenVideoFile(HWND hVideoListDlg)
 			SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_SETCURSEL, i >= n ? n - 1 : i, 0);
 		}
 		// Save the path prefix (path without the filename).
-		strcpy(path, szInput);
+		_tcscpy(path, szInput);
 		// Also set that path as the default for a Save D2V operation.
-		strcpy(szSave, szInput);
+		_tcscpy(szSave, szInput);
 		// Add a trailing backslash if needed.
 		p = szInput;
 		while (*p != 0) p++;
 		p--;
-		if (*p != '\\')
-			strcat(path, "\\");
+		if (*p != _T('\\'))
+			_tcscat(path, _T("\\"));
 		// Skip the path prefix.
 		p = szInput;
 		while (*p++ != 0);
@@ -2581,10 +2581,10 @@ static void OpenVideoFile(HWND hVideoListDlg)
 		for (;;)
 		{
 			// Build full path plus filename.
-			strcpy(filename, path);
-			strcat(filename, p);
-			if (_findfirst(filename, &seqfile) == -1L) break;
-			strcpy(Infilename[NumLoadedFiles], filename);
+			_tcscpy(filename, path);
+			_tcscat(filename, p);
+			if (_tfindfirst(filename, &seqfile) == -1L) break;
+			_tcscpy(Infilename[NumLoadedFiles], filename);
 			NumLoadedFiles++;
 			// Skip to next filename.
 			while (*p++ != 0);
@@ -2613,7 +2613,7 @@ static void OpenVideoFile(HWND hVideoListDlg)
 		{
 			SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_ADDSTRING, 0, (LPARAM) Infilename[i]);
 			if (Infile[i] == NULL)
-                Infile[i] = _open(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
+                Infile[i] = _topen(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 		}
         HadAddDialog = 1;
     }
@@ -2658,7 +2658,7 @@ void ThreadKill(int mode)
             SetForegroundWindow(hWnd);
         if (NotifyWhenDone & 2)
 		    MessageBeep(MB_OK);	
-		SetDlgItemText(hDlg, IDC_REMAIN, "FINISH");
+		SetDlgItemText(hDlg, IDC_REMAIN, _T("FINISH"));
 		AudioOnly_Flag = 0;
 		ExitThread(0);
 	}
@@ -2669,12 +2669,12 @@ void ThreadKill(int mode)
 		{
 			// Revised by Donald Graft to support IBBPIBBP...
 			WriteD2VLine(1);
-			fprintf(D2VFile, "\nFINISHED");
+			_ftprintf(D2VFile, _T("\nFINISHED"));
 			// Prevent divide by 0.
 			if (FILM_Purity+VIDEO_Purity == 0) VIDEO_Purity = 1;
 			film_percent = (FILM_Purity*100.0)/(FILM_Purity+VIDEO_Purity);
 			if (film_percent >= 50.0)
-				fprintf(D2VFile, "  %.2f%% FILM\n", film_percent);
+				_ftprintf(D2VFile, _T("  %.2f%% FILM\n"), film_percent);
 			else
 				fprintf(D2VFile, "  %.2f%% VIDEO\n", 100.0 - film_percent);
 		}
@@ -2706,7 +2706,7 @@ void ThreadKill(int mode)
 				if (PreScale_Ratio > 1.0 && PreScale_Ratio < 1.01)
 					PreScale_Ratio = 1.0;
 
-				sprintf(szBuffer, "%.2f", PreScale_Ratio);
+				_stprintf(szBuffer, _T("%.2f"), PreScale_Ratio);
 				SetDlgItemText(hDlg, IDC_INFO, szBuffer);
 
 				CheckMenuItem(hMenu, IDM_PRESCALE, MF_CHECKED);
@@ -2715,7 +2715,7 @@ void ThreadKill(int mode)
 			}
 			else
 			{
-				SetDlgItemText(hDlg, IDC_INFO, "n/a");
+				SetDlgItemText(hDlg, IDC_INFO, _T("n/a"));
 				CheckMenuItem(hMenu, IDM_PRESCALE, MF_UNCHECKED);
 			}
 		}
@@ -2730,7 +2730,7 @@ void ThreadKill(int mode)
             SetForegroundWindow(hWnd);
         if (NotifyWhenDone & 2)
 		    MessageBeep(MB_OK);	
-		SetDlgItemText(hDlg, IDC_REMAIN, "FINISH");
+		SetDlgItemText(hDlg, IDC_REMAIN, _T("FINISH"));
 		if (D2V_Flag)
 			SendMessage(hWnd, D2V_DONE_MESSAGE, 0, 0);
 	}
@@ -2778,77 +2778,77 @@ LRESULT CALLBACK Info(HWND hInfoDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		case WM_DESTROY:
 			{
-				char logfile[DG_MAX_PATH], *p;
+				TCHAR logfile[DG_MAX_PATH], *p;
 				FILE *lfp;
 				int i, count;
 
                 if (InfoLog_Flag)
                 {
-                    strcpy(logfile, Infilename[0]);
-				    p = strrchr(logfile, '.');
-				    strcpy(++p, "log");
-				    if (lfp = fopen(logfile, "w"))
+                    _tcscpy(logfile, Infilename[0]);
+					p = _tcsrchr(logfile, _T('.'));
+					_tcscpy(++p, _T("log"));
+					if (lfp = _tfopen(logfile, _T("w")))
 				    {
 					    GetDlgItemText(hDlg, IDC_STREAM_TYPE, logfile, 255);
-					    fprintf(lfp, "Stream Type: %s\n", logfile);
+						_ftprintf(lfp, _T("Stream Type: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_PROFILE, logfile, 255);
-					    fprintf(lfp, "Profile: %s\n", logfile);
+						_ftprintf(lfp, _T("Profile: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FRAME_SIZE, logfile, 255);
-					    fprintf(lfp, "Frame Size: %s\n", logfile);
+						_ftprintf(lfp, _T("Frame Size: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_DISPLAY_SIZE, logfile, 255);
-					    fprintf(lfp, "Display Size: %s\n", logfile);
+						_ftprintf(lfp, _T("Display Size: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_ASPECT_RATIO, logfile, 255);
-					    fprintf(lfp, "Aspect Ratio: %s\n", logfile);
+						_ftprintf(lfp, _T("Aspect Ratio: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FRAME_RATE, logfile, 255);
-					    fprintf(lfp, "Frame Rate: %s\n", logfile);
+						_ftprintf(lfp, _T("Frame Rate: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_VIDEO_TYPE, logfile, 255);
-					    fprintf(lfp, "Video Type: %s\n", logfile);
+						_ftprintf(lfp, _T("Video Type: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FRAME_TYPE, logfile, 255);
-					    fprintf(lfp, "Frame Type: %s\n", logfile);
+						_ftprintf(lfp, _T("Frame Type: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_CODING_TYPE, logfile, 255);
-					    fprintf(lfp, "Coding Type: %s\n", logfile);
+						_ftprintf(lfp, _T("Coding Type: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_COLORIMETRY, logfile, 255);
-					    fprintf(lfp, "Colorimetry: %s\n", logfile);
+						_ftprintf(lfp, _T("Colorimetry: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FRAME_STRUCTURE, logfile, 255);
-					    fprintf(lfp, "Frame Structure: %s\n", logfile);
+						_ftprintf(lfp, _T("Frame Structure: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FIELD_ORDER, logfile, 255);
-					    fprintf(lfp, "Field Order: %s\n", logfile);
+						_ftprintf(lfp, _T("Field Order: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_CODED_NUMBER, logfile, 255);
-					    fprintf(lfp, "Coded Number: %s\n", logfile);
+						_ftprintf(lfp, _T("Coded Number: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_PLAYBACK_NUMBER, logfile, 255);
-					    fprintf(lfp, "Playback Number: %s\n", logfile);
+						_ftprintf(lfp, _T("Playback Number: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FRAME_REPEATS, logfile, 255);
-					    fprintf(lfp, "Frame Repeats: %s\n", logfile);
+						_ftprintf(lfp, _T("Frame Repeats: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FIELD_REPEATS, logfile, 255);
-					    fprintf(lfp, "Field Repeats: %s\n", logfile);
+						_ftprintf(lfp, _T("Field Repeats: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_VOB_ID, logfile, 255);
-					    fprintf(lfp, "VOB ID: %s\n", logfile);
+						_ftprintf(lfp, _T("VOB ID: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_CELL_ID, logfile, 255);
-					    fprintf(lfp, "Cell ID: %s\n", logfile);
+						_ftprintf(lfp, _T("Cell ID: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_BITRATE, logfile, 255);
-					    fprintf(lfp, "Bitrate: %s\n", logfile);
+						_ftprintf(lfp, _T("Bitrate: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_BITRATE_AVG, logfile, 255);
-					    fprintf(lfp, "Bitrate (Avg): %s\n", logfile);
+						_ftprintf(lfp, _T("Bitrate (Avg): %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_BITRATE_MAX, logfile, 255);
-					    fprintf(lfp, "Bitrate (Max): %s\n", logfile);
+						_ftprintf(lfp, _T("Bitrate (Max): %s\n"), logfile);
 					    if ((count = SendDlgItemMessage(hDlg, IDC_AUDIO_LIST, LB_GETCOUNT, 0, 0)) != LB_ERR)
 					    {
 						    for (i = 0; i < count; i++)
 						    {
 							    SendDlgItemMessage(hDlg, IDC_AUDIO_LIST, LB_GETTEXT, i, (LPARAM)logfile);
-							    fprintf(lfp, "Audio Stream: %s\n", logfile);
+								_ftprintf(lfp, _T("Audio Stream: %s\n"), logfile);
 						    }
 					    }
 					    GetDlgItemText(hDlg, IDC_TIMESTAMP, logfile, 255);
-					    fprintf(lfp, "Timestamp: %s\n", logfile);
+						_ftprintf(lfp, _T("Timestamp: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_ELAPSED, logfile, 255);
-					    fprintf(lfp, "Elapsed: %s\n", logfile);
+						_ftprintf(lfp, _T("Elapsed: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_REMAIN, logfile, 255);
-					    fprintf(lfp, "Remain: %s\n", logfile);
+						_ftprintf(lfp, _T("Remain: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_FPS, logfile, 255);
-					    fprintf(lfp, "FPS: %s\n", logfile);
+						_ftprintf(lfp, _T("FPS: %s\n"), logfile);
 					    GetDlgItemText(hDlg, IDC_INFO, logfile, 255);
-					    fprintf(lfp, "Info: %s\n", logfile);
+						_ftprintf(lfp, _T("Info: %s\n"), logfile);
 					    fclose(lfp);
 				    }
                 }
@@ -2863,7 +2863,11 @@ LRESULT CALLBACK About(HWND hAboutDlg, UINT message, WPARAM wParam, LPARAM lPara
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			sprintf(szBuffer, "%s", Version);
+#ifdef UNICODE
+			_stprintf(szBuffer, _T("%s UNICODE"), Version);
+#else
+			_stprintf(szBuffer, _T("%s"), Version);
+#endif
 			SetDlgItemText(hAboutDlg, IDC_VERSION, szBuffer);
 			return true;
 
@@ -2992,12 +2996,12 @@ LRESULT CALLBACK Luminance(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_INITDIALOG:
 			SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_SETRANGE, 0, MAKELPARAM(511, 1));
 			SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_SETPOS, 1, LumGamma + 256);
-			sprintf(szTemp, "%d", LumGamma);
+			_stprintf(szTemp, _T("%d"), LumGamma);
 			SetDlgItemText(hDialog, IDC_GAMMA_BOX, szTemp);	
 
 			SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_SETRANGE, 0, MAKELPARAM(511, 1));
 			SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_SETPOS, 1, LumOffset + 256);
-			sprintf(szTemp, "%d", LumOffset);
+			_stprintf(szTemp, _T("%d"), LumOffset);
 			SetDlgItemText(hDialog, IDC_OFFSET_BOX, szTemp);	
 
 			ShowWindow(hDialog, SW_SHOW);
@@ -3035,12 +3039,12 @@ LRESULT CALLBACK Luminance(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPa
 			{
 				case IDC_GAMMA_SPIN:
 					LumGamma = LOWORD(SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_GETPOS, 0,0)) - 256;
-					sprintf(szTemp, "%d", LumGamma);
+					_stprintf(szTemp, _T("%d"), LumGamma);
 					SetDlgItemText(hDialog, IDC_GAMMA_BOX, szTemp);	
 					break;
 				case IDC_OFFSET_SPIN:
 					LumOffset = LOWORD(SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_GETPOS, 0,0)) - 256;
-					sprintf(szTemp, "%d", LumOffset);
+					_stprintf(szTemp, _T("%d"), LumOffset);
 					SetDlgItemText(hDialog, IDC_OFFSET_BOX, szTemp);	
 					break;
 			}
@@ -3056,7 +3060,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			sprintf(szTemp, "%s", AVSTemplatePath);
+			_stprintf(szTemp, _T("%s"), AVSTemplatePath);
 			SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
@@ -3066,7 +3070,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 			{
 				case IDC_NO_TEMPLATE:
 					AVSTemplatePath[0] = 0;
-					sprintf(szTemp, "%s", "");
+					_stprintf(szTemp, _T("%s"), _T(""));
 					SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					ShowWindow(hDialog, SW_SHOW);
 					EndDialog(hDialog, 0);
@@ -3074,13 +3078,13 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 				case IDC_CHANGE_TEMPLATE:
 					if (PopFileDlg(AVSTemplatePath, hWnd, OPEN_AVS))
 					{
-						sprintf(szTemp, "%s", AVSTemplatePath);
+						_stprintf(szTemp, _T("%s"), AVSTemplatePath);
 						SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					}
 					else
 					{
 						AVSTemplatePath[0] = 0;
-						sprintf(szTemp, "%s", "");
+						_stprintf(szTemp, _T("%s"), _T(""));
 						SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					}
 					ShowWindow(hDialog, SW_SHOW);
@@ -3101,7 +3105,7 @@ LRESULT CALLBACK BMPPath(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPara
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			sprintf(szTemp, "%s", BMPPathString);
+			_stprintf(szTemp, _T("%s"), BMPPathString);
 			SetDlgItemText(hDialog, IDC_BMP_PATH, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
@@ -3126,16 +3130,16 @@ LRESULT CALLBACK BMPPath(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPara
 
 LRESULT CALLBACK SetPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	char buf[80];
+	TCHAR buf[80];
 
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			sprintf(szTemp, "%x", MPEG2_Transport_VideoPID);
+			_stprintf(szTemp, _T("%x"), MPEG2_Transport_VideoPID);
 			SetDlgItemText(hDialog, IDC_VIDEO_PID, szTemp);
-			sprintf(szTemp, "%x", MPEG2_Transport_AudioPID);
+			_stprintf(szTemp, _T("%x"), MPEG2_Transport_AudioPID);
 			SetDlgItemText(hDialog, IDC_AUDIO_PID, szTemp);
-			sprintf(szTemp, "%x", MPEG2_Transport_PCRPID);
+			_stprintf(szTemp, _T("%x"), MPEG2_Transport_PCRPID);
 			SetDlgItemText(hDialog, IDC_PCR_PID, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
@@ -3145,11 +3149,11 @@ LRESULT CALLBACK SetPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPara
 			{
 				case IDC_PIDS_OK:
 					GetDlgItemText(hDialog, IDC_VIDEO_PID, buf, 10);
-					sscanf(buf, "%x", &MPEG2_Transport_VideoPID);
+					_stscanf(buf, _T("%x"), &MPEG2_Transport_VideoPID);
 					GetDlgItemText(hDialog, IDC_AUDIO_PID, buf, 10);
-					sscanf(buf, "%x", &MPEG2_Transport_AudioPID);
+					_stscanf(buf, _T("%x"), &MPEG2_Transport_AudioPID);
 					GetDlgItemText(hDialog, IDC_PCR_PID, buf, 10);
-					sscanf(buf, "%x", &MPEG2_Transport_PCRPID);
+					_stscanf(buf, _T("%x"), &MPEG2_Transport_PCRPID);
 					EndDialog(hDialog, 0);
 					Recovery();
 					if (NumLoadedFiles)
@@ -3187,7 +3191,7 @@ LRESULT CALLBACK Normalization(HWND hDialog, UINT message, WPARAM wParam, LPARAM
 			SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_SETRANGE, 0, MAKELPARAM(0, 100));
 			SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_SETTICFREQ, 50, 0);
 			SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_SETPOS, 1, Norm_Ratio);
-			sprintf(szTemp, "%d", Norm_Ratio);
+			_stprintf(szTemp, _T("%d"), Norm_Ratio);
 			SetDlgItemText(hDialog, IDC_NORM, szTemp);
 
 			ShowWindow(hDialog, SW_SHOW);
@@ -3222,7 +3226,7 @@ LRESULT CALLBACK Normalization(HWND hDialog, UINT message, WPARAM wParam, LPARAM
 			if (GetWindowLong((HWND)lParam, GWL_ID)==IDC_NORM_SLIDER)
 			{
 				Norm_Ratio = SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_GETPOS, 0, 0);
-				sprintf(szTemp, "%d", Norm_Ratio);
+				_stprintf(szTemp, _T("%d"), Norm_Ratio);
 				SetDlgItemText(hDialog, IDC_NORM, szTemp);
 			}
 			break;
@@ -3233,21 +3237,21 @@ LRESULT CALLBACK Normalization(HWND hDialog, UINT message, WPARAM wParam, LPARAM
 LRESULT CALLBACK SelectTracks(HWND hDialog, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	unsigned int i;
-    static char track_list[255];
-    char *p;
+    static TCHAR track_list[255];
+    TCHAR *p;
     unsigned int audio_id;
 
 	switch (message)
 	{
 		case WM_INITDIALOG:
             SetDlgItemText(hDialog, IDC_TRACK_LIST, Track_List);
-            strcpy(track_list, Track_List);
+            _tcscpy(track_list, Track_List);
             for (i = 0; i < 0xc8; i++)
                 audio[i].selected_for_demux = false;
             p = Track_List;
-            while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+			while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
             {
-                sscanf(p, "%x", &audio_id);
+				_stscanf(p, _T("%x"), &audio_id);
                 if (audio_id > 0xc7)
                     break;
                 audio[audio_id].selected_for_demux = true;
@@ -3265,19 +3269,19 @@ LRESULT CALLBACK SelectTracks(HWND hDialog, UINT message, WPARAM wParam, LPARAM 
 			{
 				case IDC_TRACK_OK:
                     GetDlgItemText(hDialog, IDC_TRACK_LIST, track_list, 255);
-                    if (strcmp(Track_List, track_list))
+                    if (_tcscmp(Track_List, track_list))
                     {
-                        strcpy(Track_List, track_list);
+                        _tcscpy(Track_List, track_list);
                         for (i = 0; i < 0xc8; i++)
                             audio[i].selected_for_demux = false;
                         p = Track_List;
-                        while ((*p >= '0' && *p <= '9') || (*p >= 'a' && *p <= 'f') || (*p >= 'A' && *p <= 'F'))
+						while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
                         {
-                            sscanf(p, "%x", &audio_id);
+							_stscanf(p, _T("%x"), &audio_id);
                             if (audio_id > 0xc7)
                                 break;
                             audio[audio_id].selected_for_demux = true;
-                            while (*p != ',' && *p != 0) p++;
+							while (*p != _T(',') && *p != 0) p++;
                             if (*p == 0)
                                 break;
                             p++;
@@ -3299,15 +3303,15 @@ LRESULT CALLBACK SelectTracks(HWND hDialog, UINT message, WPARAM wParam, LPARAM 
 
 LRESULT CALLBACK SelectDelayTrack(HWND hDialog, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static char delay_track[255];
-    char *p;
+    static TCHAR delay_track[255];
+    TCHAR *p;
     unsigned char audio_id;
 
 	switch (message)
 	{
 		case WM_INITDIALOG:
             SetDlgItemText(hDialog, IDC_DELAY_LIST, Delay_Track);
-            strcpy(delay_track, Delay_Track);
+            _tcscpy(delay_track, Delay_Track);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
 
@@ -3316,14 +3320,14 @@ LRESULT CALLBACK SelectDelayTrack(HWND hDialog, UINT message, WPARAM wParam, LPA
 			{
 				case IDC_DELAY_OK:
                     GetDlgItemText(hDialog, IDC_DELAY_LIST, delay_track, 255);
-                    strcpy(Delay_Track, delay_track);
+                    _tcscpy(Delay_Track, delay_track);
                     p = delay_track;
-                    sscanf(p, "%x", &audio_id);
+                    _stscanf(p, _T("%x"), &audio_id);
 					if (PopFileDlg(szInput, hWnd, OPEN_TXT))
 					{
 						if (analyze_sync(hWnd, szInput, audio_id))
 						{
-							ShellExecute(hDlg, "open", szInput, NULL, NULL, SW_SHOWNORMAL);
+							ShellExecute(hDlg, _T("open"), szInput, NULL, NULL, SW_SHOWNORMAL);
 						}
 					}
 					EndDialog(hDialog, 0);
@@ -3353,8 +3357,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= CreateSolidBrush(MASKCOLOR);
 
-	wcex.lpszMenuName = (LPCSTR)IDC_GUI;
-	wcex.lpszMenuName = (LPCSTR)IDC_GUI;
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_GUI);
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_GUI);
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
 
@@ -3364,7 +3368,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 {
 	static OPENFILENAME ofn;
-	static char *szFilter, *ext;
+	static TCHAR *szFilter, *ext;
 
 	switch (Status)
 	{
@@ -3441,8 +3445,8 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 			ofn.Flags = OFN_HIDEREADONLY | OFN_EXPLORER;
 			if (GetSaveFileName(&ofn))
 			{
-				ext = strrchr(pstrFileName, '.');
-				if (ext!=NULL && !_strnicmp(ext, ".bmp", 4))
+				ext = _tcsrchr(pstrFileName, _T('.'));
+				if (ext != NULL && !_tcsnicmp(ext, _T(".bmp"), 4))
 					*ext = 0;
 				return true;
 			}
@@ -3453,8 +3457,8 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 			ofn.Flags = OFN_HIDEREADONLY | OFN_EXPLORER;
 			if (GetSaveFileName(&ofn))
 			{
-				ext = strrchr(pstrFileName, '.');
-				if (ext!=NULL && !_strnicmp(ext, ".wav", 4))
+				ext = _tcsrchr(pstrFileName, _T('.'));
+				if (ext != NULL && !_tcsnicmp(ext, _T(".wav"), 4))
 					*ext = 0;
 				return true;
 			}
@@ -3462,15 +3466,15 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 
 		case SAVE_D2V:
 			{
-			char *p;
+			TCHAR *p;
 
 			ofn.Flags = OFN_HIDEREADONLY | OFN_EXPLORER;
 			// Load a default filename based on the name of the first input file.
 			if (szOutput[0] == NULL)
 			{
-				strcpy(ofn.lpstrFile, Infilename[0]);
-				p = &ofn.lpstrFile[strlen(ofn.lpstrFile)];
-				while (*p != '.' && p >= ofn.lpstrFile) p--;
+				_tcscpy(ofn.lpstrFile, Infilename[0]);
+				p = &ofn.lpstrFile[_tcslen(ofn.lpstrFile)];
+				while (*p != _T('.') && p >= ofn.lpstrFile) p--;
 				if (p != ofn.lpstrFile)
 				{
 					*p = 0;
@@ -3478,8 +3482,8 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 			}
 			if (GetSaveFileName(&ofn))
 			{
-				ext = strrchr(pstrFileName, '.');
-				if (ext!=NULL && !_strnicmp(ext, ".d2v", 4))
+				ext = _tcsrchr(pstrFileName, _T('.'));
+				if (ext != NULL && !_tcsnicmp(ext, _T(".d2v"), 4))
 					*ext = 0;
 				return true;
 			}
@@ -3790,7 +3794,7 @@ void Recovery()
 	PreScale_Ratio = 1.0;
 	CheckMenuItem(hMenu, IDM_PRESCALE, MF_UNCHECKED);
 
-	SetWindowText(hWnd, "DGIndex");
+	SetWindowText(hWnd, _T("DGIndex"));
 
 	if (NumLoadedFiles)
 	{
@@ -3860,16 +3864,16 @@ static void SaveBMP()
 	FILE *BMPFile;
 
 	if (!PopFileDlg(szTemp, hWnd, SAVE_BMP)) return;
-	strcat(szTemp, ".bmp");
-	if (fopen(szTemp, "r"))
+	_tcscat(szTemp, _T(".bmp"));
+	if (_tfopen(szTemp, _T("r")))
 	{
-		char line[255];
-		sprintf(line, "%s already exists.\nDo you want to replace it?", szTemp);
-		if (MessageBox(hWnd, line, "Save BMP",
+		TCHAR line[255];
+		_stprintf(line, _T("%s already exists.\nDo you want to replace it?"), szTemp);
+		if (MessageBox(hWnd, line, _T("Save BMP"),
 			MB_YESNO | MB_ICONWARNING) != IDYES)
 		return;
 	}
-	if ((BMPFile = fopen(szTemp, "wb")) == NULL)
+	if ((BMPFile = _tfopen(szTemp, _T("wb"))) == NULL)
 		return;
 
 	int width = horizontal_size;
@@ -4130,8 +4134,8 @@ static void RunningEnables(void)
 
 void UpdateWindowText(void)
 {
-	char *ext;
-	char szTemp[DG_MAX_PATH];
+	TCHAR *ext;
+	TCHAR szTemp[DG_MAX_PATH];
 
 	if (timing.op)
 	{
@@ -4141,10 +4145,10 @@ void UpdateWindowText(void)
 		percent = (float)(100.0*(process.run-process.start+_telli64(Infile[CurrentFile]))/(process.end-process.start));
 		remain = (int)((timing.ed-timing.op)*(100.0-percent)/percent)/1000;
 
-		sprintf(szBuffer, "%d:%02d:%02d", elapsed/3600, (elapsed%3600)/60, elapsed%60);
+		_stprintf(szBuffer, _T("%d:%02d:%02d"), elapsed / 3600, (elapsed % 3600) / 60, elapsed % 60);
 		SetDlgItemText(hDlg, IDC_ELAPSED, szBuffer);
 
-		sprintf(szBuffer, "%d:%02d:%02d", remain/3600, (remain%3600)/60, remain%60);
+		_stprintf(szBuffer, _T("%d:%02d:%02d"), remain / 3600, (remain % 3600) / 60, remain % 60);
 		SetDlgItemText(hDlg, IDC_REMAIN, szBuffer);
 	}
 	else
@@ -4154,30 +4158,30 @@ void UpdateWindowText(void)
 	{
 		if (elapsed + remain)
 		{
-			sprintf(szBuffer, "DGIndex[%d%%] - ", (elapsed * 100) / (elapsed + remain));
+			_stprintf(szBuffer, _T("DGIndex[%d%%] - "), (elapsed * 100) / (elapsed + remain));
 			if(bIsWindowsXPorLater)
 				PostMessage(hWnd, PROGRESS_MESSAGE, (elapsed * 100) / (elapsed + remain), 0);
 		}
 		else
 		{
-			sprintf(szBuffer, "DGIndex[0%%] - ");
+			_stprintf(szBuffer, _T("DGIndex[0%%] - "));
 			if(bIsWindowsXPorLater)
 				PostMessage(hWnd, PROGRESS_MESSAGE, 0, 0);
 		}
 	}
 	else
-		sprintf(szBuffer, "DGIndex - ");
-	ext = strrchr(Infilename[CurrentFile], '\\');
+		_stprintf(szBuffer, _T("DGIndex - "));
+	ext = _tcsrchr(Infilename[CurrentFile], _T('\\'));
 	if (ext)
-		strncat(szBuffer, ext+1, strlen(Infilename[CurrentFile])-(int)(ext-Infilename[CurrentFile]));
+		_tcsncat(szBuffer, ext+1, _tcslen(Infilename[CurrentFile])-(int)(ext-Infilename[CurrentFile]));
 	else
-		strcat(szBuffer, Infilename[CurrentFile]);
-	sprintf(szTemp, " [%dx%d] [File %d/%d]", Clip_Width, Clip_Height, CurrentFile+1, NumLoadedFiles);
-	strcat(szBuffer, szTemp);
+		_tcscat(szBuffer, Infilename[CurrentFile]);
+	_stprintf(szTemp, _T(" [%dx%d] [File %d/%d]"), Clip_Width, Clip_Height, CurrentFile + 1, NumLoadedFiles);
+	_tcscat(szBuffer, szTemp);
 	if (VOB_ID && CELL_ID)
 	{
-		sprintf(szTemp, " [Vob %d] [Cell %d]", VOB_ID, CELL_ID);
-		strcat(szBuffer, szTemp);
+		_stprintf(szTemp, _T(" [Vob %d] [Cell %d]"), VOB_ID, CELL_ID);
+		_tcscat(szBuffer, szTemp);
 	}
 	SetWindowText(hWnd, szBuffer);
 }
@@ -4188,11 +4192,11 @@ void OutputProgress(int progr)
 
 	if (progr != lastprogress)
 	{
-		char percent[20];
+		TCHAR percent[20];
 		DWORD written;
 
-		sprintf(percent, "%d\n", progr);
-		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), percent, strlen(percent), &written, NULL);
+		_stprintf(percent, _T("%d\n"), progr);
+		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), percent, _tcslen(percent), &written, NULL);
 		lastprogress = progr;
 	}
 }
@@ -4201,36 +4205,36 @@ void DeleteMRUList(int index)
 {
     for (; index < 3; index++)
     {
-        strcpy(mMRUList[index], mMRUList[index+1]);
+        _tcscpy(mMRUList[index], mMRUList[index+1]);
     }
     mMRUList[3][0] = 0;
     UpdateMRUList();
 }
 
-void AddMRUList(char *name)
+void AddMRUList(TCHAR *name)
 {
     int i;
 
     // Is the name in the list?
     for (i = 0; i < 4; i++)
     {
-        if (!strcmp(mMRUList[i], name))
+        if (!_tcscmp(mMRUList[i], name))
             break;
     }
     if (i == 4)
     {
         // New name, add it to the list.
         for (i = 3; i > 0; i--)
-            strcpy(mMRUList[i], mMRUList[i-1]);
-        strcpy(mMRUList[0], name);
+            _tcscpy(mMRUList[i], mMRUList[i-1]);
+        _tcscpy(mMRUList[0], name);
     }
     else
     {
         // Name exists, move it to the top.
-        strcpy(name, mMRUList[i]);
+        _tcscpy(name, mMRUList[i]);
         for (; i > 0; i--)
-            strcpy(mMRUList[i], mMRUList[i-1]);
-        strcpy(mMRUList[0], name);
+            _tcscpy(mMRUList[i], mMRUList[i-1]);
+        _tcscpy(mMRUList[0], name);
     }
 }
 
@@ -4238,7 +4242,7 @@ void UpdateMRUList(void)
 {
 	HMENU hmenuFile = GetSubMenu(GetMenu((HWND)hWnd), 0);
 	MENUITEMINFO m;
-	char name[DG_MAX_PATH];
+	TCHAR name[DG_MAX_PATH];
 	int index = 0;
 #define MRU_LIST_POSITION 14
 
@@ -4258,13 +4262,13 @@ void UpdateMRUList(void)
 
 	for (;;)
     {
-        char path[DG_MAX_PATH];
+        TCHAR path[DG_MAX_PATH];
 
         if (!mMRUList[index][0])
             break;
 
-        strcpy(path, mMRUList[index]);
-        PathCompactPath(GetDC(hWnd), (LPSTR) path, 320);
+        _tcscpy(path, mMRUList[index]);
+        PathCompactPath(GetDC(hWnd), path, 320);
 
 		m.fMask		= MIIM_TYPE | MIIM_STATE | MIIM_ID;
 		m.fType		= MFT_STRING;
@@ -4284,7 +4288,7 @@ void UpdateMRUList(void)
 		m.fType			= MFT_STRING;
 		m.fState		= MFS_GRAYED;
 		m.wID			= ID_MRU_FILE0;
-		m.dwTypeData	= "Recent file list";
+		m.dwTypeData	= _T("Recent file list");
 		m.cch			= DG_MAX_PATH;
 
 		InsertMenuItem(hmenuFile, MRU_LIST_POSITION+index, TRUE, &m);

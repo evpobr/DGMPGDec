@@ -62,7 +62,7 @@ int PATParser::SyncTransport(void)
 	return 0;
 }
 
-int PATParser::DumpRaw(HWND _hDialog, char *_filename)
+int PATParser::DumpRaw(HWND _hDialog, TCHAR *_filename)
 {
 	hDialog = _hDialog;
 	filename = _filename;
@@ -250,7 +250,7 @@ int PATParser::AnalyzeRaw(void)
 	return 0;
 }
 
-int PATParser::DumpPAT(HWND _hDialog, char *_filename)
+int PATParser::DumpPAT(HWND _hDialog, TCHAR *_filename)
 {
 	op = Dump;
 	hDialog = _hDialog;
@@ -258,7 +258,7 @@ int PATParser::DumpPAT(HWND _hDialog, char *_filename)
 	return AnalyzePAT();
 }
 
-int PATParser::DumpPSIP(HWND _hDialog, char *_filename)
+int PATParser::DumpPSIP(HWND _hDialog, TCHAR *_filename)
 {
 	op = Dump;
 	hDialog = _hDialog;
@@ -266,7 +266,7 @@ int PATParser::DumpPSIP(HWND _hDialog, char *_filename)
 	return AnalyzePSIP();
 }
 
-int PATParser::GetAudioType(char *_filename, unsigned int _audio_pid)
+int PATParser::GetAudioType(TCHAR *_filename, unsigned int _audio_pid)
 {
 	op = AudioType;
 	hDialog = NULL;

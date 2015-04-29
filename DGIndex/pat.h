@@ -58,10 +58,10 @@ private:
 	int ProcessPSIPSection(void);
 public:
 	PATParser(void);
-	int DumpPAT(HWND hDialog, char *filename);
-	int DumpPSIP(HWND hDialog, char *filename);
-	int DumpRaw(HWND hDialog, char *filename);
-	int GetAudioType(char *filename, unsigned int audio_pid);
-	int DoInitialPids(char *filename);
+	int DumpPAT(HWND hDialog, TCHAR *filename);
+	int DumpPSIP(HWND hDialog, TCHAR *filename);
+	int DumpRaw(HWND hDialog, TCHAR *filename);
+	int GetAudioType(TCHAR *filename, unsigned int audio_pid);
+	int DoInitialPids(TCHAR *filename);
 };
 

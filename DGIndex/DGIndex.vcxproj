@@ -246,6 +246,8 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).obj;%(Outputs)</Outputs>
       <FileType>Document</FileType>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</UseSafeExceptionHandlers>
+      <UseSafeExceptionHandlers Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</UseSafeExceptionHandlers>
     </MASM>
     <NASM Include="simple_idct_mmx.asm">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:\dosbin\nasm -f win32 -DPREFIX -DWIN32 -o $(IntDir)%(Filename).obj %(FullPath)

@@ -143,8 +143,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="idctmmx.asm" />
-    <CustomBuild Include="simple_idct_mmx.asm" />
-    <CustomBuild Include="skl_dct_sse.asm" />
+    <MASM Include="idctmmx.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <NASM Include="simple_idct_mmx.asm" />
+    <NASM Include="skl_dct_sse.asm" />
   </ItemGroup>
 </Project>

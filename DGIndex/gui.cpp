@@ -1025,7 +1025,7 @@ proceed:
 								// Open the output file.
 								Timestamps = _tfopen(szBuffer, _T("w"));
 								_ftprintf(Timestamps, _T("DGIndex Timestamps Dump\n\n"));
-								_ftprintf(Timestamps, _T("frame rate = %f\n", frame_rate));
+								_ftprintf(Timestamps, _T("frame rate = %f\n"), frame_rate);
 							}
 
 							D2V_Flag = true;

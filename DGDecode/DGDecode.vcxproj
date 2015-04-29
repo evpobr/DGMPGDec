@@ -68,6 +68,7 @@
       <ObjectFileName>.\Debug\</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <AdditionalOptions> /D /"DGDecode_EXPORTS" /openmp</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -109,7 +110,7 @@
       <PrecompiledHeaderOutputFile>.\Release\DGDecode.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
-      <AdditionalOptions> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <AdditionalOptions> /D /"DGDecode_EXPORTS" /openmp</AdditionalOptions>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>

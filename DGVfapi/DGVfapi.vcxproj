@@ -149,6 +149,12 @@
   <ItemGroup>
     <CustomBuild Include="dgvfapi.def" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="DGVfapi.txt">
+      <DeploymentContent>true</DeploymentContent>
+      <FileType>Text</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

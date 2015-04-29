@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGIndex", "DGIndex\DGIndex.vcxproj", "{E0C2E79C-C60A-4C43-A637-0DCAE83818BB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DGVfapi", "DGVfapi\DGVfapi.vcxproj", "{071167EB-CC4A-48B1-9F4D-A7914BC75492}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4EEDE272-48F6-44A2-856B-845CBAD4E96B} = {4EEDE272-48F6-44A2-856B-845CBAD4E96B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -29,7 +29,7 @@
 #define GLOBAL
 #include "global.h"
 
-static char Version[] = "DGIndex 1.5.8";
+static char Version[] = "DGIndex 1.5.9";
 
 #define TRACK_HEIGHT	32
 #define INIT_WIDTH		480

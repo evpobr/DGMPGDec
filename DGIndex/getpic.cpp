@@ -89,11 +89,11 @@ struct ENTRY
 } gop_entries[MAX_PICTURES_PER_GOP];
 int gop_entries_ndx = 0;
 
-char D2VLine[2048];
+TCHAR D2VLine[2048];
 
 void WriteD2VLine(int finish)
 {
-	char temp[8], position[255];
+	TCHAR temp[8], position[255];
 	int m, r;
 	int had_P = 0;
 	int mark = 0x80;
@@ -125,8 +125,8 @@ void WriteD2VLine(int finish)
 	if (gop_entries[0].gop_start == true) gop_marker |= 0x100;
 	if (gop_entries[0].closed == 1) gop_marker |= 0x400;
 	if (gop_entries[0].pseq == 1) gop_marker |= 0x200;
-	_i64toa(gop_entries[0].position, position, 10);
-	sprintf(D2VLine,"%03x %d %d %s %d %d %d",
+	_i64tot(gop_entries[0].position, position, 10);
+	_stprintf_s(D2VLine,_T("%03x %d %d %s %d %d %d"),
 		    gop_marker, gop_entries[0].matrix, d2v_forward.file, position, num_to_skip,
 			gop_entries[0].vob_id, gop_entries[0].cell_id);
 
@@ -164,42 +164,42 @@ void WriteD2VLine(int finish)
 
 	for (m = 0; m < gop_entries_ndx; m++)
 	{
-		sprintf(temp," %02x", entries[m].trf | (entries[m].pct << 4) | (entries[m].pf << 6));
-		strcat(D2VLine, temp);
+		_stprintf_s(temp, _T(" %02x"), entries[m].trf | (entries[m].pct << 4) | (entries[m].pf << 6));
+		_tcscat_s(D2VLine, temp);
 	}
-	if (finish) strcat(D2VLine, " ff\n");
-	else strcat(D2VLine, "\n");
-	fprintf(D2VFile, "%s", D2VLine);
+	if (finish) _tcscat_s(D2VLine, _T(" ff\n"));
+	else _tcscat_s(D2VLine, _T("\n"));
+	_ftprintf_s(D2VFile, _T("%s"), D2VLine);
 	gop_entries_ndx = 0;
 }
 
 void SetFaultFlag(int val)
 {
-	char fault[80];
+	TCHAR fault[80];
 
 	Fault_Flag = val;
 	switch (val)
 	{
 	case 1:
-		sprintf(fault, "block error");
+		_stprintf_s(fault, _T("block error"));
 		break;
 	case 2:
-		sprintf(fault, "mb type error");
+		_stprintf_s(fault, _T("mb type error"));
 		break;
 	case 3:
-		sprintf(fault, "cbp error");
+		_stprintf_s(fault, _T("cbp error"));
 		break;
 	case 4:
-		sprintf(fault, "null slice");
+		_stprintf_s(fault, _T("null slice"));
 		break;
 	case 5:
-		sprintf(fault, "mb addr inc error");
+		_stprintf_s(fault, _T("mb addr inc error"));
 		break;
 	case 6:
-		sprintf(fault, "motion code error");
+		_stprintf_s(fault, _T("motion code error"));
 		break;
 	default:
-		sprintf(fault, "video error");
+		_stprintf_s(fault, _T("video error"));
 		break;
 	}
 	SetDlgItemText(hDlg, IDC_INFO, fault);
@@ -244,7 +244,7 @@ __try
 			gop_entries_ndx++;
 		else
 		{
-			MessageBox(hWnd, "Too many pictures per GOP (>= 500).\nDGIndex will terminate.", NULL, MB_OK | MB_ICONERROR);
+			MessageBox(hWnd, _T("Too many pictures per GOP (>= 500).\nDGIndex will terminate."), NULL, MB_OK | MB_ICONERROR);
 			exit(1);
 		}
 	}
@@ -268,7 +268,7 @@ __try
 						break;
 
 					default:
-						SetDlgItemText(hDlg, IDC_INFO, "picture error");
+						SetDlgItemText(hDlg, IDC_INFO, _T("picture error"));
 						break;
 				}
 		}
@@ -314,7 +314,7 @@ __try
 }
 __except (EXCEPTION_EXECUTE_HANDLER)
 {
-	if (MessageBox(hWnd, "Caught an exception during decoding! Continue?", "Exception!", MB_YESNO | MB_ICONERROR) == IDYES)
+	if (MessageBox(hWnd, _T("Caught an exception during decoding! Continue?"), _T("Exception!"), MB_YESNO | MB_ICONERROR) == IDYES)
 		return;
 	else
 		ThreadKill(MISC_KILL);

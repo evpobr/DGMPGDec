@@ -31,7 +31,7 @@ static short Norm_Buffer[NORM_SIZE];
 
 static void TwoPass(FILE *WaveIn, int WaveInPos, FILE *WaveOut, int WaveOutPos, int size, int pass);
 
-void Normalize(FILE *WaveIn, int WaveInPos, char *filename, FILE *WaveOut, int WaveOutPos, int size)
+void Normalize(FILE *WaveIn, int WaveInPos, TCHAR *filename, FILE *WaveOut, int WaveOutPos, int size)
 {
 	int i, norm;
 	bool trigger = false;
@@ -40,7 +40,7 @@ void Normalize(FILE *WaveIn, int WaveInPos, char *filename, FILE *WaveOut, int W
 	if (Norm_Flag)
 	{
 		if (WaveIn==NULL)	// In = Out
-			WaveIn = fopen(filename, "rb");
+			WaveIn = _tfopen(filename, _T("rb"));
 		else
 			TwoPass(WaveIn, WaveInPos, NULL, 0, size, 0);
 
@@ -72,7 +72,7 @@ void Normalize(FILE *WaveIn, int WaveInPos, char *filename, FILE *WaveOut, int W
 			Norm_Table[65536-i] = 32767;
 	}
 
-	sprintf(szBuffer, "%.2f", ratio);
+	_stprintf_s(szBuffer, _T("%.2f"), ratio);
 	SetDlgItemText(hDlg, IDC_INFO, szBuffer);
 
 	if (trigger)
@@ -119,10 +119,10 @@ static void TwoPass(FILE *WaveIn, int WaveInPos, FILE *WaveOut, int WaveOutPos, 
 
 		if (Info_Flag)
 		{
-			sprintf(szBuffer, "%d:%02d:%02d", elapsed/3600, (elapsed%3600)/60, elapsed%60);
+			_stprintf_s(szBuffer, _T("%d:%02d:%02d"), elapsed / 3600, (elapsed % 3600) / 60, elapsed % 60);
 			SetDlgItemText(hDlg, IDC_ELAPSED, szBuffer);
 
-			sprintf(szBuffer, "%d:%02d:%02d", remain/3600, (remain%3600)/60, remain%60);
+			_stprintf_s(szBuffer, _T("%d:%02d:%02d"), remain / 3600, (remain % 3600) / 60, remain % 60);
 			SetDlgItemText(hDlg, IDC_REMAIN, szBuffer);
 		}
 

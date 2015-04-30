@@ -24,7 +24,7 @@
 #include "global.h"
 
 static ui64 local;
-static char buffer[256];
+static TCHAR buffer[256];
 
 unsigned __int64 read_counter(void)
 {
@@ -104,7 +104,7 @@ void timer_debug(ts* timers) {
 	//tim.freq = ;
 //	sprintf(buffer,"conv = %I64d ",tim.conv);
 //	sprintf(buffer,"idct = %I64d overall=%I64d idct% = %f",tim.idct,tim.overall,(double)tim.idct*100/tim.overall);
-	sprintf(buffer,"| dec%% = %f > mcmp%% = %f addb%% = %f idct%% = %f decMB%% = %f bit%% = %f | conv%% = %f | post%% = %f | mcpy%% = %f | msec = %f fps = %f mean = %f",
+	_stprintf_s(buffer, _T("| dec%% = %f > mcmp%% = %f addb%% = %f idct%% = %f decMB%% = %f bit%% = %f | conv%% = %f | post%% = %f | mcpy%% = %f | msec = %f fps = %f mean = %f"),
 		(double)tim.dec*100/tim.overall,
 		(double)tim.idct*100/tim.overall,
 		(double)tim.addb*100/tim.overall,
@@ -121,14 +121,14 @@ void timer_debug(ts* timers) {
 	OutputDebugString(buffer);
 }
 
-int dprintf(char* fmt, ...)
+int dprintf(TCHAR* fmt, ...)
 {
-	char printString[1000];
+	TCHAR printString[1000];
 	va_list argp;
 	va_start(argp, fmt);
-	vsprintf(printString, fmt, argp);
+	_vstprintf(printString, fmt, argp);
 	va_end(argp);
     OutputDebugString(printString);
-	return strlen(printString);
+	return _tcslen(printString);
 }
 

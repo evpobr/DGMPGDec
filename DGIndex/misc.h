@@ -44,7 +44,7 @@ typedef struct ts_t ts;
 
 ui64 read_counter(void);
 ui64 get_freq(void);
-int dprintf(char* fmt, ...);
+int dprintf(TCHAR* fmt, ...);
 
 void init_first(ts* timers);
 void init_timers(ts* timers);

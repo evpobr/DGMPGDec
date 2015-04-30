@@ -33,13 +33,13 @@ static void FlushRGB24(void);
 
 static BITMAPINFOHEADER birgb, birgbsmall;
 
-static char VideoOut[DG_MAX_PATH];
+static TCHAR VideoOut[DG_MAX_PATH];
 static unsigned char *y444;
 static long frame_size;
 static bool TFF, RFF, TFB, BFB, frame_type;
 
-static char *FrameType[] = {
-	"Interlaced", "Progressive"
+static TCHAR *FrameType[] = {
+	_T("Interlaced"), _T("Progressive")
 };
 
 void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
@@ -127,69 +127,69 @@ void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
         if (d2v.picture_structure == FRAME_PICTURE)
         {
 		    if (TFF)
-			    SetDlgItemText(hDlg, IDC_FIELD_ORDER, "Top");
+				SetDlgItemText(hDlg, IDC_FIELD_ORDER, _T("Top"));
 		    else
-			    SetDlgItemText(hDlg, IDC_FIELD_ORDER, "Bottom");
+				SetDlgItemText(hDlg, IDC_FIELD_ORDER, _T("Bottom"));
         }
         else
         {
-            SetDlgItemText(hDlg, IDC_FIELD_ORDER, d2v.picture_structure == TOP_FIELD ? "Top" : "Bottom");
+			SetDlgItemText(hDlg, IDC_FIELD_ORDER, d2v.picture_structure == TOP_FIELD ? _T("Top") : _T("Bottom"));
         }
 	}
 
 	if (Info_Flag && process.locate==LOCATE_RIP)
 	{
-		sprintf(szBuffer, "%s", FrameType[frame_type]);
+		_stprintf_s(szBuffer, _T("%s"), FrameType[frame_type]);
 		SetDlgItemText(hDlg, IDC_FRAME_TYPE, szBuffer);
 
-        sprintf(szBuffer, "%s", progressive_sequence ? "Frame only" : "Field/Frame");
+		_stprintf_s(szBuffer, _T("%s"), progressive_sequence ? _T("Frame only") : _T("Field/Frame"));
 		SetDlgItemText(hDlg, IDC_SEQUENCE, szBuffer);
 
         switch (matrix_coefficients)
         {
         case 1:
-		    sprintf(szBuffer, "%s", "BT.709");
+			_stprintf_s(szBuffer, _T("%s"), _T("BT.709"));
             break;
         case 2:
-		    sprintf(szBuffer, "%s", "Unknown");
+			_stprintf_s(szBuffer, _T("%s"), _T("Unknown"));
             break;
         case 3:
-		    sprintf(szBuffer, "%s", "Reserved");
+			_stprintf_s(szBuffer, _T("%s"), _T("Reserved"));
             break;
         case 4:
-		    sprintf(szBuffer, "%s", "BT.470-2 M");
+			_stprintf_s(szBuffer, _T("%s"), _T("BT.470-2 M"));
             break;
         case 5:
-		    sprintf(szBuffer, "%s", "BT.470-2 B,G");
+			_stprintf_s(szBuffer, _T("%s"), _T("BT.470-2 B,G"));
             break;
         case 6:
-		    sprintf(szBuffer, "%s", "SMPTE 170M");
+			_stprintf_s(szBuffer, _T("%s"), _T("SMPTE 170M"));
             break;
         case 7:
-		    sprintf(szBuffer, "%s", "SMPTE 240M");
+			_stprintf_s(szBuffer, _T("%s"), _T("SMPTE 240M"));
             break;
         case 0:
         default:
-		    sprintf(szBuffer, "%s", "Reserved");
+			_stprintf_s(szBuffer, _T("%s"), _T("Reserved"));
             break;
         }
         if (default_matrix_coefficients == true)
-            strcat(szBuffer, "*");
+			_tcscat_s(szBuffer, _T("*"));
 		SetDlgItemText(hDlg, IDC_COLORIMETRY, szBuffer);
 
-		sprintf(szBuffer, "%s", picture_structure == 3 ? "Frame" : "Field");
+		_stprintf_s(szBuffer, _T("%s"), picture_structure == 3 ? _T("Frame") : _T("Field"));
 		SetDlgItemText(hDlg, IDC_FRAME_STRUCTURE, szBuffer);
 
-		sprintf(szBuffer, "%d", frame+1);
+		_stprintf_s(szBuffer, _T("%d"), frame + 1);
 		SetDlgItemText(hDlg, IDC_CODED_NUMBER, szBuffer);
 
-		sprintf(szBuffer, "%d", playback+1);
+		_stprintf_s(szBuffer, _T("%d"), playback + 1);
 		SetDlgItemText(hDlg, IDC_PLAYBACK_NUMBER, szBuffer);
 
-		sprintf(szBuffer, "%d", frame_repeats);
+		_stprintf_s(szBuffer, _T("%d"), frame_repeats);
 		SetDlgItemText(hDlg, IDC_FRAME_REPEATS, szBuffer);
 
-		sprintf(szBuffer, "%d", field_repeats);
+		_stprintf_s(szBuffer, _T("%d"), field_repeats);
 		SetDlgItemText(hDlg, IDC_FIELD_REPEATS, szBuffer);
 
         if (playback - Old_Playback >= 30)
@@ -197,7 +197,7 @@ void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
 			double rate, rate_avg;
 			timing.ed = timeGetTime();
 
-			sprintf(szBuffer, "%.2f", 1000.0*(playback-Old_Playback)/(timing.ed-timing.mi+1));
+			_stprintf_s(szBuffer, _T("%.2f"), 1000.0*(playback - Old_Playback) / (timing.ed - timing.mi + 1));
 			SetDlgItemText(hDlg, IDC_FPS, szBuffer);
             // The first time through seems to be unreliable so don't use it.
             if (playback > 30)
@@ -209,11 +209,11 @@ void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
 		        {
 			        max_rate = rate;
 		        }
-			    sprintf(szBuffer, "%.3f Mbps", rate);
+				_stprintf_s(szBuffer, _T("%.3f Mbps"), rate);
 			    SetDlgItemText(hDlg, IDC_BITRATE, szBuffer);
-		        sprintf(szBuffer, "%.3f Mbps", max_rate);
+				_stprintf_s(szBuffer, _T("%.3f Mbps"), max_rate);
 		        SetDlgItemText(hDlg, IDC_BITRATE_MAX, szBuffer);
-			    sprintf(szBuffer, "%.3f Mbps", rate_avg);
+				_stprintf_s(szBuffer, _T("%.3f Mbps"), rate_avg);
 			    SetDlgItemText(hDlg, IDC_BITRATE_AVG, szBuffer);
             }
 			Bitrate_Monitor = 0;
@@ -221,7 +221,7 @@ void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
 			Old_Playback = playback;
 		}
 
-		sprintf(szBuffer, "%s", d2v.type == I_TYPE ? "I" : (d2v.type == P_TYPE ? "P" : "B"));
+		_stprintf_s(szBuffer, _T("%s"), d2v.type == I_TYPE ? _T("I") : (d2v.type == P_TYPE ? _T("P") : _T("B")));
 		SetDlgItemText(hDlg, IDC_CODING_TYPE, szBuffer);
 	}
 

@@ -278,14 +278,14 @@ void sequence_header()
 		if (i < 64)
 		{
 			// The matrix changed, so log it.
-			fprintf(Quants, "Intra Luma and Chroma Matrix at encoded frame %d:\n", Frame_Number);
+			_ftprintf_s(Quants, _T("Intra Luma and Chroma Matrix at encoded frame %d:\n"), Frame_Number);
 			for (i=0; i<64; i++)
 			{
-				fprintf(Quants, "%d ", intra_quantizer_matrix[i]);
+				_ftprintf_s(Quants, _T("%d "), intra_quantizer_matrix[i]);
 				if ((i % 8) == 7)
-					fprintf(Quants, "\n");
+					_ftprintf_s(Quants, _T("\n"));
 			}
-			fprintf(Quants, "\n");
+			_ftprintf_s(Quants, _T("\n"));
 			// Record the new matrix for change detection.
 			memcpy(intra_quantizer_matrix_log, intra_quantizer_matrix, sizeof(intra_quantizer_matrix));
 			memcpy(chroma_intra_quantizer_matrix_log, chroma_intra_quantizer_matrix, sizeof(chroma_intra_quantizer_matrix));
@@ -299,14 +299,14 @@ void sequence_header()
 		if (i < 64)
 		{
 			// The matrix changed, so log it.
-			fprintf(Quants, "NonIntra Luma and Chroma Matrix at encoded frame %d:\n", Frame_Number);
+			_ftprintf_s(Quants, _T("NonIntra Luma and Chroma Matrix at encoded frame %d:\n"), Frame_Number);
 			for (i=0; i<64; i++)
 			{
-				fprintf(Quants, "%d ", non_intra_quantizer_matrix[i]);
+				_ftprintf_s(Quants, _T("%d "), non_intra_quantizer_matrix[i]);
 				if ((i % 8) == 7)
-					fprintf(Quants, "\n");
+					_ftprintf_s(Quants, _T("\n"));
 			}
-			fprintf(Quants, "\n");
+			_ftprintf_s(Quants, _T("\n"));
 			// Record the new matrix for change detection.
 			memcpy(non_intra_quantizer_matrix_log, non_intra_quantizer_matrix, sizeof(non_intra_quantizer_matrix));
 			memcpy(chroma_non_intra_quantizer_matrix_log, chroma_non_intra_quantizer_matrix, sizeof(chroma_non_intra_quantizer_matrix));
@@ -337,11 +337,11 @@ void sequence_header()
         }
 		if (crop1088_warned == false)
 		{
-			char buf[255];
-			sprintf(buf, "Your stream specifies a display height of 1088.\n"
-				"This is sometimes an encoding mistake and the last 8 lines are garbage.\n"
-				"Do you want to treat it as if it specified a height of 1080?");
-			if (MessageBox(hWnd, buf, "Display Height 1088 Warning", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			TCHAR buf[255];
+			_stprintf_s(buf, _T("Your stream specifies a display height of 1088.\n")
+				_T("This is sometimes an encoding mistake and the last 8 lines are garbage.\n")
+				_T("Do you want to treat it as if it specified a height of 1080?"));
+			if (MessageBox(hWnd, buf, _T("Display Height 1088 Warning"), MB_YESNO | MB_ICONINFORMATION) == IDYES)
 				crop1088 = true;
 			else
 				crop1088 = false;
@@ -364,7 +364,7 @@ static void group_of_pictures_header()
 	int broken_link;
 
 	if (LogTimestamps_Flag && D2V_Flag && StartLogging_Flag)
-		fprintf(Timestamps, "GOP start\n");
+		_ftprintf_s(Timestamps, _T("GOP start\n"));
 	drop_flag   = Get_Bits(1);
 	gop_hour    = Get_Bits(5);
 	gop_minute  = Get_Bits(6);
@@ -390,17 +390,17 @@ static void picture_header(__int64 start, boolean HadSequenceHeader, boolean Had
 	picture_coding_type = Get_Bits(3);
 	if (LogTimestamps_Flag && D2V_Flag && StartLogging_Flag)
 	{
-		fprintf(Timestamps, "Decode picture: temporal reference %d", temporal_reference);
+		_ftprintf_s(Timestamps, _T("Decode picture: temporal reference %d"), temporal_reference);
 		switch (picture_coding_type)
 		{
 		case I_TYPE:
-			fprintf(Timestamps, "[I]\n");
+			_ftprintf_s(Timestamps, _T("[I]\n"));
 			break;
 		case P_TYPE:
-			fprintf(Timestamps, "[P]\n");
+			_ftprintf_s(Timestamps, _T("[P]\n"));
 			break;
 		case B_TYPE:
-			fprintf(Timestamps, "[B]\n");
+			_ftprintf_s(Timestamps, _T("[B]\n"));
 			break;
 		}
 	}
@@ -692,14 +692,14 @@ static void quant_matrix_extension()
 		if (i < 64)
 		{
 			// The matrix changed, so log it.
-			fprintf(Quants, "Intra Luma Matrix at encoded frame %d:\n", Frame_Number);
+			_ftprintf_s(Quants, _T("Intra Luma Matrix at encoded frame %d:\n"), Frame_Number);
 			for (i=0; i<64; i++)
 			{
-				fprintf(Quants, "%d ", intra_quantizer_matrix[i]);
+				_ftprintf_s(Quants, _T("%d "), intra_quantizer_matrix[i]);
 				if ((i % 8) == 7)
-					fprintf(Quants, "\n");
+					_ftprintf_s(Quants, _T("\n"));
 			}
-			fprintf(Quants, "\n");
+			_ftprintf_s(Quants, _T("\n"));
 			// Record the new matrix for change detection.
 			memcpy(intra_quantizer_matrix_log, intra_quantizer_matrix, sizeof(intra_quantizer_matrix));
 		}
@@ -712,14 +712,14 @@ static void quant_matrix_extension()
 		if (i < 64)
 		{
 			// The matrix changed, so log it.
-			fprintf(Quants, "NonIntra Luma Matrix at encoded frame %d:\n", Frame_Number);
+			_ftprintf_s(Quants, _T("NonIntra Luma Matrix at encoded frame %d:\n"), Frame_Number);
 			for (i=0; i<64; i++)
 			{
-				fprintf(Quants, "%d ", non_intra_quantizer_matrix[i]);
+				_ftprintf_s(Quants, _T("%d "), non_intra_quantizer_matrix[i]);
 				if ((i % 8) == 7)
-					fprintf(Quants, "\n");
+					_ftprintf_s(Quants, _T("\n"));
 			}
-			fprintf(Quants, "\n");
+			_ftprintf_s(Quants, _T("\n"));
 			// Record the new matrix for change detection.
 			memcpy(non_intra_quantizer_matrix_log, non_intra_quantizer_matrix, sizeof(non_intra_quantizer_matrix));
 		}
@@ -732,14 +732,14 @@ static void quant_matrix_extension()
 		if (i < 64)
 		{
 			// The matrix changed, so log it.
-			fprintf(Quants, "Intra Chroma Matrix at encoded frame %d:\n", Frame_Number);
+			_ftprintf_s(Quants, _T("Intra Chroma Matrix at encoded frame %d:\n"), Frame_Number);
 			for (i=0; i<64; i++)
 			{
-				fprintf(Quants, "%d ", chroma_intra_quantizer_matrix[i]);
+				_ftprintf_s(Quants, _T("%d "), chroma_intra_quantizer_matrix[i]);
 				if ((i % 8) == 7)
-					fprintf(Quants, "\n");
+					_ftprintf_s(Quants, _T("\n"));
 			}
-			fprintf(Quants, "\n");
+			_ftprintf_s(Quants, _T("\n"));
 			// Record the new matrix for change detection.
 			memcpy(chroma_intra_quantizer_matrix_log, chroma_intra_quantizer_matrix, sizeof(chroma_intra_quantizer_matrix));
 		}
@@ -752,14 +752,14 @@ static void quant_matrix_extension()
 		if (i < 64)
 		{
 			// The matrix changed, so log it.
-			fprintf(Quants, "NonIntra Chroma Matrix at encoded frame %d:\n", Frame_Number);
+			_ftprintf_s(Quants, _T("NonIntra Chroma Matrix at encoded frame %d:\n"), Frame_Number);
 			for (i=0; i<64; i++)
 			{
-				fprintf(Quants, "%d ", chroma_non_intra_quantizer_matrix[i]);
+				_ftprintf_s(Quants, _T("%d "), chroma_non_intra_quantizer_matrix[i]);
 				if ((i % 8) == 7)
-					fprintf(Quants, "\n");
+					_ftprintf_s(Quants, _T("\n"));
 			}
-			fprintf(Quants, "\n");
+			_ftprintf_s(Quants, _T("\n"));
 			// Record the new matrix for change detection.
 			memcpy(chroma_non_intra_quantizer_matrix_log, chroma_non_intra_quantizer_matrix, sizeof(chroma_non_intra_quantizer_matrix));
 		}

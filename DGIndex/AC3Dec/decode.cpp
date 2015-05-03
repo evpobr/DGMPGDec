@@ -82,7 +82,7 @@ resync:
 	// check the crc over the entire frame
 	if (crc_process_frame(buffer, (syncinfo->frame_size<<1) - 2))
 	{
-		SetDlgItemText(hDlg, IDC_INFO, "audio error");
+		SetDlgItemText(hDlg, IDC_INFO, _T("audio error"));
 
 		syncword = 0xffff;
 		buffer_size = 0;
@@ -114,7 +114,7 @@ uint_32 ac3_decode_data(uint_8 *data_start, uint_32 length, uint_32 start)
 	{
 		if (error_flag)
 		{
-			SetDlgItemText(hDlg, IDC_INFO, "audio error");
+			SetDlgItemText(hDlg, IDC_INFO, _T("audio error"));
 			ZeroMemory(s16_samples, sizeof(sint_16) * 256 * 2 * 6);
 			error_flag = 0;
 			continue;
@@ -164,7 +164,7 @@ error:
 
 				if (Decision_Flag && Sound_Max > Norm_Ratio)
 				{
-					sprintf(szBuffer, "%.2f", 327.68 * Norm_Ratio / Sound_Max);
+					_stprintf_s(szBuffer, _T("%.2f"), 327.68 * Norm_Ratio / Sound_Max);
 					SetDlgItemText(hDlg, IDC_INFO, szBuffer);
 				}
 			}
@@ -178,7 +178,7 @@ void InitialAC3()
 
 	if (AudioOnly_Flag)
 	{
-		MessageBox(hWnd, "The \'Demux Audio Only\' feature is intended for demuxing, not decoding.\nDeselect \'Decode AC3 Track to WAV\' in Audio/Output Method.", NULL, MB_OK | MB_ICONERROR);
+		MessageBox(hWnd, _T("The \'Demux Audio Only\' feature is intended for demuxing, not decoding.\nDeselect \'Decode AC3 Track to WAV\' in Audio/Output Method."), NULL, MB_OK | MB_ICONERROR);
 		ThreadKill(MISC_KILL);
 	}
 	for (i = 0x80, count = 0; i < 0x88; i++)
@@ -188,7 +188,7 @@ void InitialAC3()
 	}
 	if (count > 1)
 	{
-		MessageBox(hWnd, "Cannot decode multiple AC3 streams at the same time.\nMake sure only one track is selected.", NULL, MB_OK | MB_ICONERROR);
+		MessageBox(hWnd, _T("Cannot decode multiple AC3 streams at the same time.\nMake sure only one track is selected."), NULL, MB_OK | MB_ICONERROR);
 		ThreadKill(MISC_KILL);
 	}
 

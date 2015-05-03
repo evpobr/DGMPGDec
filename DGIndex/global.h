@@ -493,7 +493,7 @@ XTN void Dual_Prime_Arithmetic(int DMV[][2], int *dmvector, int mvx, int mvy);
 
 /* mpeg2dec.c */
 XTN DWORD WINAPI MPEG2Dec(LPVOID n);
-XTN int initial_parse(char *input_file, int *mpeg_type_p, int *is_pgrogram_stream_p);
+XTN int initial_parse(TCHAR *input_file, int *mpeg_type_p, int *is_pgrogram_stream_p);
 XTN void setRGBValues();
 #define IS_NOT_MPEG 0
 #define IS_MPEG1 1

@@ -191,7 +191,7 @@ do_rip_play:
 			if (_read(Infile[0], buf, 1) == 0)
 			{
 				// EOF
-				MessageBox(hWnd, "File contains all nulls!", NULL, MB_OK | MB_ICONERROR);
+				MessageBox(hWnd, _T("File contains all nulls!"), NULL, MB_OK | MB_ICONERROR);
 				return 0;
 			}
 			if (buf[0] != 0)
@@ -272,7 +272,7 @@ try_again:
 			if (Stop_Flag || count > 10000000)
 			{
 				// We didn't find a sequence header.
-				MessageBox(hWnd, "No video sequence header found!", NULL, MB_OK | MB_ICONERROR);
+				MessageBox(hWnd, _T("No video sequence header found!"), NULL, MB_OK | MB_ICONERROR);
 				ThreadKill(MISC_KILL);
 			}
 			Flush_Buffer(8);
@@ -286,7 +286,7 @@ try_again:
 			is_program_stream = 0;
 			if (initial_parse(Infilename[0], &mpeg_type, &is_program_stream) == -1)
 			{
-				MessageBox(hWnd, "Cannot find video stream!", NULL, MB_OK | MB_ICONERROR);
+				MessageBox(hWnd, _T("Cannot find video stream!"), NULL, MB_OK | MB_ICONERROR);
 				return 0;
 			}
 			if (is_program_stream)
@@ -328,61 +328,61 @@ try_again:
 		// The first parameter is the format version number.
 		// It must be coordinated with the test in DGDecode
 		// and used to reject obsolete D2V files.
-		fprintf(D2VFile, "DGIndexProjectFile%d\n%d\n", D2V_FILE_VERSION, i);
+		_ftprintf_s(D2VFile, _T("DGIndexProjectFile%d\n%d\n"), D2V_FILE_VERSION, i);
 		while (i)
 		{
 			if (FullPathInFiles)
-				fprintf(D2VFile, "%s\n", Infilename[NumLoadedFiles-i]);
+				_ftprintf_s(D2VFile, _T("%s\n"), Infilename[NumLoadedFiles - i]);
 			else
             {
-				char path[DG_MAX_PATH];
-				char* p = path;
+				TCHAR path[DG_MAX_PATH];
+				TCHAR* p = path;
 
                 if (!PathRelativePathTo(path, D2VFilePath, 0, Infilename[NumLoadedFiles-i], 0))
 					p = Infilename[NumLoadedFiles - i]; // different drives;
                 // Delete leading ".\" if it is present.
-                if (p[0] == '.' && p[1] == '\\')
+				if (p[0] == _T('.') && p[1] == _T('\\'))
                     p += 2;
-				fprintf(D2VFile, "%s\n", p);
+				_ftprintf_s(D2VFile, _T("%s\n"), p);
 			}
 			i--;
 		}
 
-		fprintf(D2VFile, "\nStream_Type=%d\n", SystemStream_Flag);
+		_ftprintf_s(D2VFile, _T("\nStream_Type=%d\n"), SystemStream_Flag);
 		if (SystemStream_Flag == TRANSPORT_STREAM)
 		{
-			fprintf(D2VFile, "MPEG2_Transport_PID=%x,%x,%x\n",
+			_ftprintf_s(D2VFile, _T("MPEG2_Transport_PID=%x,%x,%x\n"),
 					MPEG2_Transport_VideoPID, MPEG2_Transport_AudioPID, MPEG2_Transport_PCRPID);
-			fprintf(D2VFile, "Transport_Packet_Size=%d\n", TransportPacketSize);
+			_ftprintf_s(D2VFile, _T("Transport_Packet_Size=%d\n"), TransportPacketSize);
 		}
 
-		fprintf(D2VFile, "MPEG_Type=%d\n", mpeg_type);
-		fprintf(D2VFile, "iDCT_Algorithm=%d\n", iDCT_Flag);
-		fprintf(D2VFile, "YUVRGB_Scale=%d\n", Scale_Flag);
+		_ftprintf_s(D2VFile, _T("MPEG_Type=%d\n"), mpeg_type);
+		_ftprintf_s(D2VFile, _T("iDCT_Algorithm=%d\n"), iDCT_Flag);
+		_ftprintf_s(D2VFile, _T("YUVRGB_Scale=%d\n"), Scale_Flag);
 		if (Luminance_Flag)
 		{
-			fprintf(D2VFile, "Luminance_Filter=%d,%d\n", LumGamma, LumOffset);
+			_ftprintf_s(D2VFile, _T("Luminance_Filter=%d,%d\n"), LumGamma, LumOffset);
 		}
 		else
 		{
-			fprintf(D2VFile, "Luminance_Filter=0,0\n");
+			_ftprintf_s(D2VFile, _T("Luminance_Filter=0,0\n"));
 		}
 
 		if (Cropping_Flag)
 		{
-			fprintf(D2VFile, "Clipping=%d,%d,%d,%d\n", Clip_Left, Clip_Right, Clip_Top, Clip_Bottom);
+			_ftprintf_s(D2VFile, _T("Clipping=%d,%d,%d,%d\n"), Clip_Left, Clip_Right, Clip_Top, Clip_Bottom);
 		}
 		else
 		{
-			fprintf(D2VFile, "Clipping=0,0,0,0\n");
+			_ftprintf_s(D2VFile, _T("Clipping=0,0,0,0\n"));
 		}
 
 		if (mpeg_type == IS_MPEG2)
-			fprintf(D2VFile, "Aspect_Ratio=%s\n", AspectRatio[aspect_ratio_information]);
+			_ftprintf_s(D2VFile, _T("Aspect_Ratio=%s\n"), AspectRatio[aspect_ratio_information]);
 		else
-			fprintf(D2VFile, "Aspect_Ratio=%s\n", AspectRatioMPEG1[aspect_ratio_information]);
-		fprintf(D2VFile, "Picture_Size=%dx%d\n", horizontal_size, vertical_size);
-		fprintf(D2VFile, "Field_Operation=%d\n", FO_Flag);
+			_ftprintf_s(D2VFile, _T("Aspect_Ratio=%s\n"), AspectRatioMPEG1[aspect_ratio_information]);
+		_ftprintf_s(D2VFile, _T("Picture_Size=%dx%d\n"), horizontal_size, vertical_size);
+		_ftprintf_s(D2VFile, _T("Field_Operation=%d\n"), FO_Flag);
 		if (FO_Flag == FO_FILM)
 		{
 			if (fabs(Frame_Rate - 23.976) < 0.001)
@@ -396,8 +396,8 @@ try_again:
 				fr_den = 1000;
 			}
 		}
-		fprintf(D2VFile, "Frame_Rate=%d (%u/%u)\n", (int)(Frame_Rate*1000), fr_num, fr_den);
-		fprintf(D2VFile, "Location=%d,%I64x,%d,%I64x\n\n",
+		_ftprintf_s(D2VFile, _T("Frame_Rate=%d (%u/%u)\n"), (int)(Frame_Rate * 1000), fr_num, fr_den);
+		_ftprintf_s(D2VFile, _T("Location=%d,%I64x,%d,%I64x\n\n"),
 				process.leftfile, process.leftlba, process.rightfile, process.rightlba);
 
         // Determine the number of leading B frames from the start position. This will be used to
@@ -444,7 +444,7 @@ try_again:
     if (Timestamps)
     {
         StartLogging_Flag = 1;
-        fprintf(Timestamps, "leading B frames = %d\n", LeadingBFrames);
+		_ftprintf_s(Timestamps, _T("leading B frames = %d\n"), LeadingBFrames);
     }
     PTSAdjustDone = 0;
 	CurrentFile = process.startfile;

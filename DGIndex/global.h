@@ -213,7 +213,7 @@ XTN __int64 gop_positions[MAX_GOPS];
 XTN int gop_positions_ndx;
 
 typedef struct {
-	char					filename[DG_MAX_PATH];
+	TCHAR					filename[DG_MAX_PATH];
 	FILE					*file;
     bool                    selected_for_demux;
 	bool					rip;

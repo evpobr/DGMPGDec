@@ -3519,7 +3519,7 @@ int dprintf(char* fmt, ...)
 	va_list argp;
 
 	va_start(argp, fmt);
-	vsprintf(printString, fmt, argp);
+	vsprintf_s(printString, fmt, argp);
 	va_end(argp);
     OutputDebugString(printString);
 	return strlen(printString);

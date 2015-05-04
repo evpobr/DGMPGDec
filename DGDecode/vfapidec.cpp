@@ -88,7 +88,7 @@ int CMPEG2Decoder::Open(const char *path)
 
 	CMPEG2Decoder* out = this;
 
-	out->VF_File = fopen(path, "r");
+	fopen_s(&out->VF_File, path, "r");
 	if (fgets(ID, 79, out->VF_File)==NULL)
 		return 1;
 	if (strstr(ID, "DGIndexProjectFile") == NULL)
@@ -96,7 +96,7 @@ int CMPEG2Decoder::Open(const char *path)
 	if (strncmp(ID, PASS, 20))
 		return 2;
 
-	fscanf(out->VF_File, "%d\n", &File_Limit);
+	fscanf_s(out->VF_File, "%d\n", &File_Limit);
 	i = File_Limit;
 	while (i)
 	{
@@ -112,19 +112,19 @@ int CMPEG2Decoder::Open(const char *path)
 			{
 				GetCurrentDirectory(_MAX_PATH, d2v_stem);
 				if (*(d2v_stem + strlen(d2v_stem) - 1) != '\\')
-					strcat(d2v_stem, "\\");
-				strcat(d2v_stem, path);
+					strcat_s(d2v_stem, "\\");
+				strcat_s(d2v_stem, path);
 			}
 			else
 			{
-				strcpy(d2v_stem, path);
+				strcpy_s(d2v_stem, path);
 			}
 			p = d2v_stem + strlen(d2v_stem);
 			while (*p != '\\' && p != d2v_stem) p--;
 			if (p != d2v_stem)
 			{
 				p[1] = 0;
-				strcat(d2v_stem, Infilename[File_Limit-i]);
+				strcat_s(d2v_stem, Infilename[File_Limit-i]);
 				PathCanonicalize(open_path, d2v_stem);
 				if ((Infile[File_Limit-i] = _open(open_path, _O_RDONLY | _O_BINARY))==-1)
 					return 3;

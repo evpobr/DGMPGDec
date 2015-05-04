@@ -77,7 +77,7 @@ MPEG2Source::MPEG2Source(const char* d2v, int cpu, int idct, int iPP, int modera
 	const char *path = d2v;
 
 	FILE *f;
-	if ((f = fopen(path,"r"))==NULL)
+	if (fopen_s(&f, path,"r"))
 		env->ThrowError("MPEG2Source : unable to load D2V file \"%s\" ",path);
 	
 	fclose(f);
@@ -359,31 +359,31 @@ PVideoFrame __stdcall MPEG2Source::GetFrame(int n, IScriptEnvironment* env)
 		switch (m_decoder.GOPList[gop]->matrix)
 		{
 		case 0:
-			strcpy(Matrix_s, "Forbidden");
+			strcpy_s(Matrix_s, "Forbidden");
 			break;
 		case 1:
-			strcpy(Matrix_s, "ITU-R BT.709");
+			strcpy_s(Matrix_s, "ITU-R BT.709");
 			break;
 		case 2:
-			strcpy(Matrix_s, "Unspecified Video");
+			strcpy_s(Matrix_s, "Unspecified Video");
 			break;
 		case 3:
-			strcpy(Matrix_s, "Reserved");
+			strcpy_s(Matrix_s, "Reserved");
 			break;
 		case 4:
-			strcpy(Matrix_s, "FCC");
+			strcpy_s(Matrix_s, "FCC");
 			break;
 		case 5:
-			strcpy(Matrix_s, "ITU-R BT.470-2 System B, G");
+			strcpy_s(Matrix_s, "ITU-R BT.470-2 System B, G");
 			break;
 		case 6:
-			strcpy(Matrix_s, "SMPTE 170M");
+			strcpy_s(Matrix_s, "SMPTE 170M");
 			break;
 		case 7:
-			strcpy(Matrix_s, "SMPTE 240M (1987)");
+			strcpy_s(Matrix_s, "SMPTE 240M (1987)");
 			break;
 		default:
-			strcpy(Matrix_s, "Reserved");
+			strcpy_s(Matrix_s, "Reserved");
 			break;
 		}
 	}
@@ -391,7 +391,7 @@ PVideoFrame __stdcall MPEG2Source::GetFrame(int n, IScriptEnvironment* env)
 	if (m_decoder.info == 1)
 	{
 		char msg1[1024];
-		sprintf(msg1,"%s (c) 2007 Donald A. Graft (et al)\n" \
+		sprintf_s(msg1,"%s (c) 2007 Donald A. Graft (et al)\n" \
 					 "---------------------------------------\n" \
 					 "Source:        %s\n" \
 					 "Frame Rate:    %3.6f fps (%u/%u) %s\n" \
@@ -1667,7 +1667,7 @@ if (strncmp(buf, name, len) == 0) \
 	{
 		FILE *f;
 
-		if ((f = fopen("DGDecode.def", "r")) != NULL)
+		if (!fopen_s(&f, "DGDecode.def", "r"))
 		{
 			while(fgets(buf, 80, f) != 0)
 			{

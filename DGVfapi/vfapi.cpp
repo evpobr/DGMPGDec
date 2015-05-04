@@ -49,8 +49,8 @@ extern "C" HRESULT __stdcall vfGetPluginInfo(LPVF_PluginInfo info)
 	info->dwSupportStreamType = VF_STREAM_VIDEO;
 	info->dwSupportStreamType |= VF_STREAM_AUDIO;
 
-	strcpy(info->cPluginInfo, "DGMPGDec 1.5.8 D2V/AVS Reader");
-	strcpy(info->cFileType, "DGIndex or AviSynth File (*.d2v;*.avs)|*.d2v;*.avs");
+	StrCpy(info->cPluginInfo, "DGMPGDec 1.5.8 D2V/AVS Reader");
+	StrCpy(info->cFileType, "DGIndex or AviSynth File (*.d2v;*.avs)|*.d2v;*.avs");
 
 	return VF_OK;
 }
@@ -109,10 +109,10 @@ extern "C" HRESULT __stdcall open_file(char *path, LPVF_FileHandle out)
 {
 	HKEY  hKey;
 	DWORD dwSize, dwDataType;
-	unsigned char dwValue[1024], *p, ttype;
+	BYTE dwValue[1024], *p, ttype;
 
-	char buf[512];
-	sprintf(buf,"DGVfapi: attempt to open file: %s.\n", path);
+	CHAR buf[512];
+	wsprintf(buf, "DGVfapi: attempt to open file: %s.\n", path);
 	OutputDebugString(buf);
 
 	if ((p = (unsigned char *)strrchr(path, '.')) == NULL) return VF_ERROR;
@@ -152,7 +152,7 @@ extern "C" HRESULT __stdcall open_file(char *path, LPVF_FileHandle out)
 		p = dwValue + strlen((const char *)dwValue);
 		while (*p != '\\') p--;
 		*++p = 0;
-		strcat((char *)dwValue, "dgdecode.dll");
+		lstrcat((char *)dwValue, "dgdecode.dll");
 
 		j->hDLL = LoadLibrary((LPCSTR)dwValue);
 		if (!(j->hDLL))
@@ -237,7 +237,7 @@ extern "C" HRESULT __stdcall open_file(char *path, LPVF_FileHandle out)
 		catch (AvisynthError e)
 		{
 			OutputDebugString("DGVfapi: error (Avisynth Error) loading avisynth script!\n");
-			sprintf(buf,"DGVfapi: %s.\n", e.msg);
+			wsprintf(buf, "DGVfapi: %s.\n", e.msg);
 			OutputDebugString(buf);
 			closeAVS(j);
 			return VF_ERROR;

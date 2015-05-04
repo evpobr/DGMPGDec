@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by gui.rc
 //
 #define ID_LEFT_BUTTON                  1
@@ -28,6 +28,7 @@
 #define IDD_SELECT_TRACKS               24
 #define IDD_BMP_PATH                    25
 #define IDD_SELECT_DELAY_TRACK          26
+#define IDD_DIALOG1                     27
 #define IDC_CODED_NUMBER                1016
 #define IDC_PLAYBACK_NUMBER             1017
 #define IDC_FRAME_RATE                  1018
@@ -230,7 +231,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        26
+#define _APS_NEXT_RESOURCE_VALUE        28
 #define _APS_NEXT_COMMAND_VALUE         32886
 #define _APS_NEXT_CONTROL_VALUE         1098
 #define _APS_NEXT_SYMED_VALUE           101

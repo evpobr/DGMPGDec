@@ -27,6 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
+IDD_ABOUT DIALOGEX 0, 0, 171, 125
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Version"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+    PUSHBUTTON      "OK",IDOK,142,7,22,15
+    CTEXT           "",IDC_VERSION,35,7,100,17,SS_CENTERIMAGE | WS_BORDER | NOT WS_GROUP
+    ICON            IDI_MOVIE,IDC_STATIC,7,7,21,20
+    LTEXT           "DGIndex is an evolution of jackei's original work called DVD2AVI. The name was changed to prevent versioning nightmares and to reflect the significant divergence of functionality.",IDC_STATIC,9,35,153,36,NOT WS_GROUP
+    LTEXT           "I am using this About box to permanently record the origins of DGIndex and to acknowledge the original work of jackei, as well as my personal gratitude for his wonderful contribution to our community!",IDC_STATIC,7,74,157,44,NOT WS_GROUP
+END
+
 IDD_INFO DIALOG 0, 0, 125, 406
 STYLE DS_SETFONT | DS_MODALFRAME | DS_NOIDLEMSG | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Information"
@@ -89,18 +101,6 @@ BEGIN
     CTEXT           "",IDC_DISPLAY_SIZE,56,45,59,9,SS_CENTERIMAGE | SS_SUNKEN | NOT WS_GROUP
     RTEXT           "Sequence",IDC_STATIC,13,85,40,9,SS_CENTERIMAGE | NOT WS_GROUP
     CTEXT           "",IDC_SEQUENCE,56,85,59,9,SS_CENTERIMAGE | SS_SUNKEN | NOT WS_GROUP
-END
-
-IDD_ABOUT DIALOG 0, 0, 171, 123
-STYLE DS_SETFONT | DS_MODALFRAME | DS_NOIDLEMSG | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Version"
-FONT 10, "System"
-BEGIN
-    PUSHBUTTON      "OK",IDOK,143,8,22,15
-    CTEXT           "",IDC_VERSION,31,7,104,17,SS_CENTERIMAGE | WS_BORDER | NOT WS_GROUP
-    ICON            IDI_MOVIE,IDC_STATIC,5,6,20,20
-    LTEXT           "DGIndex is an evolution of jackei's original work called DVD2AVI. The name was changed to prevent versioning nightmares and to reflect the significant divergence of functionality.",IDC_STATIC,9,35,153,36,NOT WS_GROUP
-    LTEXT           "I am using this About box to permanently record the origins of DGIndex and to acknowledge the original work of jackei, as well as my personal gratitude for his wonderful contribution to our community!",IDC_STATIC,9,74,153,44,NOT WS_GROUP
 END
 
 IDD_FILELIST DIALOG 0, 0, 270, 151
@@ -239,6 +239,30 @@ BEGIN
     PUSHBUTTON      "Cancel",IDC_TRACK_CANCEL,63,54,50,14
     LTEXT           "Enter audio id to analyze in hex without the leading 0x",IDC_STATIC,7,2,202,16,SS_CENTERIMAGE
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 164
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 118
+    END
+
+    IDD_SELECT_TRACKS, DIALOG
+    BEGIN
+        RIGHTMARGIN, 209
+    END
+END
+#endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -503,22 +527,6 @@ BEGIN
     "\0"
 END
 
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_SELECT_TRACKS, DIALOG
-    BEGIN
-        RIGHTMARGIN, 209
-    END
-END
 #endif    // APSTUDIO_INVOKED
 
 

@@ -29,7 +29,7 @@
 #define GLOBAL
 #include "global.h"
 
-static TCHAR Version[] = _T("DGIndex 1.5.9");
+static TCHAR Version[] = _T("DGIndex 1.5.8");
 
 #define TRACK_HEIGHT	32
 #define INIT_WIDTH		480

@@ -146,10 +146,10 @@ extern "C" HRESULT __stdcall open_file(char *path, LPVF_FileHandle out)
 						&hKey) == ERROR_SUCCESS)
 		{
 			dwSize = sizeof(dwValue);
-			RegQueryValueEx(hKey, "DGIndex", 0, &dwDataType, (unsigned char *) &dwValue, &dwSize);
+			RegQueryValueEx(hKey, "DGIndex", 0, &dwDataType, (LPBYTE) &dwValue, &dwSize);
 			RegCloseKey(hKey);
 		}
-		p = dwValue + strlen((const char *)dwValue);
+		p = dwValue + lstrlen((const char *)dwValue);
 		while (*p != '\\') p--;
 		*++p = 0;
 		lstrcat((char *)dwValue, "dgdecode.dll");

@@ -25,6 +25,7 @@
 #include <windows.h>
 #include "resource.h"
 #include "Shlwapi.h"
+#include <locale.h>
 
 #define GLOBAL
 #include "global.h"
@@ -102,6 +103,8 @@ extern unsigned char *Rdbfr;
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
+	_tsetlocale(LC_ALL, _T(".ACP"));
+
 	MSG msg;
 	HACCEL hAccel;
 

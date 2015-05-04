@@ -4172,17 +4172,17 @@ void UpdateWindowText(void)
 		}
 	}
 	else
-		_stprintf(szBuffer, _T("DGIndex - "));
+		_stprintf_s(szBuffer, _T("DGIndex - "));
 	ext = _tcsrchr(Infilename[CurrentFile], _T('\\'));
 	if (ext)
 		_tcsncat(szBuffer, ext+1, _tcslen(Infilename[CurrentFile])-(int)(ext-Infilename[CurrentFile]));
 	else
 		_tcscat(szBuffer, Infilename[CurrentFile]);
-	_stprintf(szTemp, _T(" [%dx%d] [File %d/%d]"), Clip_Width, Clip_Height, CurrentFile + 1, NumLoadedFiles);
+	_stprintf_s(szTemp, _T(" [%dx%d] [File %d/%d]"), Clip_Width, Clip_Height, CurrentFile + 1, NumLoadedFiles);
 	_tcscat(szBuffer, szTemp);
 	if (VOB_ID && CELL_ID)
 	{
-		_stprintf(szTemp, _T(" [Vob %d] [Cell %d]"), VOB_ID, CELL_ID);
+		_stprintf_s(szTemp, _T(" [Vob %d] [Cell %d]"), VOB_ID, CELL_ID);
 		_tcscat(szBuffer, szTemp);
 	}
 	SetWindowText(hWnd, szBuffer);
@@ -4197,7 +4197,7 @@ void OutputProgress(int progr)
 		TCHAR percent[20];
 		DWORD written;
 
-		_stprintf(percent, _T("%d\n"), progr);
+		_stprintf_s(percent, _T("%d\n"), progr);
 		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), percent, _tcslen(percent), &written, NULL);
 		lastprogress = progr;
 	}

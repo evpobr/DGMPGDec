@@ -126,7 +126,7 @@ int dprintf(TCHAR* fmt, ...)
 	TCHAR printString[1000];
 	va_list argp;
 	va_start(argp, fmt);
-	_vstprintf(printString, fmt, argp);
+	_vstprintf_s(printString, fmt, argp);
 	va_end(argp);
     OutputDebugString(printString);
 	return _tcslen(printString);

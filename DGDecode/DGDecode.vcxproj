@@ -264,78 +264,197 @@
     <ClCompile Include="alloc.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="AVISynthAPI.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="getbit.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="gethdr.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="getpic.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="global.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="idctfpu.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="idctref.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="mc.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="mc3dnow.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="mcmmx.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="misc.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="motion.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="MPEG2DEC.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="PostProcess.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="store.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="text-overlay.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="Utilities.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="vfapidec.cpp">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'"> /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel   /O3 /D /"DGDecode_EXPORTS" /openmp /Qip /Qunroll /Qparallel </AdditionalOptions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -349,6 +468,8 @@
     <ClInclude Include="misc.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="skl_nasm.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
     <ClInclude Include="text-overlay.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>

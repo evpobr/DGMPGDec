@@ -526,13 +526,13 @@ XTN void CloseWAV(FILE *file, int size);
 XTN void DownWAV(FILE *file);
 XTN bool CheckWAV(void);
 
-static char *AspectRatio[] = {
-	"", "1:1", "4:3", "16:9", "2.21:1"
+static TCHAR *AspectRatio[] = {
+	_T(""), _T("1:1"), _T("4:3"), _T("16:9"), _T("2.21:1")
 };
 
-static char *AspectRatioMPEG1[] = {
-	"", "1:1", "0.6735", "16:9,625", "0.7615", "0.8055", "16:9,525", "0.8935", "4:3,625", "0.9815", "1.0255",
-	"1.0695", "4:3,525", "1.575", "1.2015"
+static TCHAR *AspectRatioMPEG1[] = {
+	_T(""), _T("1:1"), _T("0.6735"), _T("16:9,625"), _T("0.7615"), _T("0.8055"), _T("16:9,525"), _T("0.8935"), _T("4:3,625"), _T("0.9815"), _T("1.0255"),
+	_T("1.0695"), _T("4:3,525"), _T("1.575"), _T("1.2015")
 };
 
 XTN int TransportPacketSize;

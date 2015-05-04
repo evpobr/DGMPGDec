@@ -437,7 +437,15 @@ XTN int top_field_first;
 XTN int repeat_first_field;
 XTN int intra_vlc_format;
 
+#ifdef UNICODE
+
+#define strverscmp StrCmpLogicalW
+
+#else
+
 XTN int strverscmp(const TCHAR *s1, const TCHAR *s2);
+
+#endif
 
 /* getbit.c */
 XTN void UpdateInfo(void);

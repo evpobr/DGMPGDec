@@ -102,6 +102,9 @@
     <ClCompile Include="AC3Dec\sanity_check.cpp">
       <Filter>AC3Dec</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="filter.h">
@@ -131,6 +134,12 @@
     <ClInclude Include="AC3Dec\bitstream.h">
       <Filter>AC3Dec</Filter>
     </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="gui.rc">
@@ -143,10 +152,16 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="idctmmx.asm" />
+    <NASM Include="simple_idct_mmx.asm">
+      <Filter>Source Files</Filter>
+    </NASM>
+    <NASM Include="skl_dct_sse.asm">
+      <Filter>Source Files</Filter>
+    </NASM>
   </ItemGroup>
   <ItemGroup>
-    <NASM Include="simple_idct_mmx.asm" />
-    <NASM Include="skl_dct_sse.asm" />
+    <MASM Include="idctmmx.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

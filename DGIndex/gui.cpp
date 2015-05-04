@@ -20,7 +20,6 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
  *
  */
-#define _WIN32_WINNT 0x0501 // Needed for WM_MOUSEWHEEL
 
 #include <windows.h>
 #include "resource.h"

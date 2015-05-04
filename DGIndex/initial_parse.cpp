@@ -40,10 +40,10 @@ static unsigned char buffer[256000];
 static int buffer_length, buffer_ndx;
 static int EOF_reached;
 
-int initial_parse(char *input_file, int *mpeg_type_p, int *is_program_stream_p)
+int initial_parse(TCHAR *input_file, int *mpeg_type_p, int *is_program_stream_p)
 {
 	// Open the input file.
-	if (input_file[0] == 0 || (file = _open(input_file, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL)) == -1)
+	if (input_file[0] == 0 || (file = _topen(input_file, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL)) == -1)
 	{
 		return -1;
 	}
@@ -53,7 +53,7 @@ int initial_parse(char *input_file, int *mpeg_type_p, int *is_program_stream_p)
 
 	// Re-open the input file.
 	_close(file);
-	file = _open(input_file, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
+	file = _topen(input_file, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 	if (file == -1)
 	{
 		return -1;

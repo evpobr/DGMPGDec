@@ -337,6 +337,16 @@ XTN int HadAddDialog;
 XTN int hadRGoption;
 #define D2V_FILE_VERSION 16
 
+#define MAX_LOADSTRING	1024
+
+XTN TCHAR g_szMessage[MAX_LOADSTRING];
+
+void DGShowError(UINT nTextID, UINT nCaptionID);
+void DGShowError(UINT nTextID);
+void DGShowWarning(UINT nTextID, UINT nCaptionID);
+void DGShowWarning(UINT nTextID);
+
+
 XTN int WindowMode;
 XTN HWND hWnd, hDlg, hTrack;
 XTN HWND hwndSelect;

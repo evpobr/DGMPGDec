@@ -274,11 +274,10 @@ NEW_VERSION:
     Rdbfr = (unsigned char *) malloc(BUFFER_SIZE);
     if (Rdbfr == NULL)
     {
-		MessageBox(hWnd, _T("Couldn't allocate stream buffer using configured size.\nTrying default size."), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_ALLOCATE_STREAM_BUFFER_CONFIGURED_SIZE);
         Rdbfr = (unsigned char *) malloc(32 * SECTOR_SIZE);
-        if (Rdbfr == NULL)
         {
-			MessageBox(hWnd, _T("Couldn't allocate stream buffer using default size.\nExiting."), NULL, MB_OK | MB_ICONERROR);
+			DGShowError(IDS_ERROR_ALLOCATE_STREAM_BUFFER_CONFIGURED_SIZE);
 		    exit(0);
         }
     }
@@ -851,7 +850,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         }
                         else
                         {
-							MessageBox(hWnd, _T("Cannot open the specified file"), _T("Open file error"), MB_OK | MB_ICONERROR);
+							DGShowError(IDS_ERROR_OPEN_FILE, IDS_ERROR_OPEN_FILE_TITLE);
                             DeleteMRUList(wmId - ID_MRU_FILE0);
                         }
                         break;
@@ -895,7 +894,7 @@ skip:
 				case IDM_PLAY:
 					if (!Check_Flag)
 					{
-						MessageBox(hWnd, _T("No data. Check your PIDS."), _T("Preview/Play"), MB_OK | MB_ICONWARNING);
+						DGShowWarning(IDS_ERROR_NO_DATA_CHECK_PIDS, IDS_PREVIEW_PLAY);
 					}
 					else if (IsWindowEnabled(hTrack))
 					{
@@ -925,7 +924,7 @@ skip:
 				case IDM_DEMUX_AUDIO:
 					if (Method_Flag == AUDIO_NONE)
 					{
-						MessageBox(hWnd, _T("Audio demuxing is disabled.\nEnable it first in the Audio/Output Method menu."), NULL, MB_OK | MB_ICONERROR);
+						DGShowError(IDS_ERROR_AUDIO_DEMUXING_DISABLED);
 						break;
 					}
 					process.locate = LOCATE_DEMUX_AUDIO;
@@ -947,18 +946,17 @@ skip:
 proceed:
 					if (!Check_Flag)
 					{
-						MessageBox(hWnd, _T("No data. Check your PIDS."), _T("Save Project"), MB_OK | MB_ICONWARNING);
+						DGShowWarning(IDS_ERROR_NO_DATA_CHECK_PIDS, IDS_SAVE_PROJECT);
 						break;
 					}
 					if (!CLIActive && (FO_Flag == FO_FILM) && ((mpeg_type == IS_MPEG1) || ((int) (frame_rate * 1000) != 29970)))
 					{
 						TCHAR buf[255];
-						_stprintf(buf, _T("It is almost always wrong to run Force Film on an MPEG1 stream,\n")
-							_T("or a stream with a frame rate other than 29.970.\n")
-							_T("Your stream is %s and has a frame rate of %.3f.\n")
-							_T("Do you want to do it anyway?"),
+						LoadString(GetModuleHandle(NULL), IDS_WARNING_FORCE_FILM, szBuffer, _countof(szBuffer));
+						LoadString(GetModuleHandle(NULL), IDS_FORCE_FILM_WARNING, szTemp, _countof(szTemp));
+						_stprintf(buf, szBuffer,
 							mpeg_type == IS_MPEG1 ? _T("MPEG1") : _T("MPEG2"), frame_rate);
-						if (MessageBox(hWnd, buf, _T("Force Film Warning"), MB_YESNO | MB_ICONWARNING) != IDYES)
+						if (MessageBox(hWnd, buf, szTemp, MB_YESNO | MB_ICONWARNING) != IDYES)
 							break;
 					}
 					if (CLIActive || PopFileDlg(szOutput, hWnd, SAVE_D2V))
@@ -985,6 +983,8 @@ proceed:
 								TCHAR line[255];
 
                                 fclose(D2VFile);
+								LoadString(GetModuleHandle(NULL), IDS_WARNING_FILE_ALREADY_EXISTS, szBuffer, _countof(szBuffer));
+								LoadString(GetModuleHandle(NULL), IDS_SAVE_D2V, szTemp, _countof(szTemp));
 								_stprintf(line, _T("%s already exists.\nDo you want to replace it?"), szBuffer);
 								if (MessageBox(hWnd, line, _T("Save D2V"),
 								    MB_YESNO | MB_ICONWARNING) != IDYES)
@@ -1039,17 +1039,17 @@ proceed:
 							if (SystemStream_Flag == TRANSPORT_STREAM)
 							{
 								MPEG2_Transport_AudioType =
-											pat_parser.GetAudioType(Infilename[0], MPEG2_Transport_AudioPID);
+									pat_parser.GetAudioType(Infilename[0], MPEG2_Transport_AudioPID);
 							}
 
 							process.locate = LOCATE_RIP;
-							if (CLIActive || WaitForSingleObject(hThread, INFINITE)==WAIT_OBJECT_0)
+							if (CLIActive || WaitForSingleObject(hThread, INFINITE) == WAIT_OBJECT_0)
 							{
 								hThread = CreateThread(NULL, 0, MPEG2Dec, 0, 0, &threadId);
 							}
 						}
 						else
-							MessageBox(hWnd, _T("Couldn't write D2V file. Is it read-only?"), _T("Save D2V"), MB_OK | MB_ICONERROR);
+							DGShowError(IDS_ERROR_WRITE_D2V, IDS_SAVE_D2V);
 					}
 					break;
 
@@ -1068,14 +1068,14 @@ D2V_PROCESS:
 						_fgetts(line, 2048, D2VFile);
 						if (_tcsncmp(line, _T("DGIndexProjectFile"), 18) != 0)
 						{
-							MessageBox(hWnd, _T("The file is not a DGIndex project file!"), NULL, MB_OK | MB_ICONERROR);
+							DGShowError(IDS_ERROR_FILE_IS_NOT_D2V);
 							fclose(D2VFile);
 							break;
 						}
 						_stscanf(line, _T("DGIndexProjectFile%d"), &D2Vformat);
 						if (D2Vformat != D2V_FILE_VERSION)
 						{
-							MessageBox(hWnd, _T("Obsolete D2V file.\nRecreate it with this version of DGIndex."), NULL, MB_OK | MB_ICONERROR);
+							DGShowError(IDS_ERROR_OBSOLETE_D2V);
 							fclose(D2VFile);
 							break;
 						}
@@ -2310,7 +2310,8 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 		case WM_INITDIALOG:
 			if (SystemStream_Flag != TRANSPORT_STREAM)
 			{
-				_stprintf(msg, _T("Not a transport stream!"));
+				LoadString(GetModuleHandle(NULL), IDS_NOT_A_TRANSPORT_STREAM, g_szMessage, _countof(g_szMessage));
+				_stprintf(msg, g_szMessage);
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			else if (Pid_Detect_Method == PID_DETECT_RAW)
@@ -2319,11 +2320,13 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 			}
 			else if (Pid_Detect_Method == PID_DETECT_PSIP && pat_parser.DumpPSIP(hDialog, Infilename[0]) == 1)
 			{
-				_stprintf(msg, _T("Could not find PSIP tables!"));
+				LoadString(GetModuleHandle(NULL), IDS_ERROR_MISSING_PSIP_TABLES, g_szMessage, _countof(g_szMessage));
+				_stprintf(msg, g_szMessage);
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			else if (Pid_Detect_Method == PID_DETECT_PATPMT && pat_parser.DumpPAT(hDialog, Infilename[0]) == 1)
-			{
+			{				
+				LoadString(GetModuleHandle(NULL), IDS_ERROR_MISSING_PAT_PMT_TABLES, g_szMessage, _countof(g_szMessage));
 				_stprintf(msg, _T("Could not find PAT/PMT tables!"));
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
@@ -2660,7 +2663,8 @@ void ThreadKill(int mode)
             SetForegroundWindow(hWnd);
         if (NotifyWhenDone & 2)
 		    MessageBeep(MB_OK);	
-		SetDlgItemText(hDlg, IDC_REMAIN, _T("FINISH"));
+		LoadString(GetModuleHandle(NULL), IDS_FINISH, g_szMessage, _countof(g_szMessage));
+		SetDlgItemText(hDlg, IDC_REMAIN, g_szMessage);
 		AudioOnly_Flag = 0;
 		ExitThread(0);
 	}
@@ -2717,7 +2721,8 @@ void ThreadKill(int mode)
 			}
 			else
 			{
-				SetDlgItemText(hDlg, IDC_INFO, _T("n/a"));
+				LoadString(GetModuleHandle(NULL), IDS_N_A, g_szMessage, _countof(g_szMessage));
+				SetDlgItemText(hDlg, IDC_INFO, g_szMessage);
 				CheckMenuItem(hMenu, IDM_PRESCALE, MF_UNCHECKED);
 			}
 		}
@@ -2732,7 +2737,8 @@ void ThreadKill(int mode)
             SetForegroundWindow(hWnd);
         if (NotifyWhenDone & 2)
 		    MessageBeep(MB_OK);	
-		SetDlgItemText(hDlg, IDC_REMAIN, _T("FINISH"));
+		LoadString(GetModuleHandle(NULL), IDS_FINISH, g_szMessage, _countof(g_szMessage));
+		SetDlgItemText(hDlg, IDC_REMAIN, g_szMessage);
 		if (D2V_Flag)
 			SendMessage(hWnd, D2V_DONE_MESSAGE, 0, 0);
 	}
@@ -3355,14 +3361,14 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra		= false;
 	wcex.cbWndExtra		= false;
 	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, (LPCTSTR)IDI_MOVIE);
+	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_MOVIE));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= CreateSolidBrush(MASKCOLOR);
 
 	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_GUI);
 	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_GUI);
 	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, (LPCTSTR)IDI_SMALL);
+	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassEx(&wcex);
 }
@@ -3376,43 +3382,38 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 	{
 		case OPEN_VOB:
 			ofn.nFilterIndex = 4;
-			szFilter = \
-				TEXT ("vob\0*.vob\0") \
-				TEXT ("mpg, mpeg, m1v, m2v, mpv\0*.mpg;*.mpeg;*.m1v;*.m2v;*.mpv\0") \
-				TEXT ("tp, ts, trp, m2t, m2ts, pva, vro\0*.tp;*.ts;*.trp;*.m2t;*.m2ts;*.pva;*.vro\0") \
-				TEXT ("All MPEG Files\0*.vob;*.mpg;*.mpeg;*.m1v;*.m2v;*.mpv;*.tp;*.ts;*.trp;*.m2t;*.m2ts;*.pva;*.vro\0") \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_OPEN_VOB_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
 
 		case OPEN_D2V:
-			szFilter = TEXT ("DGIndex Project File (*.d2v)\0*.d2v\0")  \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_OPEN_D2V_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
 
 		case OPEN_TXT:
-			szFilter = TEXT ("DGIndex Timestamps File (*.txt)\0*.txt\0")  \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_OPEN_TXT_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
 
 		case OPEN_AVS:
-			szFilter = TEXT ("AVS File (*.avs)\0*.avs\0")  \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_OPEN_AVS_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
 
 		case SAVE_D2V:
-			szFilter = TEXT ("DGIndex Project File (*.d2v)\0*.d2v\0")  \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_SAVE_D2V_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
 
 		case SAVE_BMP:
-			szFilter = TEXT ("BMP File (*.bmp)\0*.bmp\0")  \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_SAVE_BMP_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
-
 		case OPEN_WAV:
 		case SAVE_WAV:
-			szFilter = TEXT ("WAV File (*.wav)\0*.wav\0")  \
-				TEXT ("All Files (*.*)\0*.*\0");
+			LoadString(GetModuleHandle(NULL), IDS_WAV_FILTER, g_szMessage, _countof(g_szMessage));
+			szFilter = g_szMessage;
 			break;
 	}
 
@@ -3796,7 +3797,8 @@ void Recovery()
 	PreScale_Ratio = 1.0;
 	CheckMenuItem(hMenu, IDM_PRESCALE, MF_UNCHECKED);
 
-	SetWindowText(hWnd, _T("DGIndex"));
+	LoadString(GetModuleHandle(NULL), IDC_GUI, g_szMessage, _countof(g_szMessage));
+	SetWindowText(hWnd, g_szMessage);
 
 	if (NumLoadedFiles)
 	{
@@ -3870,8 +3872,11 @@ static void SaveBMP()
 	if (_tfopen(szTemp, _T("r")))
 	{
 		TCHAR line[255];
-		_stprintf(line, _T("%s already exists.\nDo you want to replace it?"), szTemp);
-		if (MessageBox(hWnd, line, _T("Save BMP"),
+		TCHAR szSaveBmp[MAX_LOADSTRING] = { 0 };
+		LoadString(GetModuleHandle(NULL), IDS_WARNING_FILE_ALREADY_EXISTS, g_szMessage, _countof(g_szMessage));
+		LoadString(GetModuleHandle(NULL), IDS_SAVE_BMP, szSaveBmp, _countof(szSaveBmp));
+		_stprintf(line, g_szMessage, szTemp);
+		if (MessageBox(hWnd, line, szSaveBmp,
 			MB_YESNO | MB_ICONWARNING) != IDYES)
 		return;
 	}
@@ -4290,11 +4295,40 @@ void UpdateMRUList(void)
 		m.fType			= MFT_STRING;
 		m.fState		= MFS_GRAYED;
 		m.wID			= ID_MRU_FILE0;
-		m.dwTypeData	= _T("Recent file list");
+		LoadString(GetModuleHandle(NULL), IDS_RECENT_FILE_LIST, g_szMessage, _countof(g_szMessage));
+		m.dwTypeData	= g_szMessage;
 		m.cch			= DG_MAX_PATH;
 
 		InsertMenuItem(hmenuFile, MRU_LIST_POSITION+index, TRUE, &m);
 	}
 
 	DrawMenuBar((HWND)hWnd);
+}
+
+static TCHAR szText[MAX_LOADSTRING], szCaption[MAX_LOADSTRING];
+
+void DGShowError(UINT nTextID, UINT nCaptionID)
+{
+	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+	LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
+	MessageBox(hWnd, szText, szCaption, MB_ICONERROR);
+}
+
+void DGShowError(UINT nTextID)
+{
+	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+	MessageBox(hWnd, szText, NULL, MB_ICONERROR);
+}
+
+void DGShowWarning(UINT nTextID, UINT nCaptionID)
+{
+	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+	LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
+	MessageBox(hWnd, szText, szCaption, MB_ICONWARNING);
+}
+
+void DGShowWarning(UINT nTextID)
+{
+	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+	MessageBox(hWnd, szText, NULL, MB_ICONWARNING);
 }

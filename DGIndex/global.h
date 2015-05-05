@@ -345,6 +345,7 @@ void DGShowError(UINT nTextID, UINT nCaptionID);
 void DGShowError(UINT nTextID);
 void DGShowWarning(UINT nTextID, UINT nCaptionID);
 void DGShowWarning(UINT nTextID);
+BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID);
 
 
 XTN int WindowMode;

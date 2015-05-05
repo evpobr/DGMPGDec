@@ -709,7 +709,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									{
 										_stscanf(d, _T("%d"), &delay);
 										fdelay = (float) 0.001 * delay;
-										_stprintf(fdelay_str, _T("%.3f"), fdelay);
+										_stprintf_s(fdelay_str, _T("%.3f"), fdelay);
 										*prog_p = 0;
 										_tcscat(prog_p, fdelay_str);
 										prog_p = &prog[_tcslen(prog)];
@@ -954,14 +954,14 @@ proceed:
 						TCHAR buf[255];
 						LoadString(GetModuleHandle(NULL), IDS_WARNING_FORCE_FILM, szBuffer, _countof(szBuffer));
 						LoadString(GetModuleHandle(NULL), IDS_FORCE_FILM_WARNING, szTemp, _countof(szTemp));
-						_stprintf(buf, szBuffer,
+						_stprintf_s(buf, szBuffer,
 							mpeg_type == IS_MPEG1 ? _T("MPEG1") : _T("MPEG2"), frame_rate);
 						if (MessageBox(hWnd, buf, szTemp, MB_YESNO | MB_ICONWARNING) != IDYES)
 							break;
 					}
 					if (CLIActive || PopFileDlg(szOutput, hWnd, SAVE_D2V))
 					{
-						_stprintf(szBuffer, _T("%s.d2v"), szOutput);
+						_stprintf_s(szBuffer, _T("%s.d2v"), szOutput);
 						if (CLIActive)
 						{
 							if ((D2VFile = _tfopen(szBuffer, _T("w+"))) == 0)
@@ -985,7 +985,7 @@ proceed:
                                 fclose(D2VFile);
 								LoadString(GetModuleHandle(NULL), IDS_WARNING_FILE_ALREADY_EXISTS, szBuffer, _countof(szBuffer));
 								LoadString(GetModuleHandle(NULL), IDS_SAVE_D2V, szTemp, _countof(szTemp));
-								_stprintf(line, _T("%s already exists.\nDo you want to replace it?"), szBuffer);
+								_stprintf_s(line, _T("%s already exists.\nDo you want to replace it?"), szBuffer);
 								if (MessageBox(hWnd, line, _T("Save D2V"),
 								    MB_YESNO | MB_ICONWARNING) != IDYES)
 								    break;
@@ -2311,7 +2311,7 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 			if (SystemStream_Flag != TRANSPORT_STREAM)
 			{
 				LoadString(GetModuleHandle(NULL), IDS_NOT_A_TRANSPORT_STREAM, g_szMessage, _countof(g_szMessage));
-				_stprintf(msg, g_szMessage);
+				_stprintf_s(msg, g_szMessage);
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			else if (Pid_Detect_Method == PID_DETECT_RAW)
@@ -2321,13 +2321,13 @@ LRESULT CALLBACK DetectPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lP
 			else if (Pid_Detect_Method == PID_DETECT_PSIP && pat_parser.DumpPSIP(hDialog, Infilename[0]) == 1)
 			{
 				LoadString(GetModuleHandle(NULL), IDS_ERROR_MISSING_PSIP_TABLES, g_szMessage, _countof(g_szMessage));
-				_stprintf(msg, g_szMessage);
+				_stprintf_s(msg, g_szMessage);
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			else if (Pid_Detect_Method == PID_DETECT_PATPMT && pat_parser.DumpPAT(hDialog, Infilename[0]) == 1)
 			{				
 				LoadString(GetModuleHandle(NULL), IDS_ERROR_MISSING_PAT_PMT_TABLES, g_szMessage, _countof(g_szMessage));
-				_stprintf(msg, _T("Could not find PAT/PMT tables!"));
+				_stprintf_s(msg, g_szMessage);
 				SendDlgItemMessage(hDialog, IDC_PID_LISTBOX, LB_ADDSTRING, 0, (LPARAM)msg);
 			}
 			return true;
@@ -2712,7 +2712,7 @@ void ThreadKill(int mode)
 				if (PreScale_Ratio > 1.0 && PreScale_Ratio < 1.01)
 					PreScale_Ratio = 1.0;
 
-				_stprintf(szBuffer, _T("%.2f"), PreScale_Ratio);
+				_stprintf_s(szBuffer, _T("%.2f"), PreScale_Ratio);
 				SetDlgItemText(hDlg, IDC_INFO, szBuffer);
 
 				CheckMenuItem(hMenu, IDM_PRESCALE, MF_CHECKED);
@@ -2872,7 +2872,7 @@ LRESULT CALLBACK About(HWND hAboutDlg, UINT message, WPARAM wParam, LPARAM lPara
 	{
 		case WM_INITDIALOG:
 #ifdef UNICODE
-			_stprintf(szBuffer, _T("%s UNICODE"), Version);
+			_stprintf_s(szBuffer, _T("%s UNICODE"), Version);
 #else
 			_stprintf(szBuffer, _T("%s"), Version);
 #endif
@@ -3004,12 +3004,12 @@ LRESULT CALLBACK Luminance(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPa
 		case WM_INITDIALOG:
 			SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_SETRANGE, 0, MAKELPARAM(511, 1));
 			SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_SETPOS, 1, LumGamma + 256);
-			_stprintf(szTemp, _T("%d"), LumGamma);
+			_stprintf_s(szTemp, _T("%d"), LumGamma);
 			SetDlgItemText(hDialog, IDC_GAMMA_BOX, szTemp);	
 
 			SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_SETRANGE, 0, MAKELPARAM(511, 1));
 			SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_SETPOS, 1, LumOffset + 256);
-			_stprintf(szTemp, _T("%d"), LumOffset);
+			_stprintf_s(szTemp, _T("%d"), LumOffset);
 			SetDlgItemText(hDialog, IDC_OFFSET_BOX, szTemp);	
 
 			ShowWindow(hDialog, SW_SHOW);
@@ -3047,12 +3047,12 @@ LRESULT CALLBACK Luminance(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPa
 			{
 				case IDC_GAMMA_SPIN:
 					LumGamma = LOWORD(SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_GETPOS, 0,0)) - 256;
-					_stprintf(szTemp, _T("%d"), LumGamma);
+					_stprintf_s(szTemp, _T("%d"), LumGamma);
 					SetDlgItemText(hDialog, IDC_GAMMA_BOX, szTemp);	
 					break;
 				case IDC_OFFSET_SPIN:
 					LumOffset = LOWORD(SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_GETPOS, 0,0)) - 256;
-					_stprintf(szTemp, _T("%d"), LumOffset);
+					_stprintf_s(szTemp, _T("%d"), LumOffset);
 					SetDlgItemText(hDialog, IDC_OFFSET_BOX, szTemp);	
 					break;
 			}
@@ -3078,7 +3078,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 			{
 				case IDC_NO_TEMPLATE:
 					AVSTemplatePath[0] = 0;
-					_stprintf(szTemp, _T("%s"), _T(""));
+					_stprintf_s(szTemp, _T("%s"), _T(""));
 					SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					ShowWindow(hDialog, SW_SHOW);
 					EndDialog(hDialog, 0);
@@ -3086,13 +3086,13 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 				case IDC_CHANGE_TEMPLATE:
 					if (PopFileDlg(AVSTemplatePath, hWnd, OPEN_AVS))
 					{
-						_stprintf(szTemp, _T("%s"), AVSTemplatePath);
+						_stprintf_s(szTemp, _T("%s"), AVSTemplatePath);
 						SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					}
 					else
 					{
 						AVSTemplatePath[0] = 0;
-						_stprintf(szTemp, _T("%s"), _T(""));
+						_stprintf_s(szTemp, _T("%s"), _T(""));
 						SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					}
 					ShowWindow(hDialog, SW_SHOW);
@@ -3113,7 +3113,7 @@ LRESULT CALLBACK BMPPath(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPara
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			_stprintf(szTemp, _T("%s"), BMPPathString);
+			_stprintf_s(szTemp, _T("%s"), BMPPathString);
 			SetDlgItemText(hDialog, IDC_BMP_PATH, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
@@ -3143,11 +3143,11 @@ LRESULT CALLBACK SetPids(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPara
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			_stprintf(szTemp, _T("%x"), MPEG2_Transport_VideoPID);
+			_stprintf_s(szTemp, _T("%x"), MPEG2_Transport_VideoPID);
 			SetDlgItemText(hDialog, IDC_VIDEO_PID, szTemp);
-			_stprintf(szTemp, _T("%x"), MPEG2_Transport_AudioPID);
+			_stprintf_s(szTemp, _T("%x"), MPEG2_Transport_AudioPID);
 			SetDlgItemText(hDialog, IDC_AUDIO_PID, szTemp);
-			_stprintf(szTemp, _T("%x"), MPEG2_Transport_PCRPID);
+			_stprintf_s(szTemp, _T("%x"), MPEG2_Transport_PCRPID);
 			SetDlgItemText(hDialog, IDC_PCR_PID, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
@@ -3199,7 +3199,7 @@ LRESULT CALLBACK Normalization(HWND hDialog, UINT message, WPARAM wParam, LPARAM
 			SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_SETRANGE, 0, MAKELPARAM(0, 100));
 			SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_SETTICFREQ, 50, 0);
 			SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_SETPOS, 1, Norm_Ratio);
-			_stprintf(szTemp, _T("%d"), Norm_Ratio);
+			_stprintf_s(szTemp, _T("%d"), Norm_Ratio);
 			SetDlgItemText(hDialog, IDC_NORM, szTemp);
 
 			ShowWindow(hDialog, SW_SHOW);
@@ -3234,7 +3234,7 @@ LRESULT CALLBACK Normalization(HWND hDialog, UINT message, WPARAM wParam, LPARAM
 			if (GetWindowLong((HWND)lParam, GWL_ID)==IDC_NORM_SLIDER)
 			{
 				Norm_Ratio = SendDlgItemMessage(hDialog, IDC_NORM_SLIDER, TBM_GETPOS, 0, 0);
-				_stprintf(szTemp, _T("%d"), Norm_Ratio);
+				_stprintf_s(szTemp, _T("%d"), Norm_Ratio);
 				SetDlgItemText(hDialog, IDC_NORM, szTemp);
 			}
 			break;
@@ -3875,7 +3875,7 @@ static void SaveBMP()
 		TCHAR szSaveBmp[MAX_LOADSTRING] = { 0 };
 		LoadString(GetModuleHandle(NULL), IDS_WARNING_FILE_ALREADY_EXISTS, g_szMessage, _countof(g_szMessage));
 		LoadString(GetModuleHandle(NULL), IDS_SAVE_BMP, szSaveBmp, _countof(szSaveBmp));
-		_stprintf(line, g_szMessage, szTemp);
+		_stprintf_s(line, g_szMessage, szTemp);
 		if (MessageBox(hWnd, line, szSaveBmp,
 			MB_YESNO | MB_ICONWARNING) != IDYES)
 		return;
@@ -4152,10 +4152,10 @@ void UpdateWindowText(void)
 		percent = (float)(100.0*(process.run-process.start+_telli64(Infile[CurrentFile]))/(process.end-process.start));
 		remain = (int)((timing.ed-timing.op)*(100.0-percent)/percent)/1000;
 
-		_stprintf(szBuffer, _T("%d:%02d:%02d"), elapsed / 3600, (elapsed % 3600) / 60, elapsed % 60);
+		_stprintf_s(szBuffer, _T("%d:%02d:%02d"), elapsed / 3600, (elapsed % 3600) / 60, elapsed % 60);
 		SetDlgItemText(hDlg, IDC_ELAPSED, szBuffer);
 
-		_stprintf(szBuffer, _T("%d:%02d:%02d"), remain / 3600, (remain % 3600) / 60, remain % 60);
+		_stprintf_s(szBuffer, _T("%d:%02d:%02d"), remain / 3600, (remain % 3600) / 60, remain % 60);
 		SetDlgItemText(hDlg, IDC_REMAIN, szBuffer);
 	}
 	else
@@ -4165,13 +4165,13 @@ void UpdateWindowText(void)
 	{
 		if (elapsed + remain)
 		{
-			_stprintf(szBuffer, _T("DGIndex[%d%%] - "), (elapsed * 100) / (elapsed + remain));
+			_stprintf_s(szBuffer, _T("DGIndex[%d%%] - "), (elapsed * 100) / (elapsed + remain));
 			if(bIsWindowsXPorLater)
 				PostMessage(hWnd, PROGRESS_MESSAGE, (elapsed * 100) / (elapsed + remain), 0);
 		}
 		else
 		{
-			_stprintf(szBuffer, _T("DGIndex[0%%] - "));
+			_stprintf_s(szBuffer, _T("DGIndex[0%%] - "));
 			if(bIsWindowsXPorLater)
 				PostMessage(hWnd, PROGRESS_MESSAGE, 0, 0);
 		}
@@ -4331,4 +4331,17 @@ void DGShowWarning(UINT nTextID)
 {
 	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
 	MessageBox(hWnd, szText, NULL, MB_ICONWARNING);
+}
+
+BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID)
+{
+	LPTSTR pszString = new TCHAR[MAX_LOADSTRING];
+
+	LoadString(GetModuleHandle(NULL), nStringID, pszString, MAX_LOADSTRING - 1);
+
+	BOOL bResult = SetDlgItemText(hDlg, nIDDlgItem, pszString);
+	
+	delete[] pszString;
+
+	return bResult;
 }

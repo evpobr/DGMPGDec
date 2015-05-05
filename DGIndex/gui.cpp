@@ -113,16 +113,16 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	TCHAR prog[DG_MAX_PATH];
 	TCHAR cwd[DG_MAX_PATH];
 
-    OSVERSIONINFO osvi;
+	OSVERSIONINFOEX osvi = { 0 };
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	osvi.dwMajorVersion = 5;
+	osvi.dwMinorVersion = 1;
 
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	DWORDLONG dwlConditionMask = 0;
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
 
-    GetVersionEx(&osvi);
-
-    bIsWindowsXPorLater = 
-       ( (osvi.dwMajorVersion > 5) ||
-       ( (osvi.dwMajorVersion == 5) && (osvi.dwMinorVersion >= 1) ));
+	bIsWindowsXPorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask);
 
     if(bIsWindowsXPorLater)
 	{

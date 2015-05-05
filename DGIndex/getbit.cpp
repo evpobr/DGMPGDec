@@ -2963,7 +2963,7 @@ void StartVideoDemux(void)
 	TCHAR *p;
 
 	_tcscpy_s(path, D2VFilePath);
-	p = path + _tcslen(path);
+	p = path + DGStrLength(path);
 	while (*p != _T('.') && p >= path) p--;
 	if (p < path)
 	{

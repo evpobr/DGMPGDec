@@ -129,6 +129,6 @@ int dprintf(TCHAR* fmt, ...)
 	_vstprintf_s(printString, fmt, argp);
 	va_end(argp);
     OutputDebugString(printString);
-	return _tcslen(printString);
+	return DGStrLength(printString);
 }
 

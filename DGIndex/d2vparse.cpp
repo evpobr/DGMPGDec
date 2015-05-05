@@ -26,7 +26,7 @@ int parse_d2v(HWND hWnd, TCHAR *szInput)
 		return 0;
 	}
 	// Mutate the file name to the output text file to receive the parsed data.
-	p = &szInput[_tcslen(szInput)];
+	p = &szInput[DGStrLength(szInput)];
 	while (*p != _T('.')) p--;
 	p[1] = 0;
 	_tcscat(p, _T("parse.txt"));
@@ -144,7 +144,7 @@ int parse_d2v(HWND hWnd, TCHAR *szInput)
 				{
 					_stprintf_s(render, _T("%s: %d,%d"), temp, ndx + count / 2, ndx + count / 2);
 				}
-				fill = 32 - _tcslen(render);
+				fill = 32 - DGStrLength(render);
 				for (i = 0; i < fill; i++) _tcscat_s(render, _T("."));
 				_stprintf_s(temp, _T("%x"), val);
 				_ftprintf(wfp, _T("%s%s"), render, temp);
@@ -152,7 +152,7 @@ int parse_d2v(HWND hWnd, TCHAR *szInput)
 			else
 			{
 				_stprintf_s(render, _T("%s: %d,%d"), temp, ndx, ndx);
-				fill = 32 - _tcslen(render);
+				fill = 32 - DGStrLength(render);
 				for (i = 0; i < fill; i++) _tcscat(render, _T("."));
 				_stprintf_s(temp, _T("%x"), val);
 				_ftprintf(wfp, _T("%s%s"), render, temp);
@@ -239,7 +239,7 @@ int analyze_sync(HWND hWnd, TCHAR *Input, int audio_id)
 	}
 
 	// Mutate the file name to the output text file to receive the parsed data.
-	p = &szInput[_tcslen(Input)];
+	p = &szInput[DGStrLength(Input)];
 	while (*p != _T('.')) p--;
 	p[1] = 0;
 	_stprintf_s(tmp, _T("delayT%x.txt"), audio_id);
@@ -351,7 +351,7 @@ int fix_d2v(HWND hWnd, TCHAR *Input, int test_only)
 		_fputts(line, wfp);
 		// Mutate the file name to the output text file to receive processing status information.
 		_tcscpy_s(logfile, Input);
-		p = &logfile[_tcslen(logfile)];
+		p = &logfile[DGStrLength(logfile)];
 		while (*p != _T('.')) p--;
 		p[1] = 0;
 		_tcscat(p, _T("fix.txt"));

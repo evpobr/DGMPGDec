@@ -135,7 +135,7 @@ another:
 						NumLoadedFiles++;
 
 						// First scan back from the end of the name for an _ character.
-						ptr = name + _tcslen(name);
+						ptr = name + DGStrLength(name);
 						while (*ptr != _T('_') && ptr >= name) ptr--;
 						if (*ptr != _T('_')) break;
 						// Now pick up the number value and increment it.
@@ -645,7 +645,7 @@ another:
 				NumLoadedFiles++;
 
 				// First scan back from the end of the name for an _ character.
-				p = aFName+_tcslen(aFName);
+				p = aFName+DGStrLength(aFName);
 				while (*p != _T('_') && p >= aFName) p--;
 				if (*p != _T('_')) break;
 				// Now pick up the number value and increment it.
@@ -742,7 +742,7 @@ another:
 				while (_fgetts(line, 1023, bf) != 0)
 				{
 					// Zap the newline.
-					line[_tcslen(line)-1] = 0;
+					line[DGStrLength(line)-1] = 0;
 					/* If the specified batch file does not include a path, use the
 					   current directory. */
 					if (!_tcsstr(line, _T("\\")))

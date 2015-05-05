@@ -110,7 +110,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	int i;
 	TCHAR *ptr;
 	TCHAR ucCmdLine[4096];
-	TCHAR prog[DG_MAX_PATH];
 	TCHAR cwd[DG_MAX_PATH];
 
 	OSVERSIONINFOEX osvi = { 0 };
@@ -147,17 +146,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	}
 
 	// Get the path to the DGIndex executable.
-	GetModuleFileName(NULL, ExePath, DG_MAX_PATH);
+	LPTSTR pszExePath = new TCHAR[MAX_PATH];
+	GetModuleFileName(NULL, pszExePath, MAX_PATH - 1);
 
 	// Find first char after last backslash.
-    if ((ptr = _tcsrchr(ExePath,_T('\\'))) != 0) ptr++;
-    else ptr = ExePath;
-	*ptr = 0;
+	PathRemoveFileSpec(pszExePath);
 
 	// Load INI
-	_tcscpy(prog, ExePath);
-	_tcscat(prog, _T("DGIndex.ini"));
-	if ((INIFile = _tfopen(prog, _T("r"))) == NULL)
+	LPTSTR pszIniPath = new TCHAR[MAX_PATH];
+	PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
+
+	if ((INIFile = _tfopen(pszIniPath, _T("r"))) == NULL)
 	{
 NEW_VERSION:
 		INIT_X = INIT_Y = 100;
@@ -200,7 +199,7 @@ NEW_VERSION:
         unsigned int audio_id;
 
 		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[_tcslen(line)-1] = 0;
+		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p != _T('=') && *p != 0) p++;
 		if (*p == 0 || _tcscmp(++p, Version))
@@ -218,7 +217,7 @@ NEW_VERSION:
 		_ftscanf(INIFile, _T("Field_Operation=%d\n"), &FO_Flag);
 		_ftscanf(INIFile, _T("Output_Method=%d\n"), &Method_Flag);
 		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[_tcslen(line)-1] = 0;
+		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p++ != _T('='));
 		_tcscpy (Track_List, p);
@@ -243,7 +242,7 @@ NEW_VERSION:
 		_ftscanf(INIFile, _T("Playback_Speed=%d\n"), &PlaybackSpeed);
 		_ftscanf(INIFile, _T("Force_Open_Gops=%d\n"), &ForceOpenGops);
 		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[_tcslen(line)-1] = 0;
+		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p++ != _T('='));
 		_tcscpy (AVSTemplatePath, p);
@@ -254,14 +253,14 @@ NEW_VERSION:
         for (i = 0; i < 4; i++)
         {
 		    _fgetts(line, DG_MAX_PATH - 1, INIFile);
-		    line[_tcslen(line)-1] = 0;
+			line[DGStrLength(line) - 1] = 0;
 		    p = line;
 			while (*p++ != _T('='));
 		    _tcscpy(mMRUList[i], p);
         }
 		_ftscanf(INIFile, _T("Enable_Info_Log=%d\n"), &InfoLog_Flag);
 		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[_tcslen(line)-1] = 0;
+		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p++ != _T('='));
 		_tcscpy(BMPPathString, p);
@@ -269,6 +268,9 @@ NEW_VERSION:
 		_ftscanf(INIFile, _T("Notify_When_Done=%d\n"), &NotifyWhenDone);
 		fclose(INIFile);
 	}
+
+	delete[] pszExePath;
+	delete[] pszIniPath;
 
     // Allocate stream buffer.
     Rdbfr = (unsigned char *) malloc(BUFFER_SIZE);
@@ -653,7 +655,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								if (FullPathInFiles)
 								{
 									_tcscat(prog_p, D2VFilePath);
-									prog_p = &prog[_tcslen(prog)];
+									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 								}
 								else
@@ -662,7 +664,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									if ((p = _tcsrchr(D2VFilePath, _T('\\'))) != 0) p++;
 									else p = D2VFilePath;
 									_tcscat(prog_p, p);
-									prog_p = &prog[_tcslen(prog)];
+									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 
 								}
@@ -675,7 +677,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								if (FullPathInFiles)
 								{
 									_tcscat(prog_p, AudioFilePath);
-									prog_p = &prog[_tcslen(prog)];
+									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 								}
 								else
@@ -684,7 +686,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									if ((p = _tcsrchr(AudioFilePath, _T('\\'))) != 0) p++;
 									else p = AudioFilePath;
 									_tcscat(prog_p, p);
-									prog_p = &prog[_tcslen(prog)];
+									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 								}
 							}
@@ -692,7 +694,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								path_p[3] == _T('e') && path_p[4] == _T('l') && path_p[5] == _T('_') && path_p[6] == _T('_'))
 							{
 								// Replace __del__ macro.
-								TCHAR *d = &AudioFilePath[_tcslen(AudioFilePath)-3];
+								TCHAR *d = &AudioFilePath[DGStrLength(AudioFilePath) - 3];
 								int delay;
 								float fdelay;
 								TCHAR fdelay_str[32];
@@ -712,7 +714,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 										_stprintf_s(fdelay_str, _T("%.3f"), fdelay);
 										*prog_p = 0;
 										_tcscat(prog_p, fdelay_str);
-										prog_p = &prog[_tcslen(prog)];
+										prog_p = &prog[DGStrLength(prog)];
 										path_p += 7;
 									}
 									else
@@ -790,7 +792,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				if (_tgetcwd(szBuffer, DG_MAX_PATH)!=NULL)
 				{
-					if (szBuffer[_tcslen(szBuffer) - 1] != _T('\\'))
+					if (szBuffer[DGStrLength(szBuffer) - 1] != _T('\\'))
 						_tcscat(szBuffer, _T("\\"));
 
 					_tcscpy(szPath, szBuffer);
@@ -800,7 +802,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					{
 						_tcscat(szBuffer, _T("DGVfapi.vfp"));
 
-						RegSetValueEx(key, _T("DGIndex"), 0, REG_SZ, (LPBYTE)szBuffer, _tcslen(szBuffer));
+						RegSetValueEx(key, _T("DGIndex"), 0, REG_SZ, (LPBYTE)szBuffer, DGStrLength(szBuffer));
 						CheckMenuItem(hMenu, IDM_VFAPI, MF_CHECKED);
 					}
 
@@ -1002,7 +1004,7 @@ proceed:
 								// Initialize quant matric logging.
 								// Generate the output file name.
 								TCHAR *p;
-								p = &szBuffer[_tcslen(szBuffer)];
+								p = &szBuffer[DGStrLength(szBuffer)];
 								while (*p != _T('.')) p--;
 								p[1] = 0;
 								_tcscat(p, _T("quants.txt"));
@@ -1020,7 +1022,7 @@ proceed:
 								// Initialize timestamp logging.
 								// Generate the output file name.
 								TCHAR *p;
-								p = &szBuffer[_tcslen(szBuffer)];
+								p = &szBuffer[DGStrLength(szBuffer)];
 								while (*p != _T('.')) p--;
 								p[1] = 0;
 								_tcscat(p, _T("timestamps.txt"));
@@ -1095,7 +1097,7 @@ D2V_PROCESS:
 						{
 							_fgetts(Infilename[NumLoadedFiles-i], DG_MAX_PATH - 1, D2VFile);
 							// Strip newline.
-							Infilename[NumLoadedFiles-i][_tcslen(Infilename[NumLoadedFiles-i])-1] = 0;
+							Infilename[NumLoadedFiles - i][DGStrLength(Infilename[NumLoadedFiles - i]) - 1] = 0;
 							if ((Infile[NumLoadedFiles-i] = _topen(Infilename[NumLoadedFiles-i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL))==-1)
 							{
 								while (i<NumLoadedFiles)
@@ -2123,7 +2125,7 @@ right_arrow:
 			// Set the output directory for a Save D2V operation to the
 			// same path as these input files.
 			_tcscpy(path, szInput);
-			tmp = path + _tcslen(path);
+			tmp = path + DGStrLength(path);
 			while (*tmp != _T('\\') && tmp >= path) tmp--;
 			tmp[1] = 0;
 			_tcscpy(szSave, path);
@@ -2184,65 +2186,41 @@ right_arrow:
 			break;
 
 		case WM_DESTROY:
-            Stop_Flag = 1;
-            WaitForSingleObject(hThread, 2000);
-            _tcscpy(prog, ExePath);
-			_tcscat(prog, _T("DGIndex.ini"));
-			if ((INIFile = _tfopen(prog, _T("w"))) != NULL)
-			{
-				_ftprintf(INIFile, _T("DGIndex_Version=%s\n"), Version);
-				_ftprintf(INIFile, _T("Window_Position=%d,%d\n"), wrect.left, wrect.top);
-				_ftprintf(INIFile, _T("Info_Window_Position=%d,%d\n"), info_wrect.left, info_wrect.top);
-				_ftprintf(INIFile, _T("iDCT_Algorithm=%d\n"), iDCT_Flag);
-				_ftprintf(INIFile, _T("YUVRGB_Scale=%d\n"), Scale_Flag);
-				_ftprintf(INIFile, _T("Field_Operation=%d\n"), FO_Flag);
-				_ftprintf(INIFile, _T("Output_Method=%d\n"), Method_Flag);
-				_ftprintf(INIFile, _T("Track_List=%s\n"), Track_List);
-				_ftprintf(INIFile, _T("DR_Control=%d\n"), DRC_Flag);
-				_ftprintf(INIFile, _T("DS_Downmix=%d\n"), DSDown_Flag);
-				_ftprintf(INIFile, _T("SRC_Precision=%d\n"), SRC_Flag);
-				_ftprintf(INIFile, _T("Norm_Ratio=%d\n"), 100 * Norm_Flag + Norm_Ratio);
-				_ftprintf(INIFile, _T("Process_Priority=%d\n"), Priority_Flag);
-				_ftprintf(INIFile, _T("Playback_Speed=%d\n"), PlaybackSpeed);
-				_ftprintf(INIFile, _T("Force_Open_Gops=%d\n"), ForceOpenGops);
-				_ftprintf(INIFile, _T("AVS_Template_Path=%s\n"), AVSTemplatePath);
-				_ftprintf(INIFile, _T("Full_Path_In_Files=%d\n"), FullPathInFiles);
-				_ftprintf(INIFile, _T("Fusion_Audio=%d\n"), FusionAudio);
-				_ftprintf(INIFile, _T("Loop_Playback=%d\n"), LoopPlayback);
-				_ftprintf(INIFile, _T("HD_Display=%d\n"), HDDisplay);
-                for (i = 0; i < 4; i++)
-                {
-					_ftprintf(INIFile, _T("MRUList[%d]=%s\n"), i, mMRUList[i]);
-                }
-				_ftprintf(INIFile, _T("Enable_Info_Log=%d\n"), InfoLog_Flag);
-				_ftprintf(INIFile, _T("BMP_Path=%s\n"), BMPPathString);
-				_ftprintf(INIFile, _T("Use_MPA_Extensions=%d\n"), UseMPAExtensions);
-				_ftprintf(INIFile, _T("Notify_When_Done=%d\n"), NotifyWhenDone);
-				fclose(INIFile);
-			}
+		{
+			Stop_Flag = 1;
+			WaitForSingleObject(hThread, 2000);
+
+			LPTSTR pszExePath = new TCHAR[MAX_PATH];
+			GetModuleFileName(NULL, pszExePath, MAX_PATH - 1);
+			PathRemoveFileSpec(pszExePath);
+			LPTSTR pszIniPath = new TCHAR[MAX_PATH];
+			PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
+			delete[] pszExePath;
+			SaveSettings(pszIniPath);
+			delete[] pszIniPath;
 
 			while (NumLoadedFiles)
 			{
 				NumLoadedFiles--;
 				_close(Infile[NumLoadedFiles]);
-               Infile[NumLoadedFiles] = NULL;
+				Infile[NumLoadedFiles] = NULL;
 			}
 
 			Recovery();
 
-			for (i=0; i<8; i++)
+			for (i = 0; i < 8; i++)
 				_aligned_free(block[i]);
 
-			for (i=0; i<MAX_FILE_NUMBER; i++)
+			for (i = 0; i < MAX_FILE_NUMBER; i++)
 				free(Infilename[i]);
 
-            free(Rdbfr);
+			free(Rdbfr);
 
-	        DeleteObject(splash);
+			DeleteObject(splash);
 			ReleaseDC(hWnd, hDC);
 			PostQuitMessage(0);
 			break;
-
+		}
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -2542,7 +2520,7 @@ static void OpenVideoFile(HWND hVideoListDlg)
 
 		SystemStream_Flag = ELEMENTARY_STREAM;
 		_tgetcwd(curPath, DG_MAX_PATH);
-		if (_tcslen(curPath) != _tcslen(szInput))
+		if (DGStrLength(curPath) != DGStrLength(szInput))
 		{
 			// Only one file specified.
 			if (_tfindfirst(szInput, &seqfile) == -1L) return;
@@ -2553,7 +2531,7 @@ static void OpenVideoFile(HWND hVideoListDlg)
 			// Set the output directory for a Save D2V operation to the
 			// same path as this input files.
 			_tcscpy(path, szInput);
-			p = path + _tcslen(path);
+			p = path + DGStrLength(path);
 			while (*p != _T('\\') && p >= path) p--;
 			p[1] = 0;
 			_tcscpy(szSave, path);
@@ -3476,7 +3454,7 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 			if (szOutput[0] == NULL)
 			{
 				_tcscpy(ofn.lpstrFile, Infilename[0]);
-				p = &ofn.lpstrFile[_tcslen(ofn.lpstrFile)];
+				p = &ofn.lpstrFile[DGStrLength(ofn.lpstrFile)];
 				while (*p != _T('.') && p >= ofn.lpstrFile) p--;
 				if (p != ofn.lpstrFile)
 				{
@@ -4180,7 +4158,7 @@ void UpdateWindowText(void)
 		_stprintf_s(szBuffer, _T("DGIndex - "));
 	ext = _tcsrchr(Infilename[CurrentFile], _T('\\'));
 	if (ext)
-		_tcsncat(szBuffer, ext+1, _tcslen(Infilename[CurrentFile])-(int)(ext-Infilename[CurrentFile]));
+		_tcsncat(szBuffer, ext + 1, DGStrLength(Infilename[CurrentFile]) - (int)(ext - Infilename[CurrentFile]));
 	else
 		_tcscat(szBuffer, Infilename[CurrentFile]);
 	_stprintf_s(szTemp, _T(" [%dx%d] [File %d/%d]"), Clip_Width, Clip_Height, CurrentFile + 1, NumLoadedFiles);
@@ -4203,7 +4181,7 @@ void OutputProgress(int progr)
 		DWORD written;
 
 		_stprintf_s(percent, _T("%d\n"), progr);
-		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), percent, _tcslen(percent), &written, NULL);
+		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), percent, DGStrLength(percent), &written, NULL);
 		lastprogress = progr;
 	}
 }
@@ -4344,4 +4322,40 @@ BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID)
 	delete[] pszString;
 
 	return bResult;
+}
+
+void SaveSettings(LPCTSTR pszIniPath)
+{
+	if ((INIFile = _tfopen(pszIniPath, _T("w"))) != NULL)
+	{
+		_ftprintf(INIFile, _T("DGIndex_Version=%s\n"), Version);
+		_ftprintf(INIFile, _T("Window_Position=%d,%d\n"), wrect.left, wrect.top);
+		_ftprintf(INIFile, _T("Info_Window_Position=%d,%d\n"), info_wrect.left, info_wrect.top);
+		_ftprintf(INIFile, _T("iDCT_Algorithm=%d\n"), iDCT_Flag);
+		_ftprintf(INIFile, _T("YUVRGB_Scale=%d\n"), Scale_Flag);
+		_ftprintf(INIFile, _T("Field_Operation=%d\n"), FO_Flag);
+		_ftprintf(INIFile, _T("Output_Method=%d\n"), Method_Flag);
+		_ftprintf(INIFile, _T("Track_List=%s\n"), Track_List);
+		_ftprintf(INIFile, _T("DR_Control=%d\n"), DRC_Flag);
+		_ftprintf(INIFile, _T("DS_Downmix=%d\n"), DSDown_Flag);
+		_ftprintf(INIFile, _T("SRC_Precision=%d\n"), SRC_Flag);
+		_ftprintf(INIFile, _T("Norm_Ratio=%d\n"), 100 * Norm_Flag + Norm_Ratio);
+		_ftprintf(INIFile, _T("Process_Priority=%d\n"), Priority_Flag);
+		_ftprintf(INIFile, _T("Playback_Speed=%d\n"), PlaybackSpeed);
+		_ftprintf(INIFile, _T("Force_Open_Gops=%d\n"), ForceOpenGops);
+		_ftprintf(INIFile, _T("AVS_Template_Path=%s\n"), AVSTemplatePath);
+		_ftprintf(INIFile, _T("Full_Path_In_Files=%d\n"), FullPathInFiles);
+		_ftprintf(INIFile, _T("Fusion_Audio=%d\n"), FusionAudio);
+		_ftprintf(INIFile, _T("Loop_Playback=%d\n"), LoopPlayback);
+		_ftprintf(INIFile, _T("HD_Display=%d\n"), HDDisplay);
+		for (size_t i = 0; i < 4; i++)
+		{
+			_ftprintf(INIFile, _T("MRUList[%d]=%s\n"), i, mMRUList[i]);
+		}
+		_ftprintf(INIFile, _T("Enable_Info_Log=%d\n"), InfoLog_Flag);
+		_ftprintf(INIFile, _T("BMP_Path=%s\n"), BMPPathString);
+		_ftprintf(INIFile, _T("Use_MPA_Extensions=%d\n"), UseMPAExtensions);
+		_ftprintf(INIFile, _T("Notify_When_Done=%d\n"), NotifyWhenDone);
+		fclose(INIFile);
+	}
 }

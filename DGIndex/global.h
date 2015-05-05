@@ -347,6 +347,18 @@ void DGShowWarning(UINT nTextID, UINT nCaptionID);
 void DGShowWarning(UINT nTextID);
 BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID);
 
+void SaveSettings(LPCTSTR pszIniPath);
+
+#ifdef DG_MIN_CRT
+
+#define DGStrLength lstrlen
+
+#else
+
+#define DGStrLength _tcslen
+
+#endif
+
 
 XTN int WindowMode;
 XTN HWND hWnd, hDlg, hTrack;

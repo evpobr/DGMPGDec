@@ -107,7 +107,6 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	MSG msg;
 	HACCEL hAccel;
 
-	int i;
 	TCHAR *ptr;
 	TCHAR ucCmdLine[4096];
 	TCHAR cwd[DG_MAX_PATH];
@@ -155,121 +154,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	// Load INI
 	LPTSTR pszIniPath = new TCHAR[MAX_PATH];
 	PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
-
-	if ((INIFile = _tfopen(pszIniPath, _T("r"))) == NULL)
-	{
-NEW_VERSION:
-		INIT_X = INIT_Y = 100;
-		info_wrect.left = info_wrect.top = 100;
-		iDCT_Flag = IDCT_SKAL;
-		Scale_Flag = true;
-		setRGBValues();
-		FO_Flag = FO_NONE;
-		Method_Flag = AUDIO_DEMUXALL;
-		_tcscpy(Track_List, _T(""));
-		DRC_Flag = DRC_NORMAL;
-		DSDown_Flag = false;
-		SRC_Flag = SRC_NONE;
-		Norm_Ratio = 100;
-		Priority_Flag = PRIORITY_NORMAL;
-		PlaybackSpeed = SPEED_NORMAL;
-		ForceOpenGops = 0;
-		// Default the AVS template path.
-		// Get the path to the DGIndex executable.
-		GetModuleFileName(NULL, AVSTemplatePath, 255);
-		// Find first char after last backslash.
-		if ((ptr = _tcsrchr(AVSTemplatePath, _T('\\'))) != 0) ptr++;
-		else ptr = AVSTemplatePath;
-		*ptr = 0;
-		_tcscat(AVSTemplatePath, _T("template.avs"));
-		FullPathInFiles = 1;
-        LoopPlayback = 0;
-		FusionAudio = 0;
-        HDDisplay = HD_DISPLAY_SHRINK_BY_HALF;
-        for (i = 0; i < 4; i++)
-            mMRUList[i][0] = 0;
-        InfoLog_Flag = 1;
-        BMPPathString[0] = 0;
-        UseMPAExtensions = 0;
-        NotifyWhenDone = 0;
-    }
-	else
-	{
-		TCHAR line[DG_MAX_PATH], *p;
-        unsigned int audio_id;
-
-		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[DGStrLength(line) - 1] = 0;
-		p = line;
-		while (*p != _T('=') && *p != 0) p++;
-		if (*p == 0 || _tcscmp(++p, Version))
-		{
-			fclose(INIFile);
-			goto NEW_VERSION;
-		}
-
-		_ftscanf(INIFile, _T("Window_Position=%d,%d\n"), &INIT_X, &INIT_Y);
-		_ftscanf(INIFile, _T("Info_Window_Position=%d,%d\n"), &info_wrect.left, &info_wrect.top);
-
-		_ftscanf(INIFile, _T("iDCT_Algorithm=%d\n"), &iDCT_Flag);
-		_ftscanf(INIFile, _T("YUVRGB_Scale=%d\n"), &Scale_Flag);
-		setRGBValues();
-		_ftscanf(INIFile, _T("Field_Operation=%d\n"), &FO_Flag);
-		_ftscanf(INIFile, _T("Output_Method=%d\n"), &Method_Flag);
-		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[DGStrLength(line) - 1] = 0;
-		p = line;
-		while (*p++ != _T('='));
-		_tcscpy (Track_List, p);
-        for (i = 0; i < 0xc8; i++)
-            audio[i].selected_for_demux = false;
-		while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
-        {
-			_stscanf(p, _T("%x"), &audio_id);
-            if (audio_id > 0xc7)
-                break;
-            audio[audio_id].selected_for_demux = true;
-			while (*p != _T(',') && *p != 0) p++;
-            if (*p == 0)
-                break;
-            p++;
-        }
-		_ftscanf(INIFile, _T("DR_Control=%d\n"), &DRC_Flag);
-		_ftscanf(INIFile, _T("DS_Downmix=%d\n"), &DSDown_Flag);
-		_ftscanf(INIFile, _T("SRC_Precision=%d\n"), &SRC_Flag);
-		_ftscanf(INIFile, _T("Norm_Ratio=%d\n"), &Norm_Ratio);
-		_ftscanf(INIFile, _T("Process_Priority=%d\n"), &Priority_Flag);
-		_ftscanf(INIFile, _T("Playback_Speed=%d\n"), &PlaybackSpeed);
-		_ftscanf(INIFile, _T("Force_Open_Gops=%d\n"), &ForceOpenGops);
-		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[DGStrLength(line) - 1] = 0;
-		p = line;
-		while (*p++ != _T('='));
-		_tcscpy (AVSTemplatePath, p);
-		_ftscanf(INIFile, _T("Full_Path_In_Files=%d\n"), &FullPathInFiles);
-		_ftscanf(INIFile, _T("Fusion_Audio=%d\n"), &FusionAudio);
-		_ftscanf(INIFile, _T("Loop_Playback=%d\n"), &LoopPlayback);
-		_ftscanf(INIFile, _T("HD_Display=%d\n"), &HDDisplay);
-        for (i = 0; i < 4; i++)
-        {
-		    _fgetts(line, DG_MAX_PATH - 1, INIFile);
-			line[DGStrLength(line) - 1] = 0;
-		    p = line;
-			while (*p++ != _T('='));
-		    _tcscpy(mMRUList[i], p);
-        }
-		_ftscanf(INIFile, _T("Enable_Info_Log=%d\n"), &InfoLog_Flag);
-		_fgetts(line, DG_MAX_PATH - 1, INIFile);
-		line[DGStrLength(line) - 1] = 0;
-		p = line;
-		while (*p++ != _T('='));
-		_tcscpy(BMPPathString, p);
-		_ftscanf(INIFile, _T("Use_MPA_Extensions=%d\n"), &UseMPAExtensions);
-		_ftscanf(INIFile, _T("Notify_When_Done=%d\n"), &NotifyWhenDone);
-		fclose(INIFile);
-	}
-
 	delete[] pszExePath;
+	LoadSettings(pszIniPath);
 	delete[] pszIniPath;
 
     // Allocate stream buffer.
@@ -4322,6 +4208,124 @@ BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID)
 	delete[] pszString;
 
 	return bResult;
+}
+
+void LoadSettings(LPCTSTR pszIniPath)
+{
+	LPTSTR ptr = NULL;
+
+	if ((INIFile = _tfopen(pszIniPath, _T("r"))) == NULL)
+	{
+	NEW_VERSION:
+		INIT_X = INIT_Y = 100;
+		info_wrect.left = info_wrect.top = 100;
+		iDCT_Flag = IDCT_SKAL;
+		Scale_Flag = true;
+		setRGBValues();
+		FO_Flag = FO_NONE;
+		Method_Flag = AUDIO_DEMUXALL;
+		_tcscpy(Track_List, _T(""));
+		DRC_Flag = DRC_NORMAL;
+		DSDown_Flag = false;
+		SRC_Flag = SRC_NONE;
+		Norm_Ratio = 100;
+		Priority_Flag = PRIORITY_NORMAL;
+		PlaybackSpeed = SPEED_NORMAL;
+		ForceOpenGops = 0;
+		// Default the AVS template path.
+		// Get the path to the DGIndex executable.
+		GetModuleFileName(NULL, AVSTemplatePath, 255);
+		// Find first char after last backslash.
+		if ((ptr = _tcsrchr(AVSTemplatePath, _T('\\'))) != 0) ptr++;
+		else ptr = AVSTemplatePath;
+		*ptr = 0;
+		_tcscat(AVSTemplatePath, _T("template.avs"));
+		FullPathInFiles = 1;
+		LoopPlayback = 0;
+		FusionAudio = 0;
+		HDDisplay = HD_DISPLAY_SHRINK_BY_HALF;
+		for (size_t i = 0; i < 4; i++)
+			mMRUList[i][0] = 0;
+		InfoLog_Flag = 1;
+		BMPPathString[0] = 0;
+		UseMPAExtensions = 0;
+		NotifyWhenDone = 0;
+	}
+	else
+	{
+		TCHAR line[DG_MAX_PATH], *p;
+		unsigned int audio_id;
+
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[DGStrLength(line) - 1] = 0;
+		p = line;
+		while (*p != _T('=') && *p != 0) p++;
+		if (*p == 0 || _tcscmp(++p, Version))
+		{
+			fclose(INIFile);
+			goto NEW_VERSION;
+		}
+
+		_ftscanf(INIFile, _T("Window_Position=%d,%d\n"), &INIT_X, &INIT_Y);
+		_ftscanf(INIFile, _T("Info_Window_Position=%d,%d\n"), &info_wrect.left, &info_wrect.top);
+
+		_ftscanf(INIFile, _T("iDCT_Algorithm=%d\n"), &iDCT_Flag);
+		_ftscanf(INIFile, _T("YUVRGB_Scale=%d\n"), &Scale_Flag);
+		setRGBValues();
+		_ftscanf(INIFile, _T("Field_Operation=%d\n"), &FO_Flag);
+		_ftscanf(INIFile, _T("Output_Method=%d\n"), &Method_Flag);
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[DGStrLength(line) - 1] = 0;
+		p = line;
+		while (*p++ != _T('='));
+		_tcscpy(Track_List, p);
+		for (size_t i = 0; i < 0xc8; i++)
+			audio[i].selected_for_demux = false;
+		while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
+		{
+			_stscanf(p, _T("%x"), &audio_id);
+			if (audio_id > 0xc7)
+				break;
+			audio[audio_id].selected_for_demux = true;
+			while (*p != _T(',') && *p != 0) p++;
+			if (*p == 0)
+				break;
+			p++;
+		}
+		_ftscanf(INIFile, _T("DR_Control=%d\n"), &DRC_Flag);
+		_ftscanf(INIFile, _T("DS_Downmix=%d\n"), &DSDown_Flag);
+		_ftscanf(INIFile, _T("SRC_Precision=%d\n"), &SRC_Flag);
+		_ftscanf(INIFile, _T("Norm_Ratio=%d\n"), &Norm_Ratio);
+		_ftscanf(INIFile, _T("Process_Priority=%d\n"), &Priority_Flag);
+		_ftscanf(INIFile, _T("Playback_Speed=%d\n"), &PlaybackSpeed);
+		_ftscanf(INIFile, _T("Force_Open_Gops=%d\n"), &ForceOpenGops);
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[DGStrLength(line) - 1] = 0;
+		p = line;
+		while (*p++ != _T('='));
+		_tcscpy(AVSTemplatePath, p);
+		_ftscanf(INIFile, _T("Full_Path_In_Files=%d\n"), &FullPathInFiles);
+		_ftscanf(INIFile, _T("Fusion_Audio=%d\n"), &FusionAudio);
+		_ftscanf(INIFile, _T("Loop_Playback=%d\n"), &LoopPlayback);
+		_ftscanf(INIFile, _T("HD_Display=%d\n"), &HDDisplay);
+		for (size_t i = 0; i < 4; i++)
+		{
+			_fgetts(line, DG_MAX_PATH - 1, INIFile);
+			line[DGStrLength(line) - 1] = 0;
+			p = line;
+			while (*p++ != _T('='));
+			_tcscpy(mMRUList[i], p);
+		}
+		_ftscanf(INIFile, _T("Enable_Info_Log=%d\n"), &InfoLog_Flag);
+		_fgetts(line, DG_MAX_PATH - 1, INIFile);
+		line[DGStrLength(line) - 1] = 0;
+		p = line;
+		while (*p++ != _T('='));
+		_tcscpy(BMPPathString, p);
+		_ftscanf(INIFile, _T("Use_MPA_Extensions=%d\n"), &UseMPAExtensions);
+		_ftscanf(INIFile, _T("Notify_When_Done=%d\n"), &NotifyWhenDone);
+		fclose(INIFile);
+	}
 }
 
 void SaveSettings(LPCTSTR pszIniPath)

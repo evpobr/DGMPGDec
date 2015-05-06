@@ -347,6 +347,7 @@ void DGShowWarning(UINT nTextID, UINT nCaptionID);
 void DGShowWarning(UINT nTextID);
 BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID);
 
+void LoadSettings(LPCTSTR pszIniPath);
 void SaveSettings(LPCTSTR pszIniPath);
 
 #ifdef DG_MIN_CRT

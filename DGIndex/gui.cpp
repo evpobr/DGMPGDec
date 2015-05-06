@@ -147,7 +147,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 
 	// Get the path to the DGIndex executable.
 	LPTSTR pszExePath = new TCHAR[MAX_PATH];
-	GetModuleFileName(NULL, pszExePath, MAX_PATH - 1);
+	GetModuleFileName(NULL, pszExePath, MAX_PATH);
 
 	// Find first char after last backslash.
 	PathRemoveFileSpec(pszExePath);
@@ -2191,7 +2191,7 @@ right_arrow:
 			WaitForSingleObject(hThread, 2000);
 
 			LPTSTR pszExePath = new TCHAR[MAX_PATH];
-			GetModuleFileName(NULL, pszExePath, MAX_PATH - 1);
+			GetModuleFileName(NULL, pszExePath, MAX_PATH);
 			PathRemoveFileSpec(pszExePath);
 			LPTSTR pszIniPath = new TCHAR[MAX_PATH];
 			PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
@@ -3046,7 +3046,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			_stprintf(szTemp, _T("%s"), AVSTemplatePath);
+			_stprintf_s(szTemp, _T("%s"), AVSTemplatePath);
 			SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;

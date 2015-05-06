@@ -17,6 +17,7 @@
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>
+#include <math.h>
 #include <memory.h>
 #include <tchar.h>
 

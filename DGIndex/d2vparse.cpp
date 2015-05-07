@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "global.h"
+#include "resource.h"
 
 int parse_d2v(HWND hWnd, TCHAR *szInput)
 {
@@ -306,7 +307,7 @@ next_vpts:
 }
 
 // Return 1 if a transition was detected in test_only mode and the user wants to correct it, otherwise 0.	
-int fix_d2v(HWND hWnd, TCHAR *Input, int test_only)
+int fix_d2v(HWND hWnd, LPCTSTR Input, int test_only)
 {
 	FILE *fp, *wfp, *dfp;
 	TCHAR line[2048], prev_line[2048], wfile[2048], logfile[2048], *p, *q;
@@ -318,21 +319,21 @@ int fix_d2v(HWND hWnd, TCHAR *Input, int test_only)
 	fp = _tfopen(Input, _T("r"));
 	if (fp == 0)
 	{
-		MessageBox(hWnd, _T("Cannot open the D2V file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_OPEN_D2V_FILE);
 		return 0;
 	}
 	// Pick up the D2V format number
 	_fgetts(line, 1024, fp);
 	if (_tcsncmp(line, _T("DGIndexProjectFile"), 18) != 0)
 	{
-		MessageBox(hWnd, _T("The file is not a DGIndex project file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_FILE_IS_NOT_D2V);
 		fclose(fp);
 		return 0;
 	}
 	_stscanf(line, _T("DGIndexProjectFile%d"), &D2Vformat);
 	if (D2Vformat != D2V_FILE_VERSION)
 	{
-		MessageBox(hWnd, _T("Obsolete D2V file.\nRecreate it with this version of DGIndex."), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_OBSOLETE_D2V);
 		fclose(fp);
 		return 0;
 	}
@@ -344,7 +345,7 @@ int fix_d2v(HWND hWnd, TCHAR *Input, int test_only)
 		wfp = _tfopen(wfile, _T("w"));
 		if (wfp == 0)
 		{
-			MessageBox(hWnd, _T("Cannot create the fixed D2V file!"), NULL, MB_OK | MB_ICONERROR);
+			DGShowError(IDS_ERROR_CREATE_FIXED_D2V_FILE);
 			fclose(fp);
 			return 0;
 		}
@@ -361,7 +362,7 @@ int fix_d2v(HWND hWnd, TCHAR *Input, int test_only)
 		{
 			fclose(fp);
 			fclose(wfp);
-			MessageBox(hWnd, _T("Cannot create the info output file!"), NULL, MB_OK | MB_ICONERROR);
+			DGShowError(IDS_ERROR_CREATE_INFO_OUTPUT_FILE);
 			return 0;
 		}
 

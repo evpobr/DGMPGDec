@@ -22,8 +22,9 @@
  */
 
 #include "global.h"
+#include "misc.h"
 
-static ui64 local;
+static uint64_t local;
 static TCHAR buffer[256];
 
 unsigned __int64 read_counter(void)
@@ -78,7 +79,7 @@ void start_timer() {
 	local = read_counter();
 }
 
-ui64 read_timer()
+uint64_t read_timer()
 {
 	ui64 tmp;
 

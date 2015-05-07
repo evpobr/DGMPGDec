@@ -19,6 +19,8 @@
  *
  */
 
+#pragma once
+
 #include <stdio.h>
 
 #define TS_SYNC_BYTE 0x47

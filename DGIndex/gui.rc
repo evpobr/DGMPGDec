@@ -118,9 +118,9 @@ BEGIN
 END
 
 IDD_LUMINANCE DIALOGEX 0, 0, 113, 67
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Luminance Filter"
-FONT 8, "MS Shell Dlg", 0, 0, 0x1
+FONT 8, "MS Shell Dlg"
 BEGIN
     CONTROL         "Enable Luminance Filter",IDC_LUM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,5,108,11
     CONTROL         "",IDC_GAMMA_SPIN,"msctls_updown32",WS_TABSTOP,86,23,8,14
@@ -136,10 +136,10 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Normalization"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    CONTROL         "Enable Normalization",IDC_NORM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,5,93,8
-    CONTROL         "",IDC_NORM_SLIDER,"msctls_trackbar32",TBS_NOTICKS | WS_TABSTOP,33,22,72,10
-    LTEXT           "Volume",IDC_STATIC,7,22,25,8,NOT WS_GROUP
-    CTEXT           "0",IDC_NORM,106,22,16,8,NOT WS_GROUP
+CONTROL         "Enable Normalization", IDC_NORM_CHECK, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 6, 5, 93, 8
+CONTROL         "", IDC_NORM_SLIDER, "msctls_trackbar32", TBS_NOTICKS | WS_TABSTOP, 33, 22, 72, 10
+LTEXT           "Volume", IDC_STATIC, 7, 22, 25, 8, NOT WS_GROUP
+CTEXT           "0", IDC_NORM, 106, 22, 16, 8, NOT WS_GROUP
 END
 
 IDD_SET_PIDS DIALOGEX 0, 0, 116, 118
@@ -240,6 +240,46 @@ BEGIN
     LTEXT           "Enter audio id to analyze in hex without the leading 0x",IDC_STATIC,7,2,202,16,SS_CENTERIMAGE
 END
 
+IDD_FILELIST_VISTA DIALOGEX 0, 0, 270, 151
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "File List"
+FONT 9, "Segoe UI", 400, 0, 0xCC
+BEGIN
+    PUSHBUTTON      "ADD",ID_ADD,224,7,39,14
+    PUSHBUTTON      "UP",ID_UP,223,26,39,14
+    PUSHBUTTON      "DOWN",ID_DOWN,223,45,39,14
+    PUSHBUTTON      "DEL",ID_DEL,223,64,39,14
+    PUSHBUTTON      "DEL ALL",ID_DELALL,223,83,39,14
+    PUSHBUTTON      "OK",IDOK,224,130,39,14
+    LISTBOX         IDC_LIST,7,7,207,137,NOT LBS_NOTIFY | LBS_DISABLENOSCROLL | WS_VSCROLL | WS_HSCROLL
+END
+
+IDD_NORM_VISTA DIALOGEX 0, 0, 124, 40
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Normalization"
+FONT 9, "Segoe UI"
+BEGIN
+    CONTROL         "Enable Normalization",IDC_NORM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,5,93,8
+    CONTROL         "",IDC_NORM_SLIDER,"msctls_trackbar32",TBS_NOTICKS | WS_TABSTOP,33,22,72,10
+    LTEXT           "Volume",IDC_STATIC,7,22,25,8,NOT WS_GROUP
+    CTEXT           "0",IDC_NORM,106,22,16,8,NOT WS_GROUP
+END
+
+IDD_LUMINANCE_VISTA DIALOGEX 0, 0, 113, 67
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Luminance Filter"
+FONT 9, "Segoe UI", 400, 0, 0xCC
+BEGIN
+    CONTROL         "Enable Luminance Filter",IDC_LUM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,5,108,11
+    CONTROL         "",IDC_GAMMA_SPIN,"msctls_updown32",WS_TABSTOP,86,23,8,14
+    CONTROL         "",IDC_OFFSET_SPIN,"msctls_updown32",WS_TABSTOP,86,45,8,14
+    RTEXT           "0",IDC_GAMMA_BOX,64,22,18,15,SS_CENTERIMAGE
+    RTEXT           "Offset:",IDC_STATIC,30,47,29,11,NOT WS_GROUP
+    RTEXT           "Gamma:",IDC_STATIC,28,25,30,8,NOT WS_GROUP
+    RTEXT           "0",IDC_OFFSET_BOX,63,44,19,15,SS_CENTERIMAGE
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -265,9 +305,41 @@ BEGIN
         BOTTOMMARGIN, 144
     END
 
+    IDD_LUMINANCE, DIALOG
+    BEGIN
+    END
+
+    IDD_NORM, DIALOG
+    BEGIN
+    END
+
+    IDD_SET_PIDS, DIALOG
+    BEGIN
+    END
+
+    IDD_BMP_PATH, DIALOG
+    BEGIN
+    END
+
     IDD_SELECT_TRACKS, DIALOG
     BEGIN
         RIGHTMARGIN, 209
+    END
+
+    IDD_FILELIST_VISTA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 263
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 144
+    END
+
+    IDD_NORM_VISTA, DIALOG
+    BEGIN
+    END
+
+    IDD_LUMINANCE_VISTA, DIALOG
+    BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -587,6 +659,11 @@ BEGIN
     IDS_WAV_FILTER          "WAV File (*.wav)"
     IDS_SAVE_BMP            "Save BMP"
     IDS_RECENT_FILE_LIST    "Recent file list"
+    IDS_ERROR_OPEN_D2V_FILE "Cannot open the D2V file!"
+    IDS_ERROR_CREATE_FIXED_D2V_FILE "Cannot create the fixed D2V file!"
+    IDS_ERROR_CREATE_INFO_OUTPUT_FILE "Cannot create the info output file!"
+    IDS_ERROR_FIELD_ORDER_TRANSITION 
+                            "A field order transition was detected.\nIt is not possible to decide automatically if this should be corrected.\nRefer to the DGIndex Users Manual for an explanation.\nYou can choose to correct it by hitting the Yes button below or\nyou can correct it later using the Fix D2V tool.\n\nCorrect the field order transition?"
 END
 
 #endif    // English (United States) resources

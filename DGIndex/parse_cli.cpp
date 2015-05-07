@@ -3,6 +3,8 @@
 #include "Shlwapi.h"
 #include "global.h"
 
+#include "gui.h"
+
 int parse_cli(LPTSTR lpCmdLine, LPTSTR ucCmdLine)
 {
 	TCHAR cwd[DG_MAX_PATH];

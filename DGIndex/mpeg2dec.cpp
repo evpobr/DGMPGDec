@@ -25,6 +25,9 @@
 #include "getbit.h"
 #include "math.h"
 #include "shlwapi.h"
+#include "pat.h"
+
+extern PATParser pat_parser;
 
 static BOOL GOPBack(void);
 static void InitialDecoder(void);

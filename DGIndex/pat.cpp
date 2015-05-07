@@ -22,6 +22,7 @@
 #include "windows.h"
 #include "resource.h"
 #include "global.h"
+#include "pat.h"
 
 PATParser::PATParser(void)
 {

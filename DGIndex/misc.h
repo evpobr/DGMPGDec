@@ -21,6 +21,10 @@
  *
  */
 
+#pragma once
+
+#include <stdint.h>
+
 #define ui64 unsigned __int64
 
 struct ts_t
@@ -49,7 +53,7 @@ int dprintf(TCHAR* fmt, ...);
 void init_first(ts* timers);
 void init_timers(ts* timers);
 void start_timer();
-ui64 read_timer();
+uint64_t read_timer();
 void start_timer2(ui64* timer);
 void stop_timer(ui64* timer);
 void stop_timer2(ui64* timer);

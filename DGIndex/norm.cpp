@@ -22,7 +22,9 @@
  */
 
 #include "global.h"
+#include "norm.h"
 #include <math.h>
+#include "resource.h"
 
 #define NORM_SIZE 1048576
 

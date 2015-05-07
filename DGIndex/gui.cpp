@@ -24,12 +24,25 @@
 #include <windows.h>
 #include "resource.h"
 #include "Shlwapi.h"
-#include <locale.h>
+#include "pat.h"
 
 #define GLOBAL
 #include "global.h"
 
+#include "gui.h"
+#include "norm.h"
+#include "wavefs44.h"
+
 static TCHAR Version[] = _T("DGIndex 1.5.8");
+
+bool bIsWindowsXPorLater;
+bool bIsWindowsVistaorLater;
+
+int InfoLog_Flag;
+
+TCHAR ExePath[DG_MAX_PATH];
+
+TCHAR mMRUList[4][DG_MAX_PATH];
 
 #define TRACK_HEIGHT	32
 #define INIT_WIDTH		480
@@ -51,6 +64,8 @@ static TCHAR Version[] = _T("DGIndex 1.5.8");
 #define PRIORITY_HIGH		1
 #define PRIORITY_NORMAL		2
 #define PRIORITY_LOW		3
+
+PATParser pat_parser;
 
 bool PopFileDlg(PTSTR, HWND, int);
 ATOM MyRegisterClass(HINSTANCE);
@@ -95,10 +110,23 @@ static RECT wrect, crect, info_wrect;
 static int SoundDelay[MAX_FILE_NUMBER];
 static TCHAR Outfilename[MAX_FILE_NUMBER][DG_MAX_PATH];
 
-extern int fix_d2v(HWND hWnd, TCHAR *path, int test_only);
+extern int fix_d2v(HWND hWnd, LPCTSTR path, int test_only);
 extern int parse_d2v(HWND hWnd, TCHAR *path);
 extern int analyze_sync(HWND hWnd, TCHAR *path, int track);
 extern unsigned char *Rdbfr;
+
+#ifdef UNICODE
+
+// Vista functions
+typedef HRESULT STDAPICALLTYPE TASKDIALOGPROC(HWND hWndParent, HINSTANCE hInstance, PCWSTR pszWindowTitle,
+	PCWSTR pszMainInstruction, PCWSTR pszInstruction, TASKDIALOG_COMMON_BUTTON_FLAGS dwCommonButtons, PCWSTR dwIcon, DWORD *pnButton);
+TASKDIALOGPROC* pfnTaskDialogProc = NULL;
+
+#endif
+
+int iddFileList		= IDD_FILELIST;
+int iddNorm			= IDD_NORM;
+int iddLuminance	= IDD_LUMINANCE;
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -111,6 +139,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	TCHAR ucCmdLine[4096];
 	TCHAR cwd[DG_MAX_PATH];
 
+	// Detect Windows XP
 	OSVERSIONINFOEX osvi = { 0 };
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 	osvi.dwMajorVersion = 5;
@@ -121,6 +150,37 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
 
 	bIsWindowsXPorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask);
+
+	// Detect Windows Vista
+	osvi = { 0 };
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	osvi.dwMajorVersion = 6;
+	osvi.dwMinorVersion = 0;
+
+	dwlConditionMask = 0;
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+
+	bIsWindowsVistaorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask);
+
+#ifdef UNICODE
+
+	HMODULE hComctl32 = LoadLibrary(_T("Comctl32.dll"));
+	if (hComctl32 != NULL)
+	{
+		pfnTaskDialogProc = (TASKDIALOGPROC*)GetProcAddress(hComctl32, "TaskDialog");
+	}
+
+	if (bIsWindowsVistaorLater)
+	{
+		// Prepare dialogs identifiers
+		iddFileList += IDD_VISTA;
+		iddNorm += IDD_VISTA;
+		iddLuminance += IDD_VISTA;
+	}
+
+
+#endif
 
     if(bIsWindowsXPorLater)
 	{
@@ -165,7 +225,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 		DGShowError(IDS_ERROR_ALLOCATE_STREAM_BUFFER_CONFIGURED_SIZE);
         Rdbfr = (unsigned char *) malloc(32 * SECTOR_SIZE);
         {
-			DGShowError(IDS_ERROR_ALLOCATE_STREAM_BUFFER_CONFIGURED_SIZE);
+			DGShowError(IDS_ERROR_ALLOCATE_STREAM_BUFFER_DEFAULT_SIZE);
 		    exit(0);
         }
     }
@@ -633,7 +693,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			OutputProgress(wParam);
 			break;
 
-		case WM_CREATE:
+		case WM_CREATE:			
+		
 			PreScale_Ratio = 1.0;
 
 			process.trackleft = 0;
@@ -750,7 +811,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						DestroyWindow(hDlg);
 						Info_Flag = false;
 					}
-					DialogBox(hInst, (LPCTSTR)IDD_FILELIST, hWnd, (DLGPROC)VideoList);
+					DialogBox(hInst, MAKEINTRESOURCE(iddFileList), hWnd, (DLGPROC)VideoList);
 					break;
 
 				case IDM_CLOSE:
@@ -1281,79 +1342,37 @@ D2V_PROCESS:
 
 				case IDM_IDCT_MMX:
 					iDCT_Flag = IDCT_MMX;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_CHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_MMX, MF_BYCOMMAND);
 					break;
 
 				case IDM_IDCT_SSEMMX:
 					iDCT_Flag = IDCT_SSEMMX;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_CHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SSEMMX, MF_BYCOMMAND);
 					break;
 
 				case IDM_IDCT_SSE2MMX:
 					iDCT_Flag = IDCT_SSE2MMX;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_CHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SSE2MMX, MF_BYCOMMAND);
 					break;
 
 				case IDM_IDCT_FPU:
 					iDCT_Flag = IDCT_FPU;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_CHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_FPU, MF_BYCOMMAND);
 					break;
 
 				case IDM_IDCT_REF:
 					iDCT_Flag = IDCT_REF;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_CHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_REF, MF_BYCOMMAND);
 					break;
 
 				case IDM_IDCT_SKAL:
 					iDCT_Flag = IDCT_SKAL;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_CHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SKAL, MF_BYCOMMAND);
 					break;
 
 				case IDM_IDCT_SIMPLE:
 					iDCT_Flag = IDCT_SIMPLE;
-					CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
-					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_CHECKED);
+					CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SIMPLE, MF_BYCOMMAND);
 					break;
 
 				case IDM_FO_NONE:
@@ -1407,11 +1426,11 @@ D2V_PROCESS:
 					break;
 
 				case IDM_LUMINANCE:
-					DialogBox(hInst, (LPCTSTR)IDD_LUMINANCE, hWnd, (DLGPROC) Luminance);
+					DialogBox(hInst, MAKEINTRESOURCE(iddLuminance), hWnd, (DLGPROC) Luminance);
 					break;
 
 				case IDM_NORM:
-					DialogBox(hInst, (LPCTSTR)IDD_NORM, hWnd, (DLGPROC) Normalization);
+					DialogBox(hInst, MAKEINTRESOURCE(iddNorm), hWnd, (DLGPROC) Normalization);
 					break;
 
 				case IDM_TRACK_NUMBER:
@@ -2068,7 +2087,7 @@ right_arrow:
 			{
 				Infile[i] = _topen(Infilename[i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 			}
-			DialogBox(hInst, (LPCTSTR)IDD_FILELIST, hWnd, (DLGPROC)VideoList);
+			DialogBox(hInst, MAKEINTRESOURCE(iddFileList), hWnd, (DLGPROC)VideoList);
 			break;
 
 		case WM_DESTROY:
@@ -3408,31 +3427,31 @@ void CheckFlag()
 	switch (iDCT_Flag)
 	{
 		case IDCT_MMX:
-			CheckMenuItem(hMenu, IDM_IDCT_MMX, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_MMX, MF_BYCOMMAND);
 			break;
 
 		case IDCT_SSEMMX:
-			CheckMenuItem(hMenu, IDM_IDCT_SSEMMX, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SSEMMX, MF_BYCOMMAND);
 			break;
 
 		case IDCT_SSE2MMX:
-			CheckMenuItem(hMenu, IDM_IDCT_SSE2MMX, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SSE2MMX, MF_BYCOMMAND);
 			break;
 
 		case IDCT_FPU:
-			CheckMenuItem(hMenu, IDM_IDCT_FPU, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_FPU, MF_BYCOMMAND);
 			break;
 
 		case IDCT_REF:
-			CheckMenuItem(hMenu, IDM_IDCT_REF, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_REF, MF_BYCOMMAND);
 			break;
 
 		case IDCT_SKAL:
-			CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SKAL, MF_BYCOMMAND);
 			break;
 
 		case IDCT_SIMPLE:
-			CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_CHECKED);
+			CheckMenuRadioItem(hMenu, IDM_IDCT_MMX, IDM_IDCT_SIMPLE, IDM_IDCT_SIMPLE, MF_BYCOMMAND);
 			break;
 	}
 
@@ -4173,28 +4192,61 @@ static TCHAR szText[MAX_LOADSTRING], szCaption[MAX_LOADSTRING];
 
 void DGShowError(UINT nTextID, UINT nCaptionID)
 {
-	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
-	LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
-	MessageBox(hWnd, szText, szCaption, MB_ICONERROR);
+	if (pfnTaskDialogProc)
+	{
+		DWORD nButtonPressed = 0;
+		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(nTextID), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_ERROR_ICON, &nButtonPressed);
+	}
+	else
+	{
+		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+		LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
+		MessageBox(hWnd, szText, szCaption, MB_ICONERROR);
+	}
 }
 
 void DGShowError(UINT nTextID)
 {
-	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
-	MessageBox(hWnd, szText, NULL, MB_ICONERROR);
+	if (pfnTaskDialogProc)
+	{
+		DWORD nButtonPressed = 0;
+		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(IDC_GUI), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_ERROR_ICON, &nButtonPressed);
+	}
+	else
+	{
+		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+		MessageBox(hWnd, szText, NULL, MB_ICONERROR);
+	}
 }
+
 
 void DGShowWarning(UINT nTextID, UINT nCaptionID)
 {
-	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
-	LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
-	MessageBox(hWnd, szText, szCaption, MB_ICONWARNING);
+	if (pfnTaskDialogProc)
+	{
+		DWORD nButtonPressed = 0;
+		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(nCaptionID), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_WARNING_ICON, &nButtonPressed);
+	}
+	else
+	{
+		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+		LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
+		MessageBox(hWnd, szText, szCaption, MB_ICONWARNING);
+	}
 }
 
 void DGShowWarning(UINT nTextID)
 {
-	LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
-	MessageBox(hWnd, szText, NULL, MB_ICONWARNING);
+	if (pfnTaskDialogProc)
+	{
+		DWORD nButtonPressed = 0;
+		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(IDC_GUI), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_WARNING_ICON, &nButtonPressed);
+	}
+	else
+	{
+		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
+		MessageBox(hWnd, szText, NULL, MB_ICONWARNING);
+	}
 }
 
 BOOL DGSetDlgItemText(HWND hDlg, int nIDDlgItem, UINT nStringID)
@@ -4224,7 +4276,7 @@ void LoadSettings(LPCTSTR pszIniPath)
 		setRGBValues();
 		FO_Flag = FO_NONE;
 		Method_Flag = AUDIO_DEMUXALL;
-		_tcscpy(Track_List, _T(""));
+		_tcscpy_s(Track_List, _T(""));
 		DRC_Flag = DRC_NORMAL;
 		DSDown_Flag = false;
 		SRC_Flag = SRC_NONE;
@@ -4234,12 +4286,9 @@ void LoadSettings(LPCTSTR pszIniPath)
 		ForceOpenGops = 0;
 		// Default the AVS template path.
 		// Get the path to the DGIndex executable.
-		GetModuleFileName(NULL, AVSTemplatePath, 255);
+		GetModuleFileName(NULL, AVSTemplatePath, MAX_PATH);
 		// Find first char after last backslash.
-		if ((ptr = _tcsrchr(AVSTemplatePath, _T('\\'))) != 0) ptr++;
-		else ptr = AVSTemplatePath;
-		*ptr = 0;
-		_tcscat(AVSTemplatePath, _T("template.avs"));
+		PathAppend(AVSTemplatePath, _T("template.avs"));
 		FullPathInFiles = 1;
 		LoopPlayback = 0;
 		FusionAudio = 0;
@@ -4303,7 +4352,7 @@ void LoadSettings(LPCTSTR pszIniPath)
 		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p++ != _T('='));
-		_tcscpy(AVSTemplatePath, p);
+		_tcscpy_s(AVSTemplatePath, p);
 		_ftscanf(INIFile, _T("Full_Path_In_Files=%d\n"), &FullPathInFiles);
 		_ftscanf(INIFile, _T("Fusion_Audio=%d\n"), &FusionAudio);
 		_ftscanf(INIFile, _T("Loop_Playback=%d\n"), &LoopPlayback);
@@ -4314,7 +4363,7 @@ void LoadSettings(LPCTSTR pszIniPath)
 			line[DGStrLength(line) - 1] = 0;
 			p = line;
 			while (*p++ != _T('='));
-			_tcscpy(mMRUList[i], p);
+			_tcscpy_s(mMRUList[i], p);
 		}
 		_ftscanf(INIFile, _T("Enable_Info_Log=%d\n"), &InfoLog_Flag);
 		_fgetts(line, DG_MAX_PATH - 1, INIFile);

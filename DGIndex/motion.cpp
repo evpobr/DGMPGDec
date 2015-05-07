@@ -28,6 +28,26 @@
 #include "global.h"
 #include "getbit.h"
 
+/* Table B-10, motion_code, codes 0001 ... 01xx */
+VLCtab MVtab0[8] =
+{
+	{ ERROR_VALUE, 0 }, { 3, 3 }, { 2, 2 }, { 2, 2 }, { 1, 1 }, { 1, 1 }, { 1, 1 }, { 1, 1 }
+};
+
+/* Table B-10, motion_code, codes 0000011 ... 000011x */
+VLCtab MVtab1[8] =
+{
+	{ ERROR_VALUE, 0 }, { ERROR_VALUE, 0 }, { ERROR_VALUE, 0 }, { 7, 6 }, { 6, 6 }, { 5, 6 }, { 4, 5 }, { 4, 5 }
+};
+
+/* Table B-10, motion_code, codes 0000001100 ... 000001011x */
+VLCtab MVtab2[12] =
+{
+	{ 16, 9 }, { 15, 9 }, { 14, 9 }, { 13, 9 },
+	{ 12, 9 }, { 11, 9 }, { 10, 8 }, { 10, 8 },
+	{ 9, 8 }, { 9, 8 }, { 8, 8 }, { 8, 8 }
+};
+
 void motion_vector(int *PMV, int *dmvector, int h_r_size, int v_r_size,
 	int dmv, int mvscale, int full_pel_vector);
 __forceinline static void decode_motion_vector(int *pred, int r_size, int motion_code,

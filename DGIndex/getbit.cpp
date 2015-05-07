@@ -25,6 +25,8 @@
 #include "global.h"
 #include "getbit.h"
 #include "AC3Dec\ac3.h"
+#include "wavefs44.h"
+#include "resource.h"
 
 unsigned int start;
 

@@ -30,22 +30,22 @@ int parse_cli(LPTSTR lpCmdLine, LPTSTR ucCmdLine)
 
 		while (1)
 		{
-			while (*p == _T(' ') || *p == _T('\t')) p++;
+			while (_istblank(*p)) p++;
 			if (*p == _T('-'))
 			{
 				p++;
 				o = opt;
-				while (*p != _T(' ') && *p != _T('\t') && *p != 0)
+				while (!_istblank(*p) && *p != 0)
 					*o++ = *p++;
 				*o = 0;
 				if (!_tcsncmp(opt, _T("i"), 3))
 				{
 another:
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					f = name;
 					while (1)
 					{
-						if ((in_quote == 0) && (*p == _T(' ') || *p == _T('\t') || *p == 0))
+						if ((in_quote == 0) && (_istblank(*p) || *p == 0))
 							break;
 						if ((in_quote == 1) && (*p == 0))
 							break;
@@ -68,11 +68,10 @@ another:
 					*f = 0;
 					/* If the specified file does not include a path, use the
 					   current directory. */
-					if (name[0] != _T('\\') && name[1] != _T(':'))
+					if (PathIsFileSpec(name))
 					{
-						GetCurrentDirectory(_countof(cwd) - 1, cwd);
-						_tcscat_s(cwd, _T("\\"));
-						_tcscat_s(cwd, name);
+						GetCurrentDirectory(DG_MAX_PATH, cwd);
+						PathAppend(cwd, name);
 					}
 					else
 					{
@@ -91,11 +90,11 @@ another:
 				}
 				if (!_tcsncmp(opt, _T("ai"), 3))
 				{
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					f = name;
 					while (1)
 					{
-						if ((in_quote == 0) && (*p == _T(' ') || *p == _T('\t') || *p == 0))
+						if ((in_quote == 0) && (_istblank(*p) || *p == 0))
 							break;
 						if ((in_quote == 1) && (*p == 0))
 							break;
@@ -120,11 +119,10 @@ another:
 					{
 						/* If the specified file does not include a path, use the
 						   current directory. */
-						if (name[0] != _T('\\') && name[1] != _T(':'))
+						if (PathIsFileSpec(name))
 						{
-							GetCurrentDirectory(_countof(cwd) - 1, cwd);
-							_tcscat_s(cwd, _T("\\"));
-							_tcscat_s(cwd, name);
+							GetCurrentDirectory(DG_MAX_PATH, cwd);
+							PathAppend(cwd, name);
 						}
 						else
 						{
@@ -143,13 +141,13 @@ another:
 						// Now pick up the number value and increment it.
 						ptr++;
 						//TODO: may be bug in unicode mode
-						if (*ptr < _T('0') || *ptr > _T('9')) break;
+						if (!_istdigit(*ptr)) break;
 						_stscanf(ptr, _T("%d"), &val);
 						val++;
 						// Save the suffix after the number.
 						q = ptr;
-						//TODO: may be bug in unicode mode
-						while (*ptr >= _T('0') && *ptr <= _T('9')) ptr++;
+						while (_istdigit(*ptr)) ptr++;
+						//while (*ptr >= _T('0') && *ptr <= _T('9')) ptr++;
 						_tcscpy_s(suffix, ptr);
 						// Write the new incremented number.
 						_stprintf(q, _T("%d"), val);
@@ -161,7 +159,7 @@ another:
 				}
 				else if (!_tcsncmp(opt, _T("rg"), 3))
 				{
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					_stscanf_s(p, _T("%d %I64x %d %I64x\n"),
 						&process.leftfile, &process.leftlba, &process.rightfile, &process.rightlba);
 					while (*p != _T('-') && *p != 0) p++;
@@ -191,21 +189,21 @@ another:
 				}
 				else if (!_tcsncmp(opt, _T("vp"), 3))
 				{
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					_stscanf(p, _T("%x"), &MPEG2_Transport_VideoPID);
 					while (*p != _T('-') && *p != 0) p++;
 					p--;
 				}
 				else if (!_tcsncmp(opt, _T("ap"), 3))
 				{
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					_stscanf(p, _T("%x"), &MPEG2_Transport_AudioPID);
 					while (*p != _T('-') && *p != 0) p++;
 					p--;
 				}
 				else if (!_tcsncmp(opt, _T("pp"), 3))
 				{
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					_stscanf(p, _T("%x"), &MPEG2_Transport_PCRPID);
 					while (*p != _T('-') && *p != 0) p++;
 					p--;
@@ -219,9 +217,8 @@ another:
 					CheckMenuItem(hMenu, IDM_IDCT_REF, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_IDCT_SKAL, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_IDCT_SIMPLE, MF_UNCHECKED);
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 		   
-					//TODO: may be bug in unicode mode
 					switch (*p++)
 					{
 					case _T('1'):
@@ -254,7 +251,7 @@ another:
 					CheckMenuItem(hMenu, IDM_FO_FILM, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_FO_RAW, MF_UNCHECKED);
 					SetDlgItemText(hDlg, IDC_INFO, _T(""));
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 
 					//TODO: may be bug in unicode mode
 					switch (*p++)
@@ -278,7 +275,7 @@ another:
 				{
 					CheckMenuItem(hMenu, IDM_TVSCALE, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_PCSCALE, MF_UNCHECKED);
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 		    
 					switch (*p++)
 					{
@@ -301,11 +298,11 @@ another:
 					TCHAR track_list[1024];
 					unsigned int i, audio_id;
 					// First get the track list into Track_List.
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					_tcscpy_s(track_list, p);
 					while (*p != _T('-') && *p != 0) p++;
 					ptr = track_list;
-					while (*ptr != _T(' ') && *ptr != 0)
+					while (!_istspace(*ptr) && *ptr != 0)
 						ptr++;
 					*ptr = 0;
 					_tcscpy_s(Track_List, track_list);
@@ -313,8 +310,7 @@ another:
 					for (i = 0; i < 0xc8; i++)
 						audio[i].selected_for_demux = false;
 					ptr = Track_List;
-					//TODO: may be bug in unicode
-					while ((*ptr >= _T('0') && *ptr <= _T('9')) || (*ptr >= _T('a') && *ptr <= _T('f')) || (*ptr >= _T('A') && *ptr <= _T('F')))
+					while (_istxdigit(*ptr))
 					{
 						_stscanf(ptr, _T("%x"), &audio_id);
 						if (audio_id > 0xc7)
@@ -342,7 +338,7 @@ another:
 					CheckMenuItem(hMenu, IDM_DEMUX, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_DEMUXALL, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_DECODE, MF_UNCHECKED);
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 
 					switch (*p++)
 					{
@@ -390,7 +386,7 @@ another:
 					CheckMenuItem(hMenu, IDM_DRC_LIGHT, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_DRC_NORMAL, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_DRC_HEAVY, MF_UNCHECKED);
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 
 					switch (*p++)
 					{
@@ -416,7 +412,7 @@ another:
 				else if (!_tcsncmp(opt, _T("dsd"), 3))
 				{
 					CheckMenuItem(hMenu, IDM_DSDOWN, MF_UNCHECKED);
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 
 					DSDown_Flag = *p++ - _T('0');
 					if (DSDown_Flag)
@@ -429,7 +425,7 @@ another:
 					CheckMenuItem(hMenu, IDM_SRC_MID, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SRC_HIGH, MF_UNCHECKED);
 					CheckMenuItem(hMenu, IDM_SRC_UHIGH, MF_UNCHECKED);
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 
 					switch (*p++)
 					{
@@ -464,7 +460,7 @@ another:
 				{
 					FILE *bf;
 
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 					if (*p == _T('-') || *p == 0)
 					{
 						// A null file name specifies no template.
@@ -476,7 +472,7 @@ another:
 						f = name;
 						while (1)
 						{
-							if ((in_quote == 0) && (*p == _T(' ') || *p == _T('\t') || *p == 0))
+							if ((in_quote == 0) && (_istblank(*p) || *p == 0))
 								break;
 							if ((in_quote == 1) && (*p == 0))
 								break;
@@ -499,11 +495,10 @@ another:
 						*f = 0;
 						/* If the specified file does not include a path, use the
 						   current directory. */
-						if (name[0] != _T('\\') && name[1] != _T(':'))
+						if (PathIsFileSpec(name))
 						{
-							GetCurrentDirectory(_countof(cwd) - 1, cwd);
-							_tcscat_s(cwd, _T("\\"));
-							_tcscat_s(cwd, name);
+							GetCurrentDirectory(DG_MAX_PATH, cwd);
+							PathAppend(cwd, name);
 						}
 						else
 						{
@@ -535,7 +530,7 @@ another:
 					{
 						MuxFile = (FILE *) 0;
 					}
-					while (*p == _T(' ') || *p == _T('\t')) p++;
+					while (_istblank(*p)) p++;
 
 					// Don't pop up warning boxes for automatic invocation.
 					crop1088_warned = true;
@@ -543,7 +538,7 @@ another:
 					f = name;
 					while (1)
 					{
-						if ((in_quote == 0) && (*p == _T(' ') || *p == _T('\t') || *p == 0))
+						if ((in_quote == 0) && (_istblank(*p) || *p == 0))
 							break;
 						if ((in_quote == 1) && (*p == 0))
 							break;
@@ -566,11 +561,10 @@ another:
 					*f = 0;
 					/* If the specified file does not include a path, use the
 					   current directory. */
-					if (name[0] != _T('\\') && name[1] != _T(':'))
+					if (PathIsFileSpec(name))
 					{
-						GetCurrentDirectory(_countof(szOutput) - 1, szOutput);
-						_tcscat_s(szOutput, _T("\\"));
-						_tcscat_s(szOutput, name);
+						GetCurrentDirectory(DG_MAX_PATH, szOutput);
+						PathAppend(szOutput, name);
 					}
 					else
 					{
@@ -631,11 +625,10 @@ another:
 			{
 				/* If the specified file does not include a path, use the
 				   current directory. */
-				if (!_tcsstr(aFName, _T("\\")))
+				if (PathIsFileSpec(aFName))
 				{
-					GetCurrentDirectory(_countof(cwd) - 1, cwd);
-					_tcscat_s(cwd, _T("\\"));
-					_tcscat_s(cwd, aFName);
+					GetCurrentDirectory(DG_MAX_PATH, cwd);
+					PathAppend(cwd, aFName);
 				}
 				else
 				{
@@ -652,14 +645,13 @@ another:
 				if (*p != _T('_')) break;
 				// Now pick up the number value and increment it.
 				p++;
-				//TODO: may be bug in unicode
-				if (*p < _T('0') || *p > _T('9')) break;
+				if (!_istdigit(*p)) break;
 				_stscanf(p, _T("%d"), &val);
 				val++;
 				// Save the suffix after the number.
 				q = p;
 				//TODO: may be bug in unicode
-				while (*p >= _T('0') && *p <= _T('9')) p++;
+				while (_istdigit(*p)) p++;
 				_tcscpy(suffix, p);
 				// Write the new incremented number.
 				_stprintf(q, _T("%d"), val);
@@ -695,11 +687,10 @@ another:
 
 			/* If the specified file does not include a path, use the
 			   current directory. */
-			if (!_tcsstr(aFName, _T("\\")))
+			if (PathIsFileSpec(aFName))
 			{
-				GetCurrentDirectory(_countof(cwd) - 1, cwd);
-				_tcscat_s(cwd, _T("\\"));
-				_tcscat_s(cwd, aFName);
+				GetCurrentDirectory(DG_MAX_PATH, cwd);
+				PathAppend(cwd, aFName);
 			}
 			else
 			{
@@ -728,11 +719,10 @@ another:
 			*ende = save;
 			/* If the specified batch file does not include a path, use the
 			   current directory. */
-			if (!_tcsstr(aFName, _T("\\")))
+			if (PathIsFileSpec(aFName))
 			{
-				GetCurrentDirectory(_countof(cwd) - 1, cwd);
-				_tcscat_s(cwd, _T("\\"));
-				_tcscat_s(cwd, aFName);
+				GetCurrentDirectory(DG_MAX_PATH, cwd);
+				PathAppend(cwd, aFName);
 			}
 			else
 			{
@@ -747,11 +737,10 @@ another:
 					line[DGStrLength(line)-1] = 0;
 					/* If the specified batch file does not include a path, use the
 					   current directory. */
-					if (!_tcsstr(line, _T("\\")))
+					if (PathIsFileSpec(line))
 					{
-						GetCurrentDirectory(_countof(cwd) - 1, cwd);
-						_tcscat_s(cwd, _T("\\"));
-						_tcscat_s(cwd, line);
+						GetCurrentDirectory(DG_MAX_PATH, cwd);
+						PathAppend(cwd, line);
 					}
 					else
 					{
@@ -925,7 +914,7 @@ another:
 			ptr = _tcsstr(ptr, _T("=")) + 1;
             _tcscpy_s(track_list, ptr);
             p = track_list;
-			while (*p != _T(' ') && *p != 0)
+			while (!_istspace(*p) && *p != 0)
 				p++;
             *p = 0;
             _tcscpy_s(Track_List, track_list);
@@ -934,7 +923,7 @@ another:
                 audio[i].selected_for_demux = false;
             p = Track_List;
 			//TODO: may be bug in unicode
-			while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
+			while (_istxdigit(*p))
             {
 				_stscanf(p, _T("%x"), &audio_id);
                 if (audio_id > 0xc7)
@@ -1107,11 +1096,10 @@ another:
 				*ende = save;
 				/* If the specified template file does not include a path, use the
 				   current directory. */
-				if (!_tcsstr(aFName, _T("\\")))
+				if (PathIsFileSpec(aFName))
 				{
-					GetCurrentDirectory(_countof(cwd) - 1, cwd);
-					_tcscat_s(cwd, _T("\\"));
-					_tcscat_s(cwd, aFName);
+					GetCurrentDirectory(DG_MAX_PATH, cwd);
+					PathAppend(cwd, aFName);
 				}
 				else
 				{
@@ -1156,12 +1144,11 @@ another:
 			*ende = save;
             // We need to store the full path, so that all our path handling options work
             // the same way as for GUI mode.
-			if (aFName[0] != _T('\\') && aFName[1] != _T(':'))
+			if (PathIsFileSpec(aFName))
 			{
 				//TODO: Use PathCombine
-				GetCurrentDirectory(_countof(szOutput) - 1, szOutput);
-				_tcscat_s(szOutput, _T("\\"));
-				_tcscat_s(szOutput, aFName);
+				GetCurrentDirectory(DG_MAX_PATH, szOutput);
+				PathAppend(szOutput, aFName);
 			}
 			else
 			{

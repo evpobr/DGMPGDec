@@ -23,19 +23,16 @@ int parse_d2v(HWND hWnd, TCHAR *szInput)
 	fp = _tfopen(szInput, _T("r"));
 	if (fp == 0)
 	{
-		MessageBox(hWnd, _T("Cannot open the D2V file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_OPEN_D2V_FILE);
 		return 0;
 	}
 	// Mutate the file name to the output text file to receive the parsed data.
-	p = &szInput[DGStrLength(szInput)];
-	while (*p != _T('.')) p--;
-	p[1] = 0;
-	_tcscat(p, _T("parse.txt"));
+	PathRenameExtension(szInput, _T(".parse.txt"));
 	// Open the output file.
 	wfp = _tfopen(szInput, _T("w"));
 	if (wfp == 0)
 	{
-		MessageBox(hWnd, _T("Cannot create the parse output file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_CREATE_PARSE_OUTPUT_FILE);
 		return 0;
 	}
 
@@ -44,7 +41,7 @@ int parse_d2v(HWND hWnd, TCHAR *szInput)
 	_fgetts(line, 2048, fp);
 	if (_tcsncmp(line, _T("DGIndexProjectFile"), 18) != 0)
 	{
-		MessageBox(hWnd, _T("The file is not a DGIndex project file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_FILE_IS_NOT_D2V);
 		fclose(fp);
 		fclose(wfp);
 		return 0;
@@ -52,7 +49,7 @@ int parse_d2v(HWND hWnd, TCHAR *szInput)
 	_stscanf(line, _T("DGIndexProjectFile%d"), &D2Vformat);
 	if (D2Vformat != D2V_FILE_VERSION)
 	{
-		MessageBox(hWnd, _T("Obsolete D2V file.\nRecreate it with this version of DGIndex."), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_OBSOLETE_D2V);
 		fclose(fp);
 		fclose(wfp);
 		return 0;
@@ -227,14 +224,14 @@ int analyze_sync(HWND hWnd, TCHAR *Input, int audio_id)
 	fp = _tfopen(Input, _T("r"));
 	if (fp == 0)
 	{
-		MessageBox(hWnd, _T("Cannot open the dump file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_OPEN_DUMP_FILE);
 		return 0;
 	}
 	// Check that it is a timestamps dump file
 	_fgetts(line, 1024, fp);
 	if (_tcsncmp(line, _T("DGIndex Timestamps Dump"), 23) != 0)
 	{
-		MessageBox(hWnd, _T("The file is not a DGIndex timestamps dump file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_FILE_IN_NOT_TIMESTAMPS_DUMP_FILE);
 		fclose(fp);
 		return 0;
 	}
@@ -249,7 +246,7 @@ int analyze_sync(HWND hWnd, TCHAR *Input, int audio_id)
 	wfp = _tfopen(szInput, _T("w"));
 	if (wfp == 0)
 	{
-		MessageBox(hWnd, _T("Cannot create the output file!"), NULL, MB_OK | MB_ICONERROR);
+		DGShowError(IDS_ERROR_CREATE_OUTPUT_FILE);
 		return 0;
 	}
 	_ftprintf(wfp, _T("Delay Analysis Output (Audio ID %x)\n\n"), audio_id);
@@ -444,6 +441,7 @@ int fix_d2v(HWND hWnd, LPCTSTR Input, int test_only)
 		}
 		if (!test_only) _fputts(prev_line, wfp);
 		_tcscpy_s(prev_line, line);
+		//TODO: may be bug in unicode mode
 	} while ((_fgetts(line, 2048, fp) != 0) &&
 		((line[0] >= _T('0') && line[0] <= _T('9')) || (line[0] >= _T('a') && line[0] <= _T('f'))));
 	if (!test_only) _fputts(prev_line, wfp);

@@ -652,10 +652,10 @@ BEGIN
     IDS_N_A                 "n/a"
     IDS_OPEN_VOB_FILTER     "vob|*.vob|mpg, mpeg, m1v, m2v, mpv|*.mpg;*.mpeg;*.m1v;*.m2v;*.mpv|tp, ts, trp, m2t, m2ts, pva, vro|*.tp;*.ts;*.trp;*.m2t;*.m2ts;*.pva;*.vro|All MPEG Files|*.vob;*.mpg;*.mpeg;*.m1v;*.m2v;*.mpv;*.tp;*.ts;*.trp;*.m2t;*.m2ts;*.pva;*.vro|All Files (*.*)|*.*|"
     IDS_OPEN_D2V_FILTER     "DGIndex Project File (*.d2v)|*.d2v|All Files (*.*)|*.*|"
-    IDS_OPEN_TXT_FILTER     "DGIndex Timestamps File (*.txt)|*.txt|All Files (*.*)|*.*|"	
-    IDS_OPEN_AVS_FILTER     "AVS File (*.avs)|*.avs|All Files (*.*)|* .*|"	
-    IDS_SAVE_D2V_FILTER     "DGIndex Project File (*.d2v)|*.d2v|All Files (*.*)|*.*|"	
-    IDS_SAVE_BMP_FILTER     "BMP File (*.bmp)|*.bmp|All Files (*.*)|*.*|"	
+    IDS_OPEN_TXT_FILTER     "DGIndex Timestamps File (*.txt)|*.txt|All Files (*.*)|*.*|"
+    IDS_OPEN_AVS_FILTER     "AVS File (*.avs)|*.avs|All Files (*.*)|* .*|"
+    IDS_SAVE_D2V_FILTER     "DGIndex Project File (*.d2v)|*.d2v|All Files (*.*)|*.*|"
+    IDS_SAVE_BMP_FILTER     "BMP File (*.bmp)|*.bmp|All Files (*.*)|*.*|"
     IDS_WAV_FILTER          "WAV File (*.wav)|*.wav|All Files (*.*)|*.*|"
     IDS_SAVE_BMP            "Save BMP"
     IDS_RECENT_FILE_LIST    "Recent file list"
@@ -664,6 +664,15 @@ BEGIN
     IDS_ERROR_CREATE_INFO_OUTPUT_FILE "Cannot create the info output file!"
     IDS_ERROR_FIELD_ORDER_TRANSITION 
                             "A field order transition was detected.\nIt is not possible to decide automatically if this should be corrected.\nRefer to the DGIndex Users Manual for an explanation.\nYou can choose to correct it by hitting the Yes button below or\nyou can correct it later using the Fix D2V tool.\n\nCorrect the field order transition?"
+    IDS_ERROR_CREATE_PARSE_OUTPUT_FILE "Cannot create the parse output file!"
+    IDS_ERROR_OPEN_DUMP_FILE "Cannot open the dump file!"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ERROR_FILE_IN_NOT_TIMESTAMPS_DUMP_FILE 
+                            "The file is not a DGIndex timestamps dump file!"
+    IDS_ERROR_CREATE_OUTPUT_FILE "Cannot create the output file!"
 END
 
 #endif    // English (United States) resources

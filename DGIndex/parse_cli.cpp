@@ -413,8 +413,8 @@ another:
 				{
 					CheckMenuItem(hMenu, IDM_DSDOWN, MF_UNCHECKED);
 					while (_istblank(*p)) p++;
-
-					DSDown_Flag = *p++ - _T('0');
+					// DSDown_Flag = *p++ - _T('0');
+					DSDown_Flag = *p++ == _T('1') ? true : false;
 					if (DSDown_Flag)
 					  CheckMenuItem(hMenu, IDM_DSDOWN, MF_CHECKED);
 				}
@@ -1031,7 +1031,8 @@ another:
 			ptr = lpCmdLine + (ptr - ucCmdLine);
 			CheckMenuItem(hMenu, IDM_DSDOWN, MF_UNCHECKED);
 			//TODO: may be bug in unicode
-			DSDown_Flag = *(_tcsstr(ptr, _T("=")) + 1) - _T('0');
+			// DSDown_Flag = *(_tcsstr(ptr, _T("=")) + 1) - _T('0');
+			DSDown_Flag = *(_tcsstr(ptr, _T("=")) + 1) == _T('1') ? true : false;
 			if (DSDown_Flag)
 			  CheckMenuItem(hMenu, IDM_DSDOWN, MF_CHECKED);
 		}

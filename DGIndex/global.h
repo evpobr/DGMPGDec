@@ -33,10 +33,6 @@
 #define XTN extern
 #endif
 
-#define		bool	BOOL
-#define		true	TRUE
-#define		false	FALSE
-
 // Messages to the window procedure.
 #define CLI_RIP_MESSAGE				(WM_APP)
 #define D2V_DONE_MESSAGE			(WM_APP + 1)

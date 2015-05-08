@@ -499,8 +499,8 @@ static void picture_header(__int64 start, boolean HadSequenceHeader, boolean Had
 	repeat_first_field = 0;
 	progressive_frame = 1;
 
-	d2v_current.pf = progressive_frame;
-	d2v_current.trf = (top_field_first<<1) + repeat_first_field;
+	d2v_current.pf = progressive_frame != false;
+	d2v_current.trf = ((top_field_first<<1) + repeat_first_field) != false;
 
 	Extra_Information_Byte_Count = extra_bit_information();
 	extension_and_user_data();
@@ -873,8 +873,8 @@ static void picture_coding_extension()
 	progressive_frame			= Get_Bits(1);
 	composite_display_flag		= Get_Bits(1);
 
-	d2v_current.pf = progressive_frame;
-	d2v_current.trf = (top_field_first<<1) + repeat_first_field;
+	d2v_current.pf = progressive_frame != false;
+	d2v_current.trf = ((top_field_first<<1) + repeat_first_field) != false;
     // Store just the first picture structure encountered. We'll
     // use it to report the field order for field structure clips.
     if (d2v_current.picture_structure == -1)

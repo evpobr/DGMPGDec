@@ -8,6 +8,8 @@ void AddMRUList(TCHAR *);
 void DeleteMRUList(int);
 void ResizeWindow(int width, int height);
 
+void PrepareOpenFileFilter(LPTSTR pszFilter);
+
 void Recovery(void);
 void RefreshWindow(bool);
 void CheckFlag(void);

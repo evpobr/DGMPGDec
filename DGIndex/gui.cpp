@@ -149,7 +149,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
 
-	bIsWindowsXPorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask);
+	bIsWindowsXPorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) != false;
 
 	// Detect Windows Vista
 	osvi = { 0 };
@@ -161,7 +161,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
 
-	bIsWindowsVistaorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask);
+	bIsWindowsVistaorLater = VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) != false;
 
 #ifdef UNICODE
 
@@ -759,7 +759,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case WM_COMMAND:
         {
-            int show_info;
+            bool show_info;
 
             show_info = true;
 			wmId    = LOWORD(wParam);
@@ -3266,36 +3266,43 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 		case OPEN_VOB:
 			ofn.nFilterIndex = 4;
 			LoadString(GetModuleHandle(NULL), IDS_OPEN_VOB_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 
 		case OPEN_D2V:
 			LoadString(GetModuleHandle(NULL), IDS_OPEN_D2V_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 
 		case OPEN_TXT:
 			LoadString(GetModuleHandle(NULL), IDS_OPEN_TXT_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 
 		case OPEN_AVS:
 			LoadString(GetModuleHandle(NULL), IDS_OPEN_AVS_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 
 		case SAVE_D2V:
 			LoadString(GetModuleHandle(NULL), IDS_SAVE_D2V_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 
 		case SAVE_BMP:
 			LoadString(GetModuleHandle(NULL), IDS_SAVE_BMP_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 		case OPEN_WAV:
 		case SAVE_WAV:
 			LoadString(GetModuleHandle(NULL), IDS_WAV_FILTER, g_szMessage, _countof(g_szMessage));
+			PrepareOpenFileFilter(g_szMessage);
 			szFilter = g_szMessage;
 			break;
 	}
@@ -3317,13 +3324,13 @@ bool PopFileDlg(PTSTR pstrFileName, HWND hOwner, int Status)
 			crop1088_warned = false;
 			*ofn.lpstrFile = 0;
 			ofn.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-			return GetOpenFileName(&ofn);
+			return GetOpenFileName(&ofn) != false;
 
 		case OPEN_AVS:
 		case OPEN_TXT:
 			*ofn.lpstrFile = 0;
 			ofn.Flags = OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-			return GetOpenFileName(&ofn);
+			return GetOpenFileName(&ofn) != false;
 
 		case SAVE_BMP:
 			*ofn.lpstrFile = 0;
@@ -4410,5 +4417,18 @@ void SaveSettings(LPCTSTR pszIniPath)
 		_ftprintf(INIFile, _T("Use_MPA_Extensions=%d\n"), UseMPAExtensions);
 		_ftprintf(INIFile, _T("Notify_When_Done=%d\n"), NotifyWhenDone);
 		fclose(INIFile);
+	}
+}
+
+void PrepareOpenFileFilter(LPTSTR pszFilter)
+{
+	if (pszFilter)
+	{
+		size_t len = _tcslen(pszFilter);
+		for (size_t i = 0; i < len; i++)
+		{
+			if (pszFilter[i] == _T('|'))
+				pszFilter[i] = _T('\0');
+		}
 	}
 }

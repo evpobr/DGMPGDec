@@ -255,12 +255,12 @@ void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
 		conv444toRGB24even(y444, u444, v444, rgb24);
 		TFB = BFB = true;
 		FlushRGB24();
-		if ((FO_Flag != FO_RAW) && (d2v.trf & 1))
+		if ((FO_Flag != FO_RAW) && (!d2v.trf))
 		{
 			TFB = BFB = true;
 			FlushRGB24();
 			frame_repeats++;
-			if (d2v.trf & 2)
+			if (!d2v.trf)
 			{
 				TFB = BFB = true;
 				FlushRGB24();
@@ -272,7 +272,7 @@ void Write_Frame(unsigned char *src[], D2VData d2v, DWORD frame)
 	{
 		repeat = DetectVideoType(frame, d2v.trf);
 
-		if ((FO_Flag != FO_RAW) && (d2v.trf & 1))
+		if ((FO_Flag != FO_RAW) && (d2v.trf))
 			field_repeats++;
 
 		if (FO_Flag != FO_FILM || repeat)

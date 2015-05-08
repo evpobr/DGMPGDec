@@ -120,7 +120,7 @@ END
 IDD_LUMINANCE DIALOGEX 0, 0, 113, 67
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Luminance Filter"
-FONT 8, "MS Shell Dlg"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     CONTROL         "Enable Luminance Filter",IDC_LUM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,5,108,11
     CONTROL         "",IDC_GAMMA_SPIN,"msctls_updown32",WS_TABSTOP,86,23,8,14
@@ -136,10 +136,10 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Normalization"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-CONTROL         "Enable Normalization", IDC_NORM_CHECK, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 6, 5, 93, 8
-CONTROL         "", IDC_NORM_SLIDER, "msctls_trackbar32", TBS_NOTICKS | WS_TABSTOP, 33, 22, 72, 10
-LTEXT           "Volume", IDC_STATIC, 7, 22, 25, 8, NOT WS_GROUP
-CTEXT           "0", IDC_NORM, 106, 22, 16, 8, NOT WS_GROUP
+    CONTROL         "Enable Normalization",IDC_NORM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,5,93,8
+    CONTROL         "",IDC_NORM_SLIDER,"msctls_trackbar32",TBS_NOTICKS | WS_TABSTOP,33,22,72,10
+    LTEXT           "Volume",IDC_STATIC,7,22,25,8,NOT WS_GROUP
+    CTEXT           "0",IDC_NORM,106,22,16,8,NOT WS_GROUP
 END
 
 IDD_SET_PIDS DIALOGEX 0, 0, 116, 118
@@ -257,7 +257,7 @@ END
 IDD_NORM_VISTA DIALOGEX 0, 0, 124, 40
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Normalization"
-FONT 9, "Segoe UI"
+FONT 9, "Segoe UI", 0, 0, 0x1
 BEGIN
     CONTROL         "Enable Normalization",IDC_NORM_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,5,93,8
     CONTROL         "",IDC_NORM_SLIDER,"msctls_trackbar32",TBS_NOTICKS | WS_TABSTOP,33,22,72,10
@@ -650,13 +650,13 @@ END
 STRINGTABLE
 BEGIN
     IDS_N_A                 "n/a"
-    IDS_OPEN_VOB_FILTER     "vob"
-    IDS_OPEN_D2V_FILTER     "DGIndex Project File (*.d2v)"
-    IDS_OPEN_TXT_FILTER     "DGIndex Timestamps File (*.txt)"
-    IDS_OPEN_AVS_FILTER     "AVS File (*.avs)"
-    IDS_SAVE_D2V_FILTER     "DGIndex Project File (*.d2v)"
-    IDS_SAVE_BMP_FILTER     "BMP File (*.bmp)"
-    IDS_WAV_FILTER          "WAV File (*.wav)"
+    IDS_OPEN_VOB_FILTER     "vob|*.vob|mpg, mpeg, m1v, m2v, mpv|*.mpg;*.mpeg;*.m1v;*.m2v;*.mpv|tp, ts, trp, m2t, m2ts, pva, vro|*.tp;*.ts;*.trp;*.m2t;*.m2ts;*.pva;*.vro|All MPEG Files|*.vob;*.mpg;*.mpeg;*.m1v;*.m2v;*.mpv;*.tp;*.ts;*.trp;*.m2t;*.m2ts;*.pva;*.vro|All Files (*.*)|*.*|"
+    IDS_OPEN_D2V_FILTER     "DGIndex Project File (*.d2v)|*.d2v|All Files (*.*)|*.*|"
+    IDS_OPEN_TXT_FILTER     "DGIndex Timestamps File (*.txt)|*.txt|All Files (*.*)|*.*|"	
+    IDS_OPEN_AVS_FILTER     "AVS File (*.avs)|*.avs|All Files (*.*)|* .*|"	
+    IDS_SAVE_D2V_FILTER     "DGIndex Project File (*.d2v)|*.d2v|All Files (*.*)|*.*|"	
+    IDS_SAVE_BMP_FILTER     "BMP File (*.bmp)|*.bmp|All Files (*.*)|*.*|"	
+    IDS_WAV_FILTER          "WAV File (*.wav)|*.wav|All Files (*.*)|*.*|"
     IDS_SAVE_BMP            "Save BMP"
     IDS_RECENT_FILE_LIST    "Recent file list"
     IDS_ERROR_OPEN_D2V_FILE "Cannot open the D2V file!"

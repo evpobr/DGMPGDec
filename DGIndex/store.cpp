@@ -21,6 +21,7 @@
  *
  */
 
+#include "stdafx.h"
 #include "global.h"
 #include "filter.h"
 #include "resource.h"

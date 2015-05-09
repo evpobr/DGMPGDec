@@ -21,6 +21,7 @@
  *
  */
 
+#include "stdafx.h"
 #define GETBIT_GLOBAL
 #include "global.h"
 #include "getbit.h"

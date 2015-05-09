@@ -21,6 +21,7 @@
  *
  */
 
+#include "stdafx.h"
 #include <windows.h>
 #include "resource.h"
 #include "Shlwapi.h"
@@ -4199,12 +4200,14 @@ static TCHAR szText[MAX_LOADSTRING], szCaption[MAX_LOADSTRING];
 
 void DGShowError(UINT nTextID, UINT nCaptionID)
 {
+#ifdef UNICODE
 	if (pfnTaskDialogProc)
 	{
 		DWORD nButtonPressed = 0;
 		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(nTextID), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_ERROR_ICON, &nButtonPressed);
 	}
 	else
+#endif
 	{
 		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
 		LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
@@ -4214,12 +4217,14 @@ void DGShowError(UINT nTextID, UINT nCaptionID)
 
 void DGShowError(UINT nTextID)
 {
+#ifdef UNICODE
 	if (pfnTaskDialogProc)
 	{
 		DWORD nButtonPressed = 0;
 		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(IDC_GUI), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_ERROR_ICON, &nButtonPressed);
 	}
 	else
+#endif
 	{
 		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
 		MessageBox(hWnd, szText, NULL, MB_ICONERROR);
@@ -4229,12 +4234,14 @@ void DGShowError(UINT nTextID)
 
 void DGShowWarning(UINT nTextID, UINT nCaptionID)
 {
+#ifdef UNICODE
 	if (pfnTaskDialogProc)
 	{
 		DWORD nButtonPressed = 0;
 		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(nCaptionID), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_WARNING_ICON, &nButtonPressed);
 	}
 	else
+#endif
 	{
 		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
 		LoadString(GetModuleHandle(NULL), nCaptionID, szCaption, _countof(szCaption));
@@ -4244,12 +4251,14 @@ void DGShowWarning(UINT nTextID, UINT nCaptionID)
 
 void DGShowWarning(UINT nTextID)
 {
+#ifdef UNICODE
 	if (pfnTaskDialogProc)
 	{
 		DWORD nButtonPressed = 0;
 		pfnTaskDialogProc(0, NULL, MAKEINTRESOURCE(IDC_GUI), MAKEINTRESOURCE(nTextID), NULL, TDCBF_OK_BUTTON, TD_WARNING_ICON, &nButtonPressed);
 	}
 	else
+#endif
 	{
 		LoadString(GetModuleHandle(NULL), nTextID, szText, _countof(szText));
 		MessageBox(hWnd, szText, NULL, MB_ICONWARNING);

@@ -25,6 +25,7 @@
  *
  */
 
+#include "stdafx.h"
 #include "global.h"
 #include "getbit.h"
 #include "gui.h"

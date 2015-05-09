@@ -27,6 +27,7 @@
 
 /* SSE2 optimized by Dmitry Rozhdestvensky */
 
+#include "stdafx.h"
 #include "global.h"
 #include "getbit.h"
 #include "resource.h"

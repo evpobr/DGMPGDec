@@ -1,6 +1,7 @@
 // ParseD2V by Donald A. Graft
 // Released under the Gnu Public Licence (GPL)
 
+#include "stdafx.h"
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>

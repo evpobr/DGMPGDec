@@ -17,14 +17,15 @@
 #include <MMSystem.h>
 
 // C RunTime Header Files
+#include <tchar.h>
 #include <io.h>
+#include <direct.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <locale.h>
 #include <malloc.h>
 #include <math.h>
 #include <memory.h>
-#include <tchar.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <time.h>

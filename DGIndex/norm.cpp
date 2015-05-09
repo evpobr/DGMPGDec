@@ -21,6 +21,7 @@
  *
  */
 
+#include "stdafx.h"
 #include "global.h"
 #include "norm.h"
 #include <math.h>

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <windows.h>
 #include "resource.h"
 #include "Shlwapi.h"

@@ -18,6 +18,7 @@
 
 #include <windows.h>
 #include "resource.h"
+#include "getbit.h"
 #include <stdio.h> 
 #include <io.h> 
 #include <fcntl.h>

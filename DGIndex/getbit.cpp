@@ -31,6 +31,159 @@
 
 unsigned int start;
 
+__forceinline static unsigned int Get_Byte()
+{
+	extern unsigned char *buffer_invalid;
+
+	if (Rdptr >= buffer_invalid)
+	{
+		// Ran out of good data.
+		if (LoopPlayback)
+			ThreadKill(END_OF_DATA_KILL);
+		Stop_Flag = 1;
+		return 0xff;
+	}
+
+	while (Rdptr >= Rdbfr + BUFFER_SIZE)
+	{
+		Read = _donread(Infile[CurrentFile], Rdbfr, BUFFER_SIZE);
+		if (Read < BUFFER_SIZE)
+			Next_File();
+
+		Rdptr -= BUFFER_SIZE;
+		Rdmax -= BUFFER_SIZE;
+	}
+
+	return *Rdptr++;
+}
+
+__forceinline static void Fill_Next()
+{
+	extern unsigned char *buffer_invalid;
+
+	if (Rdptr >= buffer_invalid)
+	{
+		// Ran out of good data.
+		if (LoopPlayback)
+			ThreadKill(END_OF_DATA_KILL);
+		Stop_Flag = 1;
+		NextBfr = 0xffffffff;
+		return;
+	}
+
+	CurrentPackHeaderPosition = PackHeaderPosition;
+	if (SystemStream_Flag != ELEMENTARY_STREAM && Rdptr > Rdmax - 4 && !AudioOnly_Flag)
+	{
+		if (Rdptr >= Rdmax)
+			Next_Packet();
+		NextBfr = Get_Byte() << 24;
+
+		if (Rdptr >= Rdmax)
+			Next_Packet();
+		NextBfr += Get_Byte() << 16;
+
+		if (Rdptr >= Rdmax)
+			Next_Packet();
+		NextBfr += Get_Byte() << 8;
+
+		if (Rdptr >= Rdmax)
+			Next_Packet();
+		NextBfr += Get_Byte();
+	}
+	else if (Rdptr <= Rdbfr + BUFFER_SIZE - 4)
+	{
+#if 1
+		NextBfr = (*Rdptr << 24) + (*(Rdptr + 1) << 16) + (*(Rdptr + 2) << 8) + *(Rdptr + 3);
+#else
+		if (Rdptr < buffer_invalid)
+		{
+			NextBfr = (*Rdptr << 24);
+			if (Rdptr + 1 < buffer_invalid)
+			{
+				NextBfr += (*(Rdptr + 1) << 16);
+				if (Rdptr + 2 < buffer_invalid)
+				{
+					NextBfr += (*(Rdptr + 2) << 8);
+					if (Rdptr + 3 < buffer_invalid)
+					{
+						NextBfr += (*(Rdptr + 3));
+					}
+					else
+					{
+						NextBfr += 0xff;
+						Stop_Flag = 1;
+					}
+				}
+				else
+				{
+					NextBfr += 0xffff;
+					Stop_Flag = 1;
+				}
+			}
+			else
+			{
+				NextBfr += 0xffffff;
+				Stop_Flag = 1;
+			}
+		}
+		else
+		{
+			NextBfr = 0xffffffff;
+			Stop_Flag = 1;
+		}
+#endif
+		Rdptr += 4;
+	}
+	else
+	{
+		if (Rdptr >= Rdbfr + BUFFER_SIZE)
+			Fill_Buffer();
+		NextBfr = *Rdptr++ << 24;
+
+		if (Rdptr >= Rdbfr + BUFFER_SIZE)
+			Fill_Buffer();
+		NextBfr += *Rdptr++ << 16;
+
+		if (Rdptr >= Rdbfr + BUFFER_SIZE)
+			Fill_Buffer();
+		NextBfr += *Rdptr++ << 8;
+
+		if (Rdptr >= Rdbfr + BUFFER_SIZE)
+			Fill_Buffer();
+		NextBfr += *Rdptr++;
+	}
+}
+
+void next_start_code()
+{
+	unsigned int show;
+
+	// This is contrary to the spec but is more resilient to some
+	// stream corruption scenarios.
+	BitsLeft = ((BitsLeft + 7) / 8) * 8;
+
+	while (1)
+	{
+		show = Show_Bits(24);
+		if (Stop_Flag == true)
+			return;
+		if (show == 0x000001)
+			return;
+		Flush_Buffer(8);
+	}
+}
+
+__forceinline static unsigned int Get_Short()
+{
+	unsigned int i, j;
+
+	i = Get_Byte();
+	j = Get_Byte();
+	return ((i << 8) | j);
+}
+
+
+
 int _donread(int fd, void *buffer, unsigned int count)
 {
 	int bytes;

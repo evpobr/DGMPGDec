@@ -24,15 +24,17 @@
 #include "stdafx.h"
 #include <windows.h>
 #include "resource.h"
-#include "Shlwapi.h"
+#include <Shlwapi.h>
 #include "pat.h"
 
 #define GLOBAL
 #include "global.h"
 
-#include "gui.h"
+#include "DGIndex.h"
 #include "norm.h"
 #include "wavefs44.h"
+
+#include "Application.h"
 
 static TCHAR Version[] = _T("DGIndex 1.5.8");
 
@@ -103,10 +105,10 @@ static FILE *INIFile;
 static TCHAR szPath[DG_MAX_PATH], szTemp[DG_MAX_PATH], szWindowClass[DG_MAX_PATH];
 
 static HINSTANCE hInst;
-static HANDLE hProcess, hThread;
+HANDLE hProcess, hThread;
 static HWND hLeftButton, hLeftArrow, hRightArrow, hRightButton;
 
-static DWORD threadId;
+DWORD threadId;
 static RECT wrect, crect, info_wrect;
 static int SoundDelay[MAX_FILE_NUMBER];
 static TCHAR Outfilename[MAX_FILE_NUMBER][DG_MAX_PATH];
@@ -129,8 +131,12 @@ int iddFileList		= IDD_FILELIST;
 int iddNorm			= IDD_NORM;
 int iddLuminance	= IDD_LUMINANCE;
 
+CApplication *g_cApplication;
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
+	g_cApplication = new CApplication();
+
 	_tsetlocale(LC_ALL, _T(".ACP"));
 
 	MSG msg;
@@ -206,18 +212,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	}
 
 	// Get the path to the DGIndex executable.
-	LPTSTR pszExePath = new TCHAR[MAX_PATH];
-	GetModuleFileName(NULL, pszExePath, MAX_PATH);
-
-	// Find first char after last backslash.
-	PathRemoveFileSpec(pszExePath);
-
-	// Load INI
+	CString sIniPath;
+	::GetFullPathName(_T("DGIndex.ini"), DG_MAX_PATH, sIniPath.GetBuffer(DG_MAX_PATH - 1), NULL);
+	sIniPath.ReleaseBuffer();
 	LPTSTR pszIniPath = new TCHAR[MAX_PATH];
-	PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
-	delete[] pszExePath;
-	LoadSettings(pszIniPath);
-	delete[] pszIniPath;
+	LoadSettings(sIniPath);
 
     // Allocate stream buffer.
     Rdbfr = (unsigned char *) malloc(BUFFER_SIZE);
@@ -235,7 +234,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 	hInst = hInstance;
 
 	// Load accelerators
-	hAccel = LoadAccelerators(hInst, (LPCTSTR)IDR_ACCELERATOR);
+	hAccel = LoadAccelerators(hInst, MAKEINTRESOURCE(IDR_ACCELERATOR));
 
 	// Initialize global strings
 	LoadString(hInst, IDC_GUI, szWindowClass, DG_MAX_PATH);
@@ -306,7 +305,7 @@ TEST_END:
 	hTrack = CreateWindow(TRACKBAR_CLASS, NULL,
 		WS_CHILD | WS_VISIBLE | WS_DISABLED | TBS_NOTICKS | TBS_TOP,
 		0, INIT_HEIGHT, INIT_WIDTH-4*TRACK_HEIGHT, TRACK_HEIGHT, hWnd, (HMENU) ID_TRACKBAR, hInst, NULL);
-	SendMessage(hTrack, TBM_SETRANGE, (WPARAM) true, (LPARAM) MAKELONG(0, TRACK_PITCH));
+	SendMessage(hTrack, TBM_SETRANGE, (WPARAM) TRUE, (LPARAM) MAKELONG(0, TRACK_PITCH));
 
 	hLeftButton = CreateWindow(_T("BUTTON"), _T("["),
 		WS_CHILD | WS_VISIBLE | WS_DLGFRAME | WS_DISABLED,
@@ -336,17 +335,18 @@ TEST_END:
 	MPEG2_Transport_PCRPID = 2;
 
 	// Command line init.
-	_tcscpy(ucCmdLine, lpCmdLine);
-	_tcsupr(ucCmdLine);
+	StringCchCopy(ucCmdLine, MAX_CMDLINE, lpCmdLine);
+	CharUpper(ucCmdLine);
 
 	// Show window normal, minimized, or hidden as appropriate.
 	if (*lpCmdLine == 0)
 		WindowMode = SW_SHOW;
 	else
 	{
-		if (_tcsstr(ucCmdLine, _T("-MINIMIZE")))
+		CString sArg = ucCmdLine;
+		if (sArg.Find(_T("-MINIMIZE")) > -1)
 			WindowMode = SW_MINIMIZE;
-		else if (_tcsstr(ucCmdLine, _T("-HIDE")))
+		else if (sArg.Find(_T("-HIDE")) > -1)
 			WindowMode = SW_HIDE;
 		else
 			WindowMode = SW_SHOW;
@@ -378,6 +378,35 @@ TEST_END:
 		{
 			// "Open With" invocation.
 			NumLoadedFiles = 0;
+
+#ifdef UNICODE
+
+			int nArgs = 0;
+			LPWSTR *szArglist = CommandLineToArgvW(GetCommandLine(), &nArgs);
+
+			if (szArglist != NULL)
+			{
+				// Fisrt argument is application path
+				if (nArgs > 1)
+				{
+					NumLoadedFiles = 0;
+					for (int i = 1; i < nArgs; i++)
+					{
+						::PathUnquoteSpaces(szArglist[i]);
+						if ((tmp = _topen(szArglist[i], _O_RDONLY | _O_BINARY)) != -1)
+						{
+							StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, szArglist[i]);
+							Infile[NumLoadedFiles] = tmp;
+							NumLoadedFiles++;
+						}
+
+					}
+				}
+			}
+
+			LocalFree(szArglist);
+#else
+
 			// Pick up all the filenames.
 			// The command line will look like this (with the quotes!):
 			// "c:\my dir\file1.vob" c:\dir\file2.vob ...
@@ -415,7 +444,7 @@ TEST_END:
 						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 						{
 //							MessageBox(hWnd, "Open OK", NULL, MB_OK);
-							_tcscpy(Infilename[NumLoadedFiles], cwd);
+							StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 							Infile[NumLoadedFiles] = tmp;
 							NumLoadedFiles++;
 						}
@@ -434,7 +463,7 @@ TEST_END:
 						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 						{
 //							MessageBox(hWnd, "Open OK", NULL, MB_OK);
-							_tcscpy(Infilename[NumLoadedFiles], cwd);
+							StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 							Infile[NumLoadedFiles] = tmp;
 							NumLoadedFiles++;
 						}
@@ -446,7 +475,7 @@ TEST_END:
 						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 						{
 //							MessageBox(hWnd, "Open OK", NULL, MB_OK);
-							_tcscpy(Infilename[NumLoadedFiles], cwd);
+							StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 							Infile[NumLoadedFiles] = tmp;
 							NumLoadedFiles++;
 						}
@@ -459,6 +488,9 @@ TEST_END:
 				}
 				ptr++;
 			}
+
+#endif
+
 			// Sort the filenames.
 			n = NumLoadedFiles;
 			for (i = 0; i < n - 1; i++)
@@ -534,6 +566,8 @@ TEST_END:
 		}
 	}
 
+	delete g_cApplication;
+
 	return msg.wParam;
 }
 
@@ -574,10 +608,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case D2V_DONE_MESSAGE:
+		{
 			// Make an AVS file if it doesn't already exist and a template exists.
-			_tcscpy(avsfile, D2VFilePath);
-			path_p = _tcsrchr(avsfile, _T('.'));
-			_tcscpy(++path_p, _T("avs"));
+			CString sAvsPath(D2VFilePath);
+			::PathRenameExtension(sAvsPath.GetBuffer(DG_MAX_PATH - 1), _T(".avs"));
+			sAvsPath.ReleaseBuffer();
 			if (*AVSTemplatePath && !_tfopen(avsfile, _T("r")) && (tplate = _tfopen(AVSTemplatePath, _T("r"))))
 			{
 				avs = _tfopen(avsfile, _T("w"));
@@ -601,16 +636,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								*prog_p = 0;
 								if (FullPathInFiles)
 								{
-									_tcscat(prog_p, D2VFilePath);
+									StringCchCat(prog_p, DG_MAX_PATH - ((size_t)&path - (size_t)prog_p), D2VFilePath);
 									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 								}
 								else
 								{
-									TCHAR *p;
-									if ((p = _tcsrchr(D2VFilePath, _T('\\'))) != 0) p++;
-									else p = D2VFilePath;
-									_tcscat(prog_p, p);
+									StrCat(prog_p, ::PathFindFileName(D2VFilePath));
 									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 
@@ -632,7 +664,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 									TCHAR *p;
 									if ((p = _tcsrchr(AudioFilePath, _T('\\'))) != 0) p++;
 									else p = AudioFilePath;
-									_tcscat(prog_p, p);
+									StrCat(prog_p, p);
 									prog_p = &prog[DGStrLength(prog)];
 									path_p += 7;
 								}
@@ -660,7 +692,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 										fdelay = (float) 0.001 * delay;
 										_stprintf_s(fdelay_str, _T("%.3f"), fdelay);
 										*prog_p = 0;
-										_tcscat(prog_p, fdelay_str);
+										StrCat(prog_p, fdelay_str);
 										prog_p = &prog[DGStrLength(prog)];
 										path_p += 7;
 									}
@@ -689,6 +721,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else CLIActive = 0;
 			break;
+		}
 
 		case PROGRESS_MESSAGE: 
 			OutputProgress(wParam);
@@ -715,8 +748,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			hProcess = GetCurrentProcess();
 
 			// Load the splash screen from the file dgindex.bmp if it exists.
-			_tcscpy(prog, ExePath);
-			_tcscat(prog, _T("dgindex.bmp"));
+			GetModuleFileName(NULL, prog, DG_MAX_PATH);
+			PathRemoveFileSpec(prog);
+			PathAppend(prog, _T("dgindex.bmp"));
 			splash = (HBITMAP) ::LoadImage (0, prog, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 //			if (splash == 0)
 //			{
@@ -725,7 +759,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //			}
 
 			for (i=0; i<MAX_FILE_NUMBER; i++)
-				Infilename[i] = (TCHAR*)malloc(DG_MAX_PATH);
+				Infilename[i] = (TCHAR*)malloc(DG_MAX_PATH * sizeof(TCHAR));
 
 			for (i=0; i<8; i++)
 				block[i] = (short *)_aligned_malloc(sizeof(short)*64, 64);
@@ -738,24 +772,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\VFPlugin"), 0, _T(""),
 				REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, &trash) == ERROR_SUCCESS)
 			{
-				if (_tgetcwd(szBuffer, DG_MAX_PATH)!=NULL)
-				{
-					if (szBuffer[DGStrLength(szBuffer) - 1] != _T('\\'))
-						_tcscat(szBuffer, _T("\\"));
-
-					_tcscpy(szPath, szBuffer);
-
-					struct _tfinddata_t vfpfile;
-					if (_tfindfirst(_T("DGVfapi.vfp"), &vfpfile) != -1L)
+					if (PathFileExists(_T("DGVfapi.vfp")))
 					{
-						_tcscat(szBuffer, _T("DGVfapi.vfp"));
+						GetFullPathName(_T("DGVfapi.vfp"), DG_MAX_PATH, szBuffer, NULL);
 
 						RegSetValueEx(key, _T("DGIndex"), 0, REG_SZ, (LPBYTE)szBuffer, DGStrLength(szBuffer));
 						CheckMenuItem(hMenu, IDM_VFAPI, MF_CHECKED);
 					}
 
 					RegCloseKey(key);
-				}
 			}
 
 		case WM_COMMAND:
@@ -779,7 +804,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         NumLoadedFiles = 0;
                         if ((tmp = _topen(mMRUList[wmId - ID_MRU_FILE0], _O_RDONLY | _O_BINARY)) != -1)
 						{
-                            _tcscpy(Infilename[NumLoadedFiles], mMRUList[wmId - ID_MRU_FILE0]);
+                            StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, mMRUList[wmId - ID_MRU_FILE0]);
 					        Infile[NumLoadedFiles] = tmp;
                             NumLoadedFiles = 1;
  			                Recovery();
@@ -911,7 +936,7 @@ proceed:
 					}
 					if (CLIActive || PopFileDlg(szOutput, hWnd, SAVE_D2V))
 					{
-						_stprintf_s(szBuffer, _T("%s.d2v"), szOutput);
+						StringCchPrintf(szBuffer, DG_MAX_PATH, _T("%s.d2v"), szOutput);
 						if (CLIActive)
 						{
 							if ((D2VFile = _tfopen(szBuffer, _T("w+"))) == 0)
@@ -924,25 +949,25 @@ proceed:
 								}
 								else CLIActive = 0;
 							}
-							_tcscpy(D2VFilePath, szBuffer);
+							StringCchCopy(D2VFilePath, DG_MAX_PATH, szBuffer);
 						}
 						else 
 						{
-							if (D2VFile = _tfopen(szBuffer, _T("r")))
+							if (PathFileExists(szBuffer))
 							{
-								TCHAR line[255];
+								TCHAR line[MAX_LOADSTRING];
 
                                 fclose(D2VFile);
 								LoadString(GetModuleHandle(NULL), IDS_WARNING_FILE_ALREADY_EXISTS, szBuffer, _countof(szBuffer));
 								LoadString(GetModuleHandle(NULL), IDS_SAVE_D2V, szTemp, _countof(szTemp));
-								_stprintf_s(line, _T("%s already exists.\nDo you want to replace it?"), szBuffer);
+								StringCchPrintf(line, MAX_LOADSTRING, _T("%s already exists.\nDo you want to replace it?"), szBuffer);
 								if (MessageBox(hWnd, line, _T("Save D2V"),
 								    MB_YESNO | MB_ICONWARNING) != IDYES)
 								    break;
 
 							}
 							D2VFile = _tfopen(szBuffer, _T("w+"));
-							_tcscpy(D2VFilePath, szBuffer);
+							StringCchCopy(D2VFilePath, DG_MAX_PATH, szBuffer);
 						}
 
 						if (D2VFile != 0)
@@ -951,11 +976,7 @@ proceed:
 							{
 								// Initialize quant matric logging.
 								// Generate the output file name.
-								TCHAR *p;
-								p = &szBuffer[DGStrLength(szBuffer)];
-								while (*p != _T('.')) p--;
-								p[1] = 0;
-								_tcscat(p, _T("quants.txt"));
+								PathRenameExtension(szBuffer, _T(".quants.txt"));
 								// Open the output file.
 								Quants = _tfopen(szBuffer, _T("w"));
 								// Init the recorded quant matrices for change detection.
@@ -967,15 +988,14 @@ proceed:
 
 							if (LogTimestamps_Flag)
 							{
+								LPTSTR pszTimestampsPath = new TCHAR[DG_MAX_PATH];
+								StringCchCopy(pszTimestampsPath, DG_MAX_PATH, szBuffer);
 								// Initialize timestamp logging.
 								// Generate the output file name.
-								TCHAR *p;
-								p = &szBuffer[DGStrLength(szBuffer)];
-								while (*p != _T('.')) p--;
-								p[1] = 0;
-								_tcscat(p, _T("timestamps.txt"));
+								PathRenameExtension(pszTimestampsPath, _T(".timestamps.txt"));
 								// Open the output file.
-								Timestamps = _tfopen(szBuffer, _T("w"));
+								Timestamps = _tfopen(pszTimestampsPath, _T("w"));
+								delete[] pszTimestampsPath;
 								_ftprintf(Timestamps, _T("DGIndex Timestamps Dump\n\n"));
 								_ftprintf(Timestamps, _T("frame rate = %f\n"), frame_rate);
 							}
@@ -1007,130 +1027,8 @@ proceed:
 					if (PopFileDlg(szInput, hWnd, OPEN_D2V))
 					{
 D2V_PROCESS:
-						int m, n;
-						unsigned int num, den;
-						TCHAR line[2048];
-						int D2Vformat;
+						g_cApplication->LoadProject(szInput);
 
-						D2VFile = _tfopen(szInput, _T("r"));
-
-						// Validate the D2V file.
-						_fgetts(line, 2048, D2VFile);
-						if (_tcsncmp(line, _T("DGIndexProjectFile"), 18) != 0)
-						{
-							DGShowError(IDS_ERROR_FILE_IS_NOT_D2V);
-							fclose(D2VFile);
-							break;
-						}
-						_stscanf(line, _T("DGIndexProjectFile%d"), &D2Vformat);
-						if (D2Vformat != D2V_FILE_VERSION)
-						{
-							DGShowError(IDS_ERROR_OBSOLETE_D2V);
-							fclose(D2VFile);
-							break;
-						}
-
-						// Close any opened files.
-						while (NumLoadedFiles)
-						{
-							NumLoadedFiles--;
-							_close(Infile[NumLoadedFiles]);
-                            Infile[NumLoadedFiles] = NULL;
-						}
-
-						_ftscanf(D2VFile, _T("%d\n"), &NumLoadedFiles);
-
-						i = NumLoadedFiles;
-						while (i)
-						{
-							_fgetts(Infilename[NumLoadedFiles-i], DG_MAX_PATH - 1, D2VFile);
-							// Strip newline.
-							Infilename[NumLoadedFiles - i][DGStrLength(Infilename[NumLoadedFiles - i]) - 1] = 0;
-							if ((Infile[NumLoadedFiles-i] = _topen(Infilename[NumLoadedFiles-i], _O_RDONLY | _O_BINARY | _O_SEQUENTIAL))==-1)
-							{
-								while (i<NumLoadedFiles)
-								{
-									_close(Infile[NumLoadedFiles-i-1]);
-                                    Infile[NumLoadedFiles-i-1] = NULL;
-									i++;
-								}
-
-								NumLoadedFiles = 0;
-								break;
-							}
-
-							i--;
-						}
-
-						Recovery();
-
-						_ftscanf(D2VFile, _T("\nStream_Type=%d\n"), &SystemStream_Flag);
-						if (SystemStream_Flag == TRANSPORT_STREAM)
-						{
-							_ftscanf(D2VFile, _T("MPEG2_Transport_PID=%x,%x,%x\n"),
-								   &MPEG2_Transport_VideoPID, &MPEG2_Transport_AudioPID, &MPEG2_Transport_PCRPID);
-							_ftscanf(D2VFile, _T("Transport_Packet_Size=%d\n"), &TransportPacketSize);
-						}
-                        // Don't use the read value. It will be detected.
-                        SystemStream_Flag = ELEMENTARY_STREAM;
-						_ftscanf(D2VFile, _T("MPEG_Type=%d\n"), &mpeg_type);
-						_ftscanf(D2VFile, _T("iDCT_Algorithm=%d\n"), &iDCT_Flag);
-						_ftscanf(D2VFile, _T("YUVRGB_Scale=%d\n"), &Scale_Flag);
-						setRGBValues();
-						_ftscanf(D2VFile, _T("Luminance_Filter=%d,%d\n"), &LumGamma, &LumOffset);
-
-						if (LumGamma || LumOffset)
-						{
-							CheckMenuItem(hMenu, IDM_LUMINANCE, MF_CHECKED);
-							Luminance_Flag = true;				
-						}
-						else
-						{
-							CheckMenuItem(hMenu, IDM_LUMINANCE, MF_UNCHECKED);
-							Luminance_Flag = false;
-						}
-
-						_ftscanf(D2VFile, _T("Clipping=%d,%d,%d,%d\n"),
-								&Clip_Left, &Clip_Right, &Clip_Top, &Clip_Bottom);
-
-						if (Clip_Top || Clip_Bottom || Clip_Left || Clip_Right)
-						{
-							CheckMenuItem(hMenu, IDM_CROPPING, MF_CHECKED);
-							Cropping_Flag = true;				
-						}
-						else
-						{
-							CheckMenuItem(hMenu, IDM_CROPPING, MF_UNCHECKED);
-							Cropping_Flag = false;
-						}
-
-						_ftscanf(D2VFile, _T("Aspect_Ratio=%d:%d\n"), &m, &n);
-						_ftscanf(D2VFile, _T("Picture_Size=%dx%d\n"), &m, &n);
-						_ftscanf(D2VFile, _T("Field_Operation=%d\n"), &FO_Flag);
-						_ftscanf(D2VFile, _T("Frame_Rate=%d (%u/%u)\n"), &m, &num, &den);
-
-						CheckFlag();
-
-						if (NumLoadedFiles)
-						{
-							_ftscanf(D2VFile, _T("Location=%d,%I64x,%d,%I64x\n"),
-								&process.leftfile, &process.leftlba, &process.rightfile, &process.rightlba);
-
-                            process.startfile = process.leftfile;
-							process.startloc = process.leftlba * SECTOR_SIZE;
-						    process.end = Infiletotal - SECTOR_SIZE;
-						    process.endfile = process.rightfile;
-						    process.endloc = process.rightlba* SECTOR_SIZE;
-							process.run = 0;
-							process.start = process.startloc;
-							process.trackleft = (process.startloc*TRACK_PITCH/Infiletotal);
-							process.trackright = (process.endloc*TRACK_PITCH/Infiletotal);
-							process.locate = LOCATE_INIT;
-						    InvalidateRect(hwndSelect, NULL, TRUE);
-
-							if (!threadId || WaitForSingleObject(hThread, INFINITE)==WAIT_OBJECT_0)
-								hThread = CreateThread(NULL, 0, MPEG2Dec, 0, 0, &threadId);
-						}
 					}
 					break;
 
@@ -1324,21 +1222,21 @@ D2V_PROCESS:
 
 				case IDM_DETECT_PIDS_RAW:
 					Pid_Detect_Method = PID_DETECT_RAW;
-					DialogBox(hInst, (LPCTSTR)IDD_DETECT_PIDS, hWnd, (DLGPROC) DetectPids);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_DETECT_PIDS), hWnd, (DLGPROC) DetectPids);
 					break;
 
 				case IDM_DETECT_PIDS:
 					Pid_Detect_Method = PID_DETECT_PATPMT;
-					DialogBox(hInst, (LPCTSTR)IDD_DETECT_PIDS, hWnd, (DLGPROC) DetectPids);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_DETECT_PIDS), hWnd, (DLGPROC) DetectPids);
 					break;
 
 				case IDM_DETECT_PIDS_PSIP:
 					Pid_Detect_Method = PID_DETECT_PSIP;
-					DialogBox(hInst, (LPCTSTR)IDD_DETECT_PIDS, hWnd, (DLGPROC) DetectPids);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_DETECT_PIDS), hWnd, (DLGPROC)DetectPids);
 					break;
 
 				case IDM_SET_PIDS:
-					DialogBox(hInst, (LPCTSTR)IDD_SET_PIDS, hWnd, (DLGPROC) SetPids);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_SET_PIDS), hWnd, (DLGPROC)SetPids);
 					break;
 
 				case IDM_IDCT_MMX:
@@ -1423,7 +1321,7 @@ D2V_PROCESS:
 					break;
 
 				case IDM_CROPPING:
-					DialogBox(hInst, (LPCTSTR)IDD_CROPPING, hWnd, (DLGPROC) Cropping);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_CROPPING), hWnd, (DLGPROC)Cropping);
 					break;
 
 				case IDM_LUMINANCE:
@@ -1435,11 +1333,11 @@ D2V_PROCESS:
 					break;
 
 				case IDM_TRACK_NUMBER:
-					DialogBox(hInst, (LPCTSTR)IDD_SELECT_TRACKS, hWnd, (DLGPROC) SelectTracks);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECT_TRACKS), hWnd, (DLGPROC)SelectTracks);
 					break;
 
 				case IDM_ANALYZESYNC:
-					DialogBox(hInst, (LPCTSTR)IDD_SELECT_DELAY_TRACK, hWnd, (DLGPROC) SelectDelayTrack);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_SELECT_DELAY_TRACK), hWnd, (DLGPROC)SelectDelayTrack);
 					break;
 
 				case IDM_SPEED_SINGLE_STEP:
@@ -1615,11 +1513,11 @@ D2V_PROCESS:
 					break;
 
 				case IDM_AVS_TEMPLATE:
-					DialogBox(hInst, (LPCTSTR)IDD_AVS_TEMPLATE, hWnd, (DLGPROC) AVSTemplate);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_AVS_TEMPLATE), hWnd, (DLGPROC)AVSTemplate);
 					break;
 
 				case IDM_BMP_PATH:
-					DialogBox(hInst, (LPCTSTR)IDD_BMP_PATH, hWnd, (DLGPROC) BMPPath);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_BMP_PATH), hWnd, (DLGPROC)BMPPath);
 					break;
 
 				case IDM_FORCE_OPEN:
@@ -1721,21 +1619,22 @@ D2V_PROCESS:
 					break;
 
 				case IDM_ABOUT:
-					DialogBox(hInst, (LPCTSTR)IDD_ABOUT, hWnd, (DLGPROC)About);
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUT), hWnd, (DLGPROC)About);
 					break;
 
 				case IDM_QUICK_START:
 				case IDM_DGINDEX_MANUAL:
 				case IDM_DGDECODE_MANUAL:
 				{
-					_tcscpy(prog, ExePath);
+					LPTSTR pszHelpPath = new TCHAR[DG_MAX_PATH];
 					if (wmId == IDM_QUICK_START)
-						_tcscat(prog, _T("QuickStart.html"));
+						::GetFullPathName(_T("QuickStart.html"), DG_MAX_PATH, pszHelpPath, NULL);
 					else if (wmId == IDM_DGINDEX_MANUAL)
-						_tcscat(prog, _T("DGIndexManual.html"));
+						::GetFullPathName(_T("DGIndexManual.html"), DG_MAX_PATH, pszHelpPath, NULL);
 					else
-						_tcscat(prog, _T("DGDecodeManual.html"));
-					ShellExecute(NULL, _T("open"), prog, NULL, NULL, SW_SHOWNORMAL);
+						::GetFullPathName(_T("DGDecodeManual.html"), DG_MAX_PATH, pszHelpPath, NULL);
+					ShellExecute(NULL, _T("open"), pszHelpPath, NULL, NULL, SW_SHOWNORMAL);
+					delete[] pszHelpPath;
 					break;
 				}
 
@@ -2030,13 +1929,12 @@ right_arrow:
 
 			// Set the output directory for a Save D2V operation to the
 			// same path as these input files.
-			_tcscpy(path, szInput);
-			tmp = path + DGStrLength(path);
-			while (*tmp != _T('\\') && tmp >= path) tmp--;
-			tmp[1] = 0;
-			_tcscpy(szSave, path);
+			StringCchCopy(path, DG_MAX_PATH, szInput);
+			::PathRemoveFileSpec(path);
+			::PathAddBackslash(path);
+			StringCchCopy(szSave, DG_MAX_PATH, path);
+			ext = PathFindExtension(szInput);
 
-			ext = _tcsrchr(szInput, _T('.'));
 			if (ext!=NULL)
 			{
 				if (!_tcsnicmp(ext, _T(".d2v"), 4))
@@ -2060,7 +1958,7 @@ right_arrow:
 				struct _tfinddata_t seqfile;
 				if (_tfindfirst(szInput, &seqfile) != -1L)
 				{
-					_tcscpy(Infilename[NumLoadedFiles], szInput);
+					StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, szInput);
 					NumLoadedFiles++;
 					SystemStream_Flag = ELEMENTARY_STREAM;
 				}
@@ -2097,10 +1995,10 @@ right_arrow:
 			WaitForSingleObject(hThread, 2000);
 
 			LPTSTR pszExePath = new TCHAR[MAX_PATH];
-			GetModuleFileName(NULL, pszExePath, MAX_PATH);
-			PathRemoveFileSpec(pszExePath);
+			::GetModuleFileName(NULL, pszExePath, MAX_PATH);
+			::PathRemoveFileSpec(pszExePath);
 			LPTSTR pszIniPath = new TCHAR[MAX_PATH];
-			PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
+			::PathCombine(pszIniPath, pszExePath, _T("DGIndex.ini"));
 			delete[] pszExePath;
 			SaveSettings(pszIniPath);
 			delete[] pszIniPath;
@@ -2346,7 +2244,7 @@ LRESULT CALLBACK VideoList(HWND hVideoListDlg, UINT message, WPARAM wParam, LPAR
 						for (j=i; j<NumLoadedFiles; j++)
 						{
 							Infile[j] = Infile[j+1];
-							_tcscpy(Infilename[j], Infilename[j+1]);
+							StringCchCopy(Infilename[j], DG_MAX_PATH, Infilename[j+1]);
 						}
 						SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_SETCURSEL, i>=NumLoadedFiles ? NumLoadedFiles-1 : i, 0);
 					}
@@ -2431,16 +2329,14 @@ static void OpenVideoFile(HWND hVideoListDlg)
 			// Only one file specified.
 			if (_tfindfirst(szInput, &seqfile) == -1L) return;
 			SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_ADDSTRING, 0, (LPARAM) szInput);
-			_tcscpy(Infilename[NumLoadedFiles], szInput);
+			StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, szInput);
 			Infile[NumLoadedFiles] = _topen(szInput, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL);
 			NumLoadedFiles++;
 			// Set the output directory for a Save D2V operation to the
 			// same path as this input files.
-			_tcscpy(path, szInput);
-			p = path + DGStrLength(path);
-			while (*p != _T('\\') && p >= path) p--;
-			p[1] = 0;
-			_tcscpy(szSave, path);
+			StringCchCopy(path, DG_MAX_PATH, szInput);
+			::PathRemoveBackslash(path);
+			StringCchCopy(szSave, DG_MAX_PATH, path);
 			return;
 		}
 		// Multi-select handling.
@@ -2454,15 +2350,11 @@ static void OpenVideoFile(HWND hVideoListDlg)
 			SendDlgItemMessage(hVideoListDlg, IDC_LIST, LB_SETCURSEL, i >= n ? n - 1 : i, 0);
 		}
 		// Save the path prefix (path without the filename).
-		_tcscpy(path, szInput);
+		StringCchCopy(path, DG_MAX_PATH, szInput);
 		// Also set that path as the default for a Save D2V operation.
-		_tcscpy(szSave, szInput);
+		StringCchCopy(szSave, DG_MAX_PATH, szInput);
 		// Add a trailing backslash if needed.
-		p = szInput;
-		while (*p != 0) p++;
-		p--;
-		if (*p != _T('\\'))
-			_tcscat(path, _T("\\"));
+		::PathAddBackslash(szSave);
 		// Skip the path prefix.
 		p = szInput;
 		while (*p++ != 0);
@@ -2470,10 +2362,10 @@ static void OpenVideoFile(HWND hVideoListDlg)
 		for (;;)
 		{
 			// Build full path plus filename.
-			_tcscpy(filename, path);
-			_tcscat(filename, p);
+			StringCchCopy(filename, DG_MAX_PATH, path);
+			PathAppend(filename, p);
 			if (_tfindfirst(filename, &seqfile) == -1L) break;
-			_tcscpy(Infilename[NumLoadedFiles], filename);
+			StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, filename);
 			NumLoadedFiles++;
 			// Skip to next filename.
 			while (*p++ != 0);
@@ -2676,9 +2568,8 @@ LRESULT CALLBACK Info(HWND hInfoDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
                 if (InfoLog_Flag)
                 {
-                    _tcscpy(logfile, Infilename[0]);
-					p = _tcsrchr(logfile, _T('.'));
-					_tcscpy(++p, _T("log"));
+                    StringCchCopy(logfile, DG_MAX_PATH, Infilename[0]);
+					::PathRenameExtension(logfile, _T(".log"));
 					if (lfp = _tfopen(logfile, _T("w")))
 				    {
 					    GetDlgItemText(hDlg, IDC_STREAM_TYPE, logfile, 255);
@@ -2931,12 +2822,12 @@ LRESULT CALLBACK Luminance(HWND hDialog, UINT message, WPARAM wParam, LPARAM lPa
 			{
 				case IDC_GAMMA_SPIN:
 					LumGamma = LOWORD(SendDlgItemMessage(hDialog, IDC_GAMMA_SPIN, UDM_GETPOS, 0,0)) - 256;
-					_stprintf_s(szTemp, _T("%d"), LumGamma);
+					StringCchPrintf(szTemp, DG_MAX_PATH, _T("%d"), LumGamma);
 					SetDlgItemText(hDialog, IDC_GAMMA_BOX, szTemp);	
 					break;
 				case IDC_OFFSET_SPIN:
 					LumOffset = LOWORD(SendDlgItemMessage(hDialog, IDC_OFFSET_SPIN, UDM_GETPOS, 0,0)) - 256;
-					_stprintf_s(szTemp, _T("%d"), LumOffset);
+					StringCchPrintf(szTemp, DG_MAX_PATH, _T("%d"), LumOffset);
 					SetDlgItemText(hDialog, IDC_OFFSET_BOX, szTemp);	
 					break;
 			}
@@ -2952,7 +2843,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 	switch (message)
 	{
 		case WM_INITDIALOG:
-			_stprintf_s(szTemp, _T("%s"), AVSTemplatePath);
+			StringCchCopy(szTemp, DG_MAX_PATH, AVSTemplatePath);
 			SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
@@ -2962,7 +2853,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 			{
 				case IDC_NO_TEMPLATE:
 					AVSTemplatePath[0] = 0;
-					_stprintf_s(szTemp, _T("%s"), _T(""));
+					StringCchCopy(szTemp, DG_MAX_PATH, _T(""));
 					SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					ShowWindow(hDialog, SW_SHOW);
 					EndDialog(hDialog, 0);
@@ -2970,7 +2861,7 @@ LRESULT CALLBACK AVSTemplate(HWND hDialog, UINT message, WPARAM wParam, LPARAM l
 				case IDC_CHANGE_TEMPLATE:
 					if (PopFileDlg(AVSTemplatePath, hWnd, OPEN_AVS))
 					{
-						_stprintf_s(szTemp, _T("%s"), AVSTemplatePath);
+						StringCchCopy(szTemp, DG_MAX_PATH, AVSTemplatePath);
 						SetDlgItemText(hDialog, IDC_AVS_TEMPLATE, szTemp);
 					}
 					else
@@ -3137,7 +3028,7 @@ LRESULT CALLBACK SelectTracks(HWND hDialog, UINT message, WPARAM wParam, LPARAM 
 	{
 		case WM_INITDIALOG:
             SetDlgItemText(hDialog, IDC_TRACK_LIST, Track_List);
-            _tcscpy(track_list, Track_List);
+            StringCchCopy(track_list, _countof(track_list), Track_List);
             for (i = 0; i < 0xc8; i++)
                 audio[i].selected_for_demux = false;
             p = Track_List;
@@ -3163,7 +3054,7 @@ LRESULT CALLBACK SelectTracks(HWND hDialog, UINT message, WPARAM wParam, LPARAM 
                     GetDlgItemText(hDialog, IDC_TRACK_LIST, track_list, 255);
                     if (_tcscmp(Track_List, track_list))
                     {
-                        _tcscpy(Track_List, track_list);
+                        StringCchCopy(Track_List, _countof(Track_List), track_list);
                         for (i = 0; i < 0xc8; i++)
                             audio[i].selected_for_demux = false;
                         p = Track_List;
@@ -3203,7 +3094,7 @@ LRESULT CALLBACK SelectDelayTrack(HWND hDialog, UINT message, WPARAM wParam, LPA
 	{
 		case WM_INITDIALOG:
             SetDlgItemText(hDialog, IDC_DELAY_LIST, Delay_Track);
-            _tcscpy(delay_track, Delay_Track);
+            StringCchCopy(delay_track, _countof(delay_track), Delay_Track);
 			ShowWindow(hDialog, SW_SHOW);
 			return true;
 
@@ -3212,7 +3103,7 @@ LRESULT CALLBACK SelectDelayTrack(HWND hDialog, UINT message, WPARAM wParam, LPA
 			{
 				case IDC_DELAY_OK:
                     GetDlgItemText(hDialog, IDC_DELAY_LIST, delay_track, 255);
-                    _tcscpy(Delay_Track, delay_track);
+                    StringCchCopy(Delay_Track, _countof(Delay_Track), delay_track);
                     p = delay_track;
                     _stscanf(p, _T("%x"), &audio_id);
 					if (PopFileDlg(szInput, hWnd, OPEN_TXT))
@@ -3759,7 +3650,7 @@ static void SaveBMP()
 	FILE *BMPFile;
 
 	if (!PopFileDlg(szTemp, hWnd, SAVE_BMP)) return;
-	_tcscat(szTemp, _T(".bmp"));
+	StringCchCat(szTemp, DG_MAX_PATH, _T(".bmp"));
 	if (_tfopen(szTemp, _T("r")))
 	{
 		TCHAR line[255];
@@ -4062,24 +3953,24 @@ void UpdateWindowText(void)
 		}
 		else
 		{
-			_stprintf_s(szBuffer, _T("DGIndex[0%%] - "));
+			StringCchPrintf(szBuffer, DG_MAX_PATH, _T("DGIndex[0%%] - "));
 			if(bIsWindowsXPorLater)
 				PostMessage(hWnd, PROGRESS_MESSAGE, 0, 0);
 		}
 	}
 	else
-		_stprintf_s(szBuffer, _T("DGIndex - "));
+		StringCchPrintf(szBuffer, DG_MAX_PATH, _T("DGIndex - "));
 	ext = _tcsrchr(Infilename[CurrentFile], _T('\\'));
 	if (ext)
 		_tcsncat(szBuffer, ext + 1, DGStrLength(Infilename[CurrentFile]) - (int)(ext - Infilename[CurrentFile]));
 	else
-		_tcscat(szBuffer, Infilename[CurrentFile]);
-	_stprintf_s(szTemp, _T(" [%dx%d] [File %d/%d]"), Clip_Width, Clip_Height, CurrentFile + 1, NumLoadedFiles);
-	_tcscat(szBuffer, szTemp);
+		StringCchCat(szBuffer, DG_MAX_PATH, Infilename[CurrentFile]);
+	StringCchPrintf(szTemp, DG_MAX_PATH, _T(" [%dx%d] [File %d/%d]"), Clip_Width, Clip_Height, CurrentFile + 1, NumLoadedFiles);
+	StringCchCat(szBuffer, DG_MAX_PATH, szTemp);
 	if (VOB_ID && CELL_ID)
 	{
-		_stprintf_s(szTemp, _T(" [Vob %d] [Cell %d]"), VOB_ID, CELL_ID);
-		_tcscat(szBuffer, szTemp);
+		StringCchPrintf(szTemp, DG_MAX_PATH, _T(" [Vob %d] [Cell %d]"), VOB_ID, CELL_ID);
+		StringCchCat(szBuffer, DG_MAX_PATH, szTemp);
 	}
 	SetWindowText(hWnd, szBuffer);
 }
@@ -4090,11 +3981,11 @@ void OutputProgress(int progr)
 
 	if (progr != lastprogress)
 	{
-		TCHAR percent[20];
+		CString sPercent;
 		DWORD written;
 
-		_stprintf_s(percent, _T("%d\n"), progr);
-		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), percent, DGStrLength(percent), &written, NULL);
+		sPercent.Format(_T("%d\n"), progr);
+		WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), sPercent, sPercent.GetLength(), &written, NULL);
 		lastprogress = progr;
 	}
 }
@@ -4103,15 +3994,15 @@ void DeleteMRUList(int index)
 {
     for (; index < 3; index++)
     {
-        _tcscpy(mMRUList[index], mMRUList[index+1]);
+        StringCchCopy(mMRUList[index], DG_MAX_PATH, mMRUList[index+1]);
     }
     mMRUList[3][0] = 0;
     UpdateMRUList();
 }
 
-void AddMRUList(TCHAR *name)
+void AddMRUList(LPCTSTR name)
 {
-    int i;
+	size_t i;
 
     // Is the name in the list?
     for (i = 0; i < 4; i++)
@@ -4123,16 +4014,17 @@ void AddMRUList(TCHAR *name)
     {
         // New name, add it to the list.
         for (i = 3; i > 0; i--)
-            _tcscpy(mMRUList[i], mMRUList[i-1]);
-        _tcscpy(mMRUList[0], name);
+			StringCchCopy(mMRUList[i], DG_MAX_PATH, mMRUList[i - 1]);
+		StringCchCopy(mMRUList[0], DG_MAX_PATH, name);
     }
     else
     {
         // Name exists, move it to the top.
-        _tcscpy(name, mMRUList[i]);
+		TCHAR szTempMRUItem[DG_MAX_PATH] = { 0 };
+		StringCchCopy(szTempMRUItem, DG_MAX_PATH, mMRUList[i]);
         for (; i > 0; i--)
-            _tcscpy(mMRUList[i], mMRUList[i-1]);
-        _tcscpy(mMRUList[0], name);
+			StringCchCopy(mMRUList[i], DG_MAX_PATH, mMRUList[i - 1]);
+		StringCchCopy(mMRUList[0], DG_MAX_PATH, szTempMRUItem);
     }
 }
 
@@ -4165,7 +4057,7 @@ void UpdateMRUList(void)
         if (!mMRUList[index][0])
             break;
 
-        _tcscpy(path, mMRUList[index]);
+        StringCchCopy(path, DG_MAX_PATH, mMRUList[index]);
         PathCompactPath(GetDC(hWnd), path, 320);
 
 		m.fMask		= MIIM_TYPE | MIIM_STATE | MIIM_ID;
@@ -4343,7 +4235,7 @@ void LoadSettings(LPCTSTR pszIniPath)
 		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p++ != _T('='));
-		_tcscpy(Track_List, p);
+		StringCchCopy(Track_List, _countof(Track_List), p);
 		for (size_t i = 0; i < 0xc8; i++)
 			audio[i].selected_for_demux = false;
 		while ((*p >= _T('0') && *p <= _T('9')) || (*p >= _T('a') && *p <= _T('f')) || (*p >= _T('A') && *p <= _T('F')))
@@ -4386,7 +4278,7 @@ void LoadSettings(LPCTSTR pszIniPath)
 		line[DGStrLength(line) - 1] = 0;
 		p = line;
 		while (*p++ != _T('='));
-		_tcscpy(BMPPathString, p);
+		StringCchCopy(BMPPathString, DG_MAX_PATH, p);
 		_ftscanf(INIFile, _T("Use_MPA_Extensions=%d\n"), &UseMPAExtensions);
 		_ftscanf(INIFile, _T("Notify_When_Done=%d\n"), &NotifyWhenDone);
 		fclose(INIFile);

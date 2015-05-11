@@ -382,6 +382,7 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="d2vparse.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">MaxSpeed</Optimization>
@@ -430,7 +431,7 @@
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">stdafx.h</ForcedIncludeFiles>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdafx.h</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="gui.cpp">
+    <ClCompile Include="DGIndex.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">MaxSpeed</Optimization>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">Use</PrecompiledHeader>
@@ -575,10 +576,11 @@
   <ItemGroup>
     <ClInclude Include="AC3Dec\ac3.h" />
     <ClInclude Include="AC3Dec\bitstream.h" />
+    <ClInclude Include="Application.h" />
     <ClInclude Include="filter.h" />
     <ClInclude Include="getbit.h" />
     <ClInclude Include="global.h" />
-    <ClInclude Include="gui.h" />
+    <ClInclude Include="DGIndex.h" />
     <ClInclude Include="misc.h" />
     <ClInclude Include="norm.h" />
     <ClInclude Include="pat.h" />
@@ -589,7 +591,7 @@
     <ClInclude Include="wavefs44.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="gui.rc" />
+    <ResourceCompile Include="DGIndex.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="movie.ico" />
@@ -652,6 +654,22 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PREFIX;WIN32</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">PREFIX;WIN32</PreprocessorDefinitions>
     </NASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="DGIndex.idl">
+      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">DGIndex_h.h</HeaderFileName>
+      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">DGIndex_h.h</HeaderFileName>
+      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DGIndex_h.h</HeaderFileName>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">false</GenerateStublessProxies>
+      <GenerateStublessProxies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateStublessProxies>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">DGIndex_c.cpp</DllDataFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='DebugUnicode|Win32'">DGIndex_i.h</InterfaceIdentifierFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">DGIndex_c.cpp</DllDataFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">DGIndex_i.h</InterfaceIdentifierFileName>
+      <DllDataFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DGIndex_c.cpp</DllDataFileName>
+      <InterfaceIdentifierFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DGIndex_i.h</InterfaceIdentifierFileName>
+    </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

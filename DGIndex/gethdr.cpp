@@ -28,7 +28,7 @@
 #include "stdafx.h"
 #include "global.h"
 #include "getbit.h"
-#include "gui.h"
+#include "DGIndex.h"
 
 static int load_intra_quantizer_matrix;
 static int load_non_intra_quantizer_matrix;
@@ -353,11 +353,11 @@ void sequence_header()
         }
 		if (crop1088_warned == false)
 		{
-			TCHAR buf[255];
-			_stprintf_s(buf, _T("Your stream specifies a display height of 1088.\n")
+			CString s;
+			s.Format(_T("Your stream specifies a display height of 1088.\n")
 				_T("This is sometimes an encoding mistake and the last 8 lines are garbage.\n")
 				_T("Do you want to treat it as if it specified a height of 1080?"));
-			if (MessageBox(hWnd, buf, _T("Display Height 1088 Warning"), MB_YESNO | MB_ICONINFORMATION) == IDYES)
+			if (MessageBox(hWnd, s, _T("Display Height 1088 Warning"), MB_YESNO | MB_ICONINFORMATION) == IDYES)
 				crop1088 = true;
 			else
 				crop1088 = false;

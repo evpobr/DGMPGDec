@@ -20,15 +20,66 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA. 
  *
  */
+
+#pragma once
+
 #ifdef GETBIT_GLOBAL
 #define GXTN
 #else
 #define GXTN extern
 #endif
 
-void Initialize_Buffer(void);
-void Fill_Buffer(void);
-void Next_Packet(void);
+#define SUB_SUB						0x20
+#define SUB_AC3						0x80
+#define SUB_DTS						0x88
+#define SUB_PCM						0xA0
+
+/* extension start code IDs */
+#define SEQUENCE_EXTENSION_ID					1
+#define SEQUENCE_DISPLAY_EXTENSION_ID			2
+#define QUANT_MATRIX_EXTENSION_ID				3
+#define COPYRIGHT_EXTENSION_ID					4
+#define PICTURE_DISPLAY_EXTENSION_ID			7
+#define PICTURE_CODING_EXTENSION_ID				8
+
+#define ZIG_ZAG									0
+#define MB_WEIGHT								32
+#define MB_CLASS4								64
+
+#define I_TYPE			1
+#define P_TYPE			2
+#define B_TYPE			3
+#define D_TYPE			4
+
+#define MACROBLOCK_INTRA				1
+#define MACROBLOCK_PATTERN				2
+#define MACROBLOCK_MOTION_BACKWARD		4
+#define MACROBLOCK_MOTION_FORWARD		8
+#define MACROBLOCK_QUANT				16
+
+#define TOP_FIELD		1
+#define BOTTOM_FIELD	2
+#define FRAME_PICTURE	3
+
+#define MC_FIELD		1
+#define MC_FRAME		2
+#define MC_16X8			2
+#define MC_DMV			3
+
+#define MV_FIELD		0
+#define MV_FRAME		1
+
+#define CHROMA420		1
+#define CHROMA422		2
+#define CHROMA444		3
+
+#define ELEMENTARY_STREAM 0
+#define MPEG1_PROGRAM_STREAM 1
+#define MPEG2_PROGRAM_STREAM 2
+
+void Initialize_Buffer();
+void Fill_Buffer();
+void Next_Packet();
 void Flush_Buffer_All(unsigned int N);
 unsigned int Get_Bits_All(unsigned int N);
 void Next_File(void);
@@ -36,6 +87,8 @@ void Next_File(void);
 GXTN unsigned char *Rdbfr, *Rdptr, *Rdmax;
 GXTN unsigned int BitsLeft, CurrentBfr, NextBfr, Val, Read;
 GXTN __int64 CurrentPackHeaderPosition;
+
+void next_start_code();
 
 __forceinline static unsigned int Show_Bits(unsigned int N)
 {
@@ -72,153 +125,3 @@ __forceinline static void Flush_Buffer(unsigned int N)
 
 int _donread(int fd, void *buffer, unsigned int count);
 
-__forceinline static unsigned int Get_Byte()
-{
-	extern unsigned char *buffer_invalid;
-
-	if (Rdptr >= buffer_invalid)
-	{
-		// Ran out of good data.
-        if (LoopPlayback)
-            ThreadKill(END_OF_DATA_KILL);
-		Stop_Flag = 1;
-		return 0xff;
-	}
-
-	while (Rdptr >= Rdbfr+BUFFER_SIZE)
-	{
-		Read = _donread(Infile[CurrentFile], Rdbfr, BUFFER_SIZE);
-		if (Read < BUFFER_SIZE)
-            Next_File();
-
-		Rdptr -= BUFFER_SIZE;
-		Rdmax -= BUFFER_SIZE;
-	}
-
-	return *Rdptr++;
-}
-
-__forceinline static void Fill_Next()
-{
-	extern unsigned char *buffer_invalid;
-
-	if (Rdptr >= buffer_invalid)
-	{
-		// Ran out of good data.
-		if (LoopPlayback)
-            ThreadKill(END_OF_DATA_KILL);
-		Stop_Flag = 1;
-		NextBfr = 0xffffffff;
-		return;
-	}
-
-	CurrentPackHeaderPosition = PackHeaderPosition;
-	if (SystemStream_Flag != ELEMENTARY_STREAM && Rdptr > Rdmax - 4 && !AudioOnly_Flag)
-	{
-		if (Rdptr >= Rdmax)
-			Next_Packet();
-		NextBfr = Get_Byte() << 24;
-
-		if (Rdptr >= Rdmax)
-			Next_Packet();
-		NextBfr += Get_Byte() << 16;
-
-		if (Rdptr >= Rdmax)
-			Next_Packet();
-		NextBfr += Get_Byte() << 8;
-
-		if (Rdptr >= Rdmax)
-			Next_Packet();
-		NextBfr += Get_Byte();
-	}
-	else if (Rdptr <= Rdbfr+BUFFER_SIZE - 4)
-	{
-#if 1
-		NextBfr = (*Rdptr << 24) + (*(Rdptr+1) << 16) + (*(Rdptr+2) << 8) + *(Rdptr+3);
-#else
-		if (Rdptr < buffer_invalid)
-		{
-			NextBfr = (*Rdptr << 24);
-			if (Rdptr+1 < buffer_invalid)
-			{
-				NextBfr += (*(Rdptr+1) << 16);
-				if (Rdptr+2 < buffer_invalid)
-				{
-					NextBfr += (*(Rdptr+2) << 8);
-					if (Rdptr+3 < buffer_invalid)
-					{
-						NextBfr += (*(Rdptr+3));
-					}
-					else
-					{
-						NextBfr += 0xff;
-						Stop_Flag = 1;
-					}
-				}
-				else
-				{
-					NextBfr += 0xffff;
-					Stop_Flag = 1;
-				}
-			}
-			else
-			{
-				NextBfr += 0xffffff;
-				Stop_Flag = 1;
-			}
-		}
-		else
-		{
-			NextBfr = 0xffffffff;
-			Stop_Flag = 1;
-		}
-#endif
-		Rdptr += 4;
-	}
-	else
-	{
-		if (Rdptr >= Rdbfr+BUFFER_SIZE)
-			Fill_Buffer();
-		NextBfr = *Rdptr++ << 24;
-
-		if (Rdptr >= Rdbfr+BUFFER_SIZE)
-			Fill_Buffer();
-		NextBfr += *Rdptr++ << 16;
-
-		if (Rdptr >= Rdbfr+BUFFER_SIZE)
-			Fill_Buffer();
-		NextBfr += *Rdptr++ << 8;
-
-		if (Rdptr >= Rdbfr+BUFFER_SIZE)
-			Fill_Buffer();
-		NextBfr += *Rdptr++;
-	}
-}
-
-__forceinline static void next_start_code()
-{
-	unsigned int show;
-
-    // This is contrary to the spec but is more resilient to some
-    // stream corruption scenarios.
-    BitsLeft = ((BitsLeft + 7) / 8) * 8;
-
-	while (1)
-	{
-        show = Show_Bits(24);
-		if (Stop_Flag == true)
-			return;
-        if (show == 0x000001)
-            return;
-		Flush_Buffer(8);
-	}
-}
-
-__forceinline static unsigned int Get_Short()
-{
-	unsigned int i, j;
-	
-	i = Get_Byte();
-	j = Get_Byte();
-	return ((i << 8) | j);
-}

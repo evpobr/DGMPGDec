@@ -31,6 +31,7 @@
 #include "global.h"
 #include "getbit.h"
 #include "resource.h"
+#include "DGIndex.h"
 
 static int cc_table[12] = {
 	0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 1, 2
@@ -507,34 +508,34 @@ void WriteD2VLine(int finish)
 
 void SetFaultFlag(int val)
 {
-	TCHAR fault[80];
+	CString s;
 
 	Fault_Flag = val;
 	switch (val)
 	{
 	case 1:
-		_stprintf_s(fault, _T("block error"));
+		s = _T("block error");
 		break;
 	case 2:
-		_stprintf_s(fault, _T("mb type error"));
+		s = _T("mb type error");
 		break;
 	case 3:
-		_stprintf_s(fault, _T("cbp error"));
+		s = _T("cbp error");
 		break;
 	case 4:
-		_stprintf_s(fault, _T("null slice"));
+		s = _T("null slice");
 		break;
 	case 5:
-		_stprintf_s(fault, _T("mb addr inc error"));
+		s = _T("mb addr inc error");
 		break;
 	case 6:
-		_stprintf_s(fault, _T("motion code error"));
+		s = _T("motion code error");
 		break;
 	default:
-		_stprintf_s(fault, _T("video error"));
+		s = _T("video error");
 		break;
 	}
-	SetDlgItemText(hDlg, IDC_INFO, fault);
+	SetDlgItemText(hDlg, IDC_INFO, s);
 }
 
 void Decode_Picture()

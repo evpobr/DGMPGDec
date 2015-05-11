@@ -4,7 +4,7 @@
 #include "Shlwapi.h"
 #include "global.h"
 
-#include "gui.h"
+#include "DGIndex.h"
 
 int parse_cli(LPTSTR lpCmdLine, LPTSTR ucCmdLine)
 {
@@ -80,7 +80,7 @@ another:
 					}
 					if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 					{
-						_tcscpy(Infilename[NumLoadedFiles], cwd);
+						StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 						Infile[NumLoadedFiles] = tmp;
 						NumLoadedFiles++;
 					}
@@ -131,7 +131,7 @@ another:
 						}
 						if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL)) == -1)
 							break;
-						_tcscpy(Infilename[NumLoadedFiles], cwd);
+						StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 						Infile[NumLoadedFiles] = tmp;
 						NumLoadedFiles++;
 
@@ -636,7 +636,7 @@ another:
 					_tcscpy_s(cwd, aFName);
 				}
 				if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY | _O_SEQUENTIAL)) == -1) break;
-				_tcscpy(Infilename[NumLoadedFiles], cwd);
+				StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 				Infile[NumLoadedFiles] = tmp;
 				NumLoadedFiles++;
 
@@ -653,11 +653,11 @@ another:
 				q = p;
 				//TODO: may be bug in unicode
 				while (_istdigit(*p)) p++;
-				_tcscpy(suffix, p);
+				StringCchCopy(suffix, DG_MAX_PATH, p);
 				// Write the new incremented number.
 				_stprintf(q, _T("%d"), val);
 				// Append the saved suffix.
-				_tcscat(aFName, suffix);
+				StringCchCat(aFName, DG_MAX_PATH, suffix);
 			}
 		}
 		else if ((ptr = _tcsstr(ucCmdLine, _T("-INPUT-FILES="))) || (ptr = _tcsstr(ucCmdLine, _T("-IF="))))
@@ -682,7 +682,7 @@ another:
 			}
 			else
 			{
-			  _tcscpy(aFName, ptr);
+			  StringCchCopy(aFName, DG_MAX_PATH, ptr);
 			  ptr = ende;
 			}
 
@@ -699,7 +699,7 @@ another:
 			}
 			if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 			{
-				_tcscpy(Infilename[NumLoadedFiles], cwd);
+				StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 				Infile[NumLoadedFiles] = tmp;
 				NumLoadedFiles++;
 			}
@@ -749,7 +749,7 @@ another:
 					}
 					if ((tmp = _topen(cwd, _O_RDONLY | _O_BINARY)) != -1)
 					{
-						_tcscpy(Infilename[NumLoadedFiles], cwd);
+						StringCchCopy(Infilename[NumLoadedFiles], DG_MAX_PATH, cwd);
 						Infile[NumLoadedFiles] = tmp;
 						NumLoadedFiles++;
 					}
@@ -1094,7 +1094,7 @@ another:
 				ende = _tcsstr(ptr + 1, delimiter2);
 				save = *ende;
 				*ende = 0;
-				_tcscpy(aFName, ptr);
+				StringCchCopy(aFName, DG_MAX_PATH, ptr);
 				*ende = save;
 				/* If the specified template file does not include a path, use the
 				   current directory. */
@@ -1113,7 +1113,7 @@ another:
 				{
 					// Looks good; save the path.
 					fclose(bf);
-					_tcscpy(AVSTemplatePath, cwd);
+					StringCchCopy(AVSTemplatePath, DG_MAX_PATH, cwd);
 				}
 				else
 				{

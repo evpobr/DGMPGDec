@@ -23,12 +23,10 @@
 
 #include "stdafx.h"
 #include "global.h"
+#include "getbit.h"
 #include "filter.h"
 #include "resource.h"
-#include "gui.h"
-
-#define MAX_WINDOW_WIDTH 800
-#define MAX_WINDOW_HEIGHT 600
+#include "DGIndex.h"
 
 __forceinline static void Store_RGB24(unsigned char *src[]);
 

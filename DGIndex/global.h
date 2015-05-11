@@ -36,12 +36,6 @@
 #include <tchar.h>
 #include <Windows.h>
 
-// Messages to the window procedure.
-#define CLI_RIP_MESSAGE				(WM_APP)
-#define D2V_DONE_MESSAGE			(WM_APP + 1)
-#define CLI_PREVIEW_DONE_MESSAGE	(WM_APP + 2)
-#define PROGRESS_MESSAGE			(WM_APP + 3)
-
 /* code definition */
 #define PICTURE_START_CODE			0x100
 #define SLICE_START_CODE_MIN		0x101
@@ -69,54 +63,6 @@
 #define AUDIO_ELEMENTARY_STREAM_5	0x1C5
 #define AUDIO_ELEMENTARY_STREAM_6	0x1C6
 #define AUDIO_ELEMENTARY_STREAM_7	0x1C7
-
-#define SUB_SUB						0x20
-#define SUB_AC3						0x80
-#define SUB_DTS						0x88
-#define SUB_PCM						0xA0
-
-#define ELEMENTARY_STREAM 0
-#define MPEG1_PROGRAM_STREAM 1
-#define MPEG2_PROGRAM_STREAM 2
-
-/* extension start code IDs */
-#define SEQUENCE_EXTENSION_ID					1
-#define SEQUENCE_DISPLAY_EXTENSION_ID			2
-#define QUANT_MATRIX_EXTENSION_ID				3
-#define COPYRIGHT_EXTENSION_ID					4
-#define PICTURE_DISPLAY_EXTENSION_ID			7
-#define PICTURE_CODING_EXTENSION_ID				8
-
-#define ZIG_ZAG									0
-#define MB_WEIGHT								32
-#define MB_CLASS4								64
-
-#define I_TYPE			1
-#define P_TYPE			2
-#define B_TYPE			3
-#define D_TYPE			4
-
-#define MACROBLOCK_INTRA				1
-#define MACROBLOCK_PATTERN				2
-#define MACROBLOCK_MOTION_BACKWARD		4
-#define MACROBLOCK_MOTION_FORWARD		8
-#define MACROBLOCK_QUANT				16
-
-#define TOP_FIELD		1
-#define BOTTOM_FIELD	2
-#define FRAME_PICTURE	3
-
-#define MC_FIELD		1
-#define MC_FRAME		2
-#define MC_16X8			2
-#define MC_DMV			3
-
-#define MV_FIELD		0
-#define MV_FRAME		1
-
-#define CHROMA420		1
-#define CHROMA422		2
-#define CHROMA444		3
 
 #define SECTOR_SIZE				2048
 #define BUFFER_SIZE				2048
@@ -322,6 +268,7 @@ XTN int hadRGoption;
 #define D2V_FILE_VERSION 16
 
 #define MAX_LOADSTRING	1024
+#define MAX_CMDLINE		4096
 
 XTN TCHAR g_szMessage[MAX_LOADSTRING];
 
